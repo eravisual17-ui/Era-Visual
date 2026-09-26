@@ -640,6 +640,7 @@ function evBranchStatusBadge(status){
 </script>
 <script>function evEscape(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/[email protected]/dist/email.min.js"></script>
 <script>
 /* ==========================================================================
    Era Visual — Dashboard Admin
@@ -651,6 +652,32 @@ function evBranchStatusBadge(status){
 const ADMIN_PIN = 'eravisual2023';
 const ADMIN_SESSION_KEY = 'era_visual_admin_session';
 const ADMIN_EMAIL_KEY = 'era_visual_admin_email';
+
+// ---- Notifikasi email setiap ada yang login (pakai EmailJS, gratis) ----
+// Lihat README bagian "Notifikasi Email Setiap Login" untuk cara isi 3 nilai ini.
+const EMAILJS_PUBLIC_KEY = 'GANTI_DENGAN_PUBLIC_KEY_ANDA';
+const EMAILJS_SERVICE_ID = 'GANTI_DENGAN_SERVICE_ID_ANDA';
+const EMAILJS_TEMPLATE_ID = 'GANTI_DENGAN_TEMPLATE_ID_ANDA';
+const NOTIFY_TO_EMAIL = 'eravisual17@gmail.com';
+
+function evNotifyLogin(method, status, attemptEmail){
+  const configured = !EMAILJS_PUBLIC_KEY.startsWith('GANTI_') &&
+                      !EMAILJS_SERVICE_ID.startsWith('GANTI_') &&
+                      !EMAILJS_TEMPLATE_ID.startsWith('GANTI_');
+  if(!configured || typeof emailjs === 'undefined'){
+    console.log('[EmailJS belum dikonfigurasi] login:', method, status, attemptEmail || '-');
+    return;
+  }
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: NOTIFY_TO_EMAIL,
+    attempt_email: attemptEmail || '(tidak ada / login PIN)',
+    method: method,
+    status: status,
+    time: new Date().toLocaleString('id-ID'),
+    page_url: window.location.href
+  }).catch(err => console.error('Gagal kirim notifikasi email:', err));
+}
 
 // ---- Login dengan Google (Google Identity Services) ----
 // 1. Ganti GOOGLE_CLIENT_ID dengan Client ID asli dari Google Cloud Console
@@ -689,11 +716,13 @@ function handleGoogleCredentialResponse(response){
   if(!payload.email_verified || !allowed){
     errorEl.textContent = `Akun ${payload.email} belum terdaftar sebagai admin.`;
     errorEl.style.display = 'block';
+    evNotifyLogin('Google', 'DITOLAK — email tidak terdaftar sebagai admin', payload.email);
     return;
   }
   errorEl.style.display = 'none';
   sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
   sessionStorage.setItem(ADMIN_EMAIL_KEY, payload.email);
+  evNotifyLogin('Google', 'BERHASIL masuk ke Dashboard Admin', payload.email);
   evAdminCheckGate();
 }
 
@@ -731,9 +760,11 @@ document.getElementById('gate-submit').addEventListener('click', () => {
   if(val === ADMIN_PIN){
     sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
     sessionStorage.removeItem(ADMIN_EMAIL_KEY);
+    evNotifyLogin('PIN', 'BERHASIL masuk ke Dashboard Admin', null);
     evAdminCheckGate();
   } else {
     document.getElementById('gate-error').style.display = 'block';
+    evNotifyLogin('PIN', 'GAGAL — PIN salah', null);
   }
 });
 document.getElementById('gate-pin').addEventListener('keydown', (e) => {
