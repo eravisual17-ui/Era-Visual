@@ -321,6 +321,33 @@ button{font-family:inherit;}
 
 .mono-note{font-size:.8rem; color:var(--slate-light); background:var(--blue-50); border-radius:var(--radius-s); padding:10px 14px;}
 
+/* ---------- News / Berita cards ---------- */
+.news-grid{display:grid; gap:26px; grid-template-columns:repeat(2,1fr);}
+@media (max-width:760px){ .news-grid{grid-template-columns:1fr;} }
+.news-card{
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  overflow:hidden;
+  background:var(--white);
+  transition:box-shadow .15s ease, border-color .15s ease;
+  display:flex; flex-direction:column;
+}
+.news-card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
+.news-card .news-img{
+  width:100%;
+  aspect-ratio:16/10;
+  object-fit:cover;
+  background:var(--blue-50);
+  display:block;
+}
+.news-card .news-body{padding:20px 22px 22px;}
+.news-card .news-date{font-size:.78rem; color:var(--blue-600); font-weight:600; margin-bottom:6px;}
+.news-card h3{margin-bottom:8px;}
+.news-card .news-excerpt{margin-bottom:10px;}
+.news-card .news-full{display:none; margin-top:6px;}
+.news-card.expanded .news-full{display:block;}
+.news-toggle{background:none; border:none; color:var(--blue-600); font-weight:600; font-size:.88rem; cursor:pointer; padding:0;}
+
 /* ---------- Toast ---------- */
 .toast{
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -403,6 +430,7 @@ button{font-family:inherit;}
     <a href="#" data-panel="branches">📍 Cabang</a>
     <a href="#" data-panel="employees">👤 Karyawan</a>
     <a href="#" data-panel="services">🧩 Layanan</a>
+    <a href="#" data-panel="posts">📰 Berita/Info</a>
     <a href="#" data-panel="contact">☎️ Kontak</a>
     <a href="#" id="admin-logout">🚪 Keluar</a>
     <a href="index.html" style="margin-top:16px; border-top:1px solid #2A3444; padding-top:16px;">&larr; Kembali ke Situs</a>
@@ -417,6 +445,7 @@ button{font-family:inherit;}
     <section class="panel" id="panel-branches"></section>
     <section class="panel" id="panel-employees"></section>
     <section class="panel" id="panel-services"></section>
+    <section class="panel" id="panel-posts"></section>
     <section class="panel" id="panel-contact"></section>
   </main>
 </div>
@@ -514,7 +543,8 @@ const EV_SEED = {
       active: true
     }
   ],
-  orders: []
+  orders: [],
+  posts: []
 };
 
 function evLoadDB(){
@@ -524,7 +554,9 @@ function evLoadDB(){
     return JSON.parse(JSON.stringify(EV_SEED));
   }
   try{
-    return JSON.parse(raw);
+    const db = JSON.parse(raw);
+    if(!Array.isArray(db.posts)) db.posts = []; // migrasi data lama yang belum punya "posts"
+    return db;
   }catch(e){
     localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
     return JSON.parse(JSON.stringify(EV_SEED));
@@ -615,6 +647,23 @@ const EraDB = {
     const db = evLoadDB();
     const o = db.orders.find(o => o.id === id);
     if(o){ o.status = status; evSaveDB(db); }
+  },
+
+  // ---------- Posts (Berita / Info / Iklan) ----------
+  getPosts(){
+    return evLoadDB().posts.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  },
+  getPost(id){ return evLoadDB().posts.find(p => p.id === id); },
+  savePost(post){
+    const db = evLoadDB();
+    const i = db.posts.findIndex(p => p.id === post.id);
+    if(i >= 0) db.posts[i] = post; else db.posts.push(post);
+    evSaveDB(db);
+  },
+  deletePost(id){
+    const db = evLoadDB();
+    db.posts = db.posts.filter(p => p.id !== id);
+    evSaveDB(db);
   }
 };
 
@@ -778,7 +827,7 @@ evAdminCheckGate();
 
 const PANEL_TITLES = {
   orders: 'Order', branches: 'Cabang', employees: 'Karyawan',
-  services: 'Layanan', contact: 'Kontak'
+  services: 'Layanan', posts: 'Berita/Info', contact: 'Kontak'
 };
 
 function evAdminInit(){
@@ -814,9 +863,21 @@ function evRenderPanel(name){
     branches: evRenderBranchesPanel,
     employees: evRenderEmployeesPanel,
     services: evRenderServicesPanel,
+    posts: evRenderPostsPanel,
     contact: evRenderContactPanel
   };
   renderers[name]();
+}
+
+// Baca file gambar yang diupload dan ubah jadi data URL (base64) supaya bisa
+// disimpan langsung di localStorage tanpa perlu server penyimpanan file.
+function evFileToDataURL(fileInput, callback){
+  const file = fileInput.files[0];
+  if(!file){ callback(null); return; }
+  const reader = new FileReader();
+  reader.onload = () => callback(reader.result);
+  reader.onerror = () => callback(null);
+  reader.readAsDataURL(file);
 }
 
 /* ==================== ORDERS ==================== */
@@ -971,33 +1032,37 @@ function evRenderBranchesPanel(){
 }
 
 /* ==================== EMPLOYEES ==================== */
-function evRenderEmployeesPanel(){
+function evRenderEmployeesPanel(editingId){
   const el = document.getElementById('panel-employees');
   const branches = EraDB.getBranches();
   const services = EraDB.getServices();
+  const editing = editingId ? EraDB.getEmployee(editingId) : null;
 
   el.innerHTML = `
     <div class="inline-form">
-      <h3>Tambah Karyawan</h3>
+      <h3 id="ne-form-title">${editing ? 'Edit Karyawan' : 'Tambah Karyawan'}</h3>
       <div class="form-row">
-        <div class="form-field"><label>Nama</label><input id="ne-name" placeholder="Nama karyawan"></div>
-        <div class="form-field"><label>Jabatan</label><input id="ne-role" placeholder="Contoh: Divisi Editor"></div>
+        <div class="form-field"><label>Nama</label><input id="ne-name" placeholder="Nama karyawan" value="${editing ? evEscape(editing.name) : ''}"></div>
+        <div class="form-field"><label>Jabatan</label><input id="ne-role" placeholder="Contoh: Divisi Editor" value="${editing ? evEscape(editing.role) : ''}"></div>
       </div>
       <div class="form-row">
         <div class="form-field"><label>Cabang</label>
-          <select id="ne-branch">${branches.map(b=>`<option value="${b.id}">${evEscape(b.name)}</option>`).join('')}</select>
+          <select id="ne-branch">${branches.map(b=>`<option value="${b.id}" ${editing && editing.branchId===b.id ? 'selected':''}>${evEscape(b.name)}</option>`).join('')}</select>
         </div>
-        <div class="form-field"><label>Nomor WhatsApp</label><input id="ne-wa" placeholder="62xxxxxxxxxx"></div>
+        <div class="form-field"><label>Nomor WhatsApp</label><input id="ne-wa" placeholder="62xxxxxxxxxx" value="${editing ? evEscape(editing.whatsapp) : ''}"></div>
       </div>
       <div class="form-field">
         <label>Layanan / Divisi</label>
         <div id="ne-services" style="display:flex; gap:14px; flex-wrap:wrap;">
-          ${services.map(s => `<label style="font-weight:400; font-size:.88rem; display:flex; gap:6px; align-items:center;"><input type="checkbox" value="${s.id}"> ${evEscape(s.name)}</label>`).join('')}
+          ${services.map(s => `<label style="font-weight:400; font-size:.88rem; display:flex; gap:6px; align-items:center;"><input type="checkbox" value="${s.id}" ${editing && editing.serviceIds.includes(s.id) ? 'checked':''}> ${evEscape(s.name)}</label>`).join('')}
         </div>
       </div>
-      <div class="form-field"><label>Foto (URL)</label><input id="ne-photo" placeholder="https://... (opsional)"></div>
-      <div class="form-field"><label>Deskripsi Singkat</label><input id="ne-desc" placeholder="Opsional"></div>
-      <button class="btn btn-primary btn-sm" id="ne-add">Tambah Karyawan</button>
+      <div class="form-field"><label>Foto (URL)</label><input id="ne-photo" placeholder="https://... (opsional)" value="${editing ? evEscape(editing.photo) : ''}"></div>
+      <div class="form-field"><label>Deskripsi Singkat</label><input id="ne-desc" placeholder="Opsional" value="${editing ? evEscape(editing.description) : ''}"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary btn-sm" id="ne-add">${editing ? 'Simpan Perubahan' : 'Tambah Karyawan'}</button>
+        ${editing ? `<button class="btn btn-ghost btn-sm" id="ne-cancel">Batal</button>` : ''}
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -1020,7 +1085,10 @@ function evRenderEmployeesPanel(){
           <td>${evEscape(svcNames)}</td>
           <td>${evEscape(e.whatsapp || '-')}</td>
           <td><input type="checkbox" class="edit-active" data-id="${e.id}" ${e.active ? 'checked' : ''}></td>
-          <td><button class="btn btn-ghost btn-sm del-emp" data-id="${e.id}">Hapus</button></td>
+          <td class="actions-cell">
+            <button class="btn btn-ghost btn-sm edit-emp" data-id="${e.id}">Edit</button>
+            <button class="btn btn-ghost btn-sm del-emp" data-id="${e.id}">Hapus</button>
+          </td>
         </tr>
       `;
     }).join('');
@@ -1029,9 +1097,16 @@ function evRenderEmployeesPanel(){
       const emp = EraDB.getEmployee(cb.dataset.id); emp.active = cb.checked; EraDB.saveEmployee(emp);
       evShowToastAdmin('Status aktif karyawan diperbarui.');
     }));
+    document.querySelectorAll('.edit-emp').forEach(btn => btn.addEventListener('click', () => {
+      evRenderEmployeesPanel(btn.dataset.id);
+    }));
     document.querySelectorAll('.del-emp').forEach(btn => btn.addEventListener('click', () => {
       if(confirm('Hapus karyawan ini?')){ EraDB.deleteEmployee(btn.dataset.id); draw(); }
     }));
+  }
+
+  if(editing && document.getElementById('ne-cancel')){
+    document.getElementById('ne-cancel').addEventListener('click', () => evRenderEmployeesPanel());
   }
 
   document.getElementById('ne-add').addEventListener('click', () => {
@@ -1046,13 +1121,22 @@ function evRenderEmployeesPanel(){
     if(!name || !role || serviceIds.length === 0){
       evShowToastAdmin('Nama, jabatan, dan minimal satu layanan wajib diisi.'); return;
     }
-    EraDB.saveEmployee({
-      id: 'emp-' + Date.now(), name, role, branchId, serviceIds, whatsapp, photo, description, active: true
-    });
-    ['ne-name','ne-role','ne-wa','ne-photo','ne-desc'].forEach(id => document.getElementById(id).value = '');
-    document.querySelectorAll('#ne-services input').forEach(i => i.checked = false);
-    draw();
-    evShowToastAdmin('Karyawan ditambahkan.');
+
+    if(editing){
+      EraDB.saveEmployee(Object.assign({}, editing, {
+        name, role, branchId, serviceIds, whatsapp, photo, description
+      }));
+      evShowToastAdmin('Perubahan karyawan disimpan.');
+      evRenderEmployeesPanel();
+    } else {
+      EraDB.saveEmployee({
+        id: 'emp-' + Date.now(), name, role, branchId, serviceIds, whatsapp, photo, description, active: true
+      });
+      ['ne-name','ne-role','ne-wa','ne-photo','ne-desc'].forEach(id => document.getElementById(id).value = '');
+      document.querySelectorAll('#ne-services input').forEach(i => i.checked = false);
+      draw();
+      evShowToastAdmin('Karyawan ditambahkan.');
+    }
   });
 
   draw();
@@ -1091,6 +1175,113 @@ function evRenderServicesPanel(){
       evShowToastAdmin('Deskripsi layanan diperbarui.');
     }));
   }
+  draw();
+}
+
+/* ==================== POSTS (Berita / Info / Iklan) ==================== */
+function evRenderPostsPanel(editingId){
+  const el = document.getElementById('panel-posts');
+  const editing = editingId ? EraDB.getPost(editingId) : null;
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  el.innerHTML = `
+    <div class="inline-form">
+      <h3>${editing ? 'Edit Berita/Info' : 'Tambah Berita/Info/Iklan'}</h3>
+      <div class="form-field">
+        <label>Judul</label>
+        <input id="np-title" placeholder="Contoh: Promo Instalasi Listrik Bulan Ini" value="${editing ? evEscape(editing.title) : ''}">
+      </div>
+      <div class="form-field">
+        <label>Cuplikan Singkat</label>
+        <input id="np-excerpt" placeholder="Ringkasan 1-2 kalimat yang tampil di daftar" value="${editing ? evEscape(editing.excerpt) : ''}">
+      </div>
+      <div class="form-field">
+        <label>Isi Lengkap <span style="font-weight:400; color:var(--slate-light);">(opsional — muncul saat "Baca Selengkapnya" ditekan)</span></label>
+        <textarea id="np-body" rows="4" placeholder="Isi lengkap berita/info, opsional">${editing ? evEscape(editing.body) : ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Tanggal</label>
+          <input type="date" id="np-date" value="${editing ? editing.date.slice(0,10) : todayStr}">
+        </div>
+        <div class="form-field">
+          <label>Foto <span style="font-weight:400; color:var(--slate-light);">(${editing ? 'kosongkan jika tidak diganti' : 'opsional'})</span></label>
+          <input type="file" id="np-photo" accept="image/*">
+        </div>
+      </div>
+      ${editing && editing.image ? `<img src="${editing.image}" alt="Foto saat ini" style="max-width:160px; border-radius:8px; margin-bottom:14px; display:block;">` : ''}
+      <div class="hint" style="margin-bottom:14px;">Gunakan foto yang sudah dikompres/tidak terlalu besar (di bawah ±1 MB) supaya penyimpanan browser tidak cepat penuh.</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary btn-sm" id="np-save">${editing ? 'Simpan Perubahan' : 'Publikasikan'}</button>
+        ${editing ? `<button class="btn btn-ghost btn-sm" id="np-cancel">Batal</button>` : ''}
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Foto</th><th>Judul</th><th>Tanggal</th><th></th></tr></thead>
+        <tbody id="posts-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  function draw(){
+    const posts = EraDB.getPosts();
+    const tbody = document.getElementById('posts-tbody');
+    if(posts.length === 0){
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Belum ada berita/info yang dipublikasikan.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = posts.map(p => `
+      <tr>
+        <td>${p.image ? `<img src="${p.image}" alt="" style="width:56px; height:40px; object-fit:cover; border-radius:6px;">` : '-'}</td>
+        <td>${evEscape(p.title)}</td>
+        <td>${new Date(p.date).toLocaleDateString('id-ID')}</td>
+        <td class="actions-cell">
+          <button class="btn btn-ghost btn-sm edit-post" data-id="${p.id}">Edit</button>
+          <button class="btn btn-ghost btn-sm del-post" data-id="${p.id}">Hapus</button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.edit-post').forEach(btn => btn.addEventListener('click', () => {
+      evRenderPostsPanel(btn.dataset.id);
+    }));
+    document.querySelectorAll('.del-post').forEach(btn => btn.addEventListener('click', () => {
+      if(confirm('Hapus berita/info ini?')){ EraDB.deletePost(btn.dataset.id); draw(); }
+    }));
+  }
+
+  if(editing && document.getElementById('np-cancel')){
+    document.getElementById('np-cancel').addEventListener('click', () => evRenderPostsPanel());
+  }
+
+  document.getElementById('np-save').addEventListener('click', () => {
+    const title = document.getElementById('np-title').value.trim();
+    const excerpt = document.getElementById('np-excerpt').value.trim();
+    const body = document.getElementById('np-body').value.trim();
+    const date = document.getElementById('np-date').value || todayStr;
+    const photoInput = document.getElementById('np-photo');
+
+    if(!title || !excerpt){
+      evShowToastAdmin('Judul dan cuplikan singkat wajib diisi.'); return;
+    }
+
+    evFileToDataURL(photoInput, (dataUrl) => {
+      const image = dataUrl || (editing ? editing.image : '');
+      if(editing){
+        EraDB.savePost(Object.assign({}, editing, { title, excerpt, body, date, image }));
+        evShowToastAdmin('Perubahan berita/info disimpan.');
+        evRenderPostsPanel();
+      } else {
+        EraDB.savePost({
+          id: 'post-' + Date.now(), title, excerpt, body, date, image
+        });
+        evRenderPostsPanel();
+        evShowToastAdmin('Berita/info dipublikasikan.');
+      }
+    });
+  });
+
   draw();
 }
 

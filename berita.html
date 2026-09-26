@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berita &amp; Info — Era Visual</title>
+<style>
+/* ==========================================================================
+   Era Visual — Design System
+   Electrical + creative service brand. Blueprint precision meets craft.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  /* Color */
+  --blue-600:#2F6FED;
+  --blue-500:#4C86FF;
+  --blue-100:#EAF1FF;
+  --blue-50:#F6F9FF;
+  --ink:#16202E;
+  --slate:#5B6472;
+  --slate-light:#8A93A1;
+  --line:#E2E8F1;
+  --white:#FFFFFF;
+  --amber:#E8A33D;
+  --green:#2E9E64;
+  --red:#D9503F;
+
+  /* Type */
+  --font-display:'Sora', 'Inter', sans-serif;
+  --font-body:'Inter', sans-serif;
+
+  /* Layout */
+  --max-w:1120px;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:22px;
+  --shadow-card: 0 1px 2px rgba(22,32,46,0.04), 0 8px 24px rgba(22,32,46,0.06);
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--white);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:var(--font-display);
+  margin:0 0 .5em 0;
+  line-height:1.2;
+  letter-spacing:-0.01em;
+}
+h1{font-size:clamp(2rem,5vw,2.9rem); font-weight:700;}
+h2{font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:700;}
+h3{font-size:1.15rem; font-weight:600;}
+p{margin:0 0 1em 0; color:var(--slate);}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+ul{margin:0; padding:0;}
+button{font-family:inherit;}
+
+.container{
+  max-width:var(--max-w);
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:13px 22px;
+  border-radius:var(--radius-s);
+  font-weight:600;
+  font-size:.95rem;
+  cursor:pointer;
+  border:1.5px solid transparent;
+  transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--blue-600); color:var(--white);}
+.btn-primary:hover{background:#255cd1;}
+.btn-outline{background:var(--white); color:var(--blue-600); border-color:var(--blue-600);}
+.btn-outline:hover{background:var(--blue-50);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+.btn-ghost:hover{border-color:var(--slate-light);}
+.btn-whatsapp{background:#25D366; color:#04361b;}
+.btn-whatsapp:hover{background:#1fbd5a;}
+.btn-block{width:100%;}
+.btn-sm{padding:9px 14px; font-size:.85rem;}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+
+/* ---------- Navbar ---------- */
+.navbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.navbar-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px;
+  max-width:var(--max-w);
+  margin:0 auto;
+}
+.nav-brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+.nav-brand .mark{width:34px; height:34px; object-fit:contain;}
+.nav-links{display:flex; align-items:center; gap:28px;}
+.nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
+.nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
+.nav-cta{display:flex; align-items:center; gap:12px;}
+.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px;}
+.nav-toggle span{display:block; width:22px; height:2px; background:var(--ink); margin:5px 0; transition:.2s;}
+
+@media (max-width:860px){
+  .nav-links{
+    position:fixed; top:64px; left:0; right:0; bottom:0;
+    background:var(--white);
+    flex-direction:column; align-items:flex-start;
+    padding:24px 24px 40px;
+    gap:6px;
+    transform:translateX(100%);
+    transition:transform .25s ease;
+    overflow-y:auto;
+  }
+  .nav-links a{width:100%; padding:14px 4px; border-bottom:1px solid var(--line); border-radius:0;}
+  .nav-links.open{transform:translateX(0);}
+  .nav-toggle{display:block;}
+  .nav-cta .btn-outline{display:none;}
+}
+
+/* ---------- Hero ---------- */
+.hero{
+  padding:64px 0 56px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(180deg, var(--blue-50) 0%, rgba(255,255,255,0) 60%);
+}
+.hero-inner{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:18px;
+  max-width:640px;
+  margin:0 auto;
+}
+.hero-logo{width:92px; height:92px; margin-bottom:6px; object-fit:contain;}
+.hero-tag{
+  color:var(--blue-600); font-weight:600; font-size:.95rem;
+}
+.hero p.lead{font-size:1.05rem; max-width:520px;}
+.hero-actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:8px;}
+
+/* ---------- Section ---------- */
+.section{padding:56px 0;}
+.section-head{max-width:620px; margin:0 0 32px 0;}
+.section-head.center{margin:0 auto 36px; text-align:center;}
+
+/* ---------- Cards ---------- */
+.grid{display:grid; gap:20px;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:860px){ .grid-3,.grid-2{grid-template-columns:1fr;} }
+
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:24px;
+  background:var(--white);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
+
+.service-card .icon{
+  width:44px; height:44px;
+  border-radius:10px;
+  background:var(--blue-100);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.35rem;
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-block;
+  font-size:.72rem;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:100px;
+  background:var(--blue-100); color:var(--blue-600);
+}
+.badge.soon{background:#FCEFDC; color:#9A6A1B;}
+.badge.dev{background:#EDEAFB; color:#5B4BB8;}
+.badge.inactive{background:#F1F3F6; color:var(--slate-light);}
+.badge.status-Menunggu{background:#FCEFDC;color:#9A6A1B;}
+.badge.status-Dikonfirmasi{background:var(--blue-100);color:var(--blue-600);}
+.badge.status-Diproses{background:#EDEAFB;color:#5B4BB8;}
+.badge.status-Selesai{background:#E4F6EC;color:var(--green);}
+.badge.status-Dibatalkan{background:#FBEAE7;color:var(--red);}
+
+.branch-card{position:relative;}
+.branch-card .badge{position:absolute; top:20px; right:20px;}
+
+.employee-card{display:flex; flex-direction:column; align-items:center; text-align:center;}
+.avatar{
+  width:76px; height:76px; border-radius:50%;
+  background:var(--blue-100); color:var(--blue-600);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:1.3rem;
+  margin-bottom:12px; overflow:hidden;
+}
+.avatar img{width:100%; height:100%; object-fit:cover;}
+
+/* ---------- Steps ---------- */
+.stepper{display:flex; gap:8px; margin-bottom:36px; flex-wrap:wrap;}
+.step-pill{
+  flex:1; min-width:110px;
+  text-align:center;
+  padding:10px 6px;
+  font-size:.78rem; font-weight:600;
+  color:var(--slate-light);
+  border-bottom:3px solid var(--line);
+}
+.step-pill.active{color:var(--blue-600); border-color:var(--blue-600);}
+.step-pill.done{color:var(--ink); border-color:var(--green);}
+
+.option-list{display:grid; gap:12px;}
+.option-item{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px;
+  border:1.5px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:18px 20px;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+  background:var(--white);
+}
+.option-item:hover{border-color:var(--blue-500);}
+.option-item.selected{border-color:var(--blue-600); background:var(--blue-50);}
+.option-item.disabled{cursor:not-allowed; opacity:.55;}
+.option-item .opt-title{font-weight:600; margin-bottom:2px;}
+.option-item .opt-sub{font-size:.85rem; color:var(--slate-light);}
+
+/* ---------- Forms ---------- */
+.form-field{margin-bottom:18px;}
+.form-field label{display:block; font-size:.86rem; font-weight:600; margin-bottom:6px;}
+.form-field .hint{font-size:.78rem; color:var(--slate-light); margin-top:4px;}
+.form-field input,
+.form-field textarea,
+.form-field select{
+  width:100%;
+  padding:12px 14px;
+  border:1.5px solid var(--line);
+  border-radius:var(--radius-s);
+  font-size:.95rem;
+  font-family:inherit;
+  background:var(--white);
+  color:var(--ink);
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus{outline:2px solid var(--blue-500); outline-offset:1px; border-color:var(--blue-500);}
+.form-field.error input,
+.form-field.error textarea,
+.form-field.error select{border-color:var(--red);}
+.form-field .err-msg{color:var(--red); font-size:.78rem; margin-top:4px; display:none;}
+.form-field.error .err-msg{display:block;}
+.form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media (max-width:640px){ .form-row{grid-template-columns:1fr;} }
+
+/* ---------- Summary box ---------- */
+.summary-box{
+  background:var(--blue-50);
+  border:1px solid var(--blue-100);
+  border-radius:var(--radius-m);
+  padding:20px;
+  margin-bottom:24px;
+}
+.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(47,111,237,0.1);}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .k{color:var(--slate);}
+.summary-row .v{font-weight:600; text-align:right;}
+
+/* ---------- Confirmation ---------- */
+.confirm-icon{
+  width:64px; height:64px; border-radius:50%;
+  background:#E4F6EC; color:var(--green);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem; margin:0 auto 18px;
+}
+
+/* ---------- Footer ---------- */
+.footer{background:var(--ink); color:#C7CEDA; padding:44px 0 26px; margin-top:60px;}
+.footer .container{display:flex; flex-direction:column; gap:22px;}
+.footer-top{display:flex; flex-wrap:wrap; justify-content:space-between; gap:24px;}
+.footer h4{color:var(--white); font-size:.95rem; margin-bottom:10px;}
+.footer a{color:#C7CEDA;}
+.footer a:hover{color:var(--white);}
+.footer .services-line{font-size:.88rem; color:#8E97A6;}
+.footer-bottom{border-top:1px solid #2A3444; padding-top:18px; font-size:.8rem; color:#8E97A6; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+/* ---------- Misc ---------- */
+.divider{height:1px; background:var(--line); margin:36px 0;}
+.eyebrow{color:var(--blue-600); font-weight:600; font-size:.9rem; margin-bottom:6px;}
+.text-center{text-align:center;}
+.empty-state{text-align:center; padding:48px 20px; color:var(--slate-light);}
+.timeline{display:grid; gap:18px;}
+.timeline-item{display:flex; gap:16px;}
+.timeline-num{
+  width:32px; height:32px; border-radius:50%;
+  background:var(--blue-100); color:var(--blue-600);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.9rem; flex-shrink:0;
+}
+.timeline-item h3{margin-bottom:4px;}
+
+.mono-note{font-size:.8rem; color:var(--slate-light); background:var(--blue-50); border-radius:var(--radius-s); padding:10px 14px;}
+
+/* ---------- News / Berita cards ---------- */
+.news-grid{display:grid; gap:26px; grid-template-columns:repeat(2,1fr);}
+@media (max-width:760px){ .news-grid{grid-template-columns:1fr;} }
+.news-card{
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  overflow:hidden;
+  background:var(--white);
+  transition:box-shadow .15s ease, border-color .15s ease;
+  display:flex; flex-direction:column;
+}
+.news-card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
+.news-card .news-img{
+  width:100%;
+  aspect-ratio:16/10;
+  object-fit:cover;
+  background:var(--blue-50);
+  display:block;
+}
+.news-card .news-body{padding:20px 22px 22px;}
+.news-card .news-date{font-size:.78rem; color:var(--blue-600); font-weight:600; margin-bottom:6px;}
+.news-card h3{margin-bottom:8px;}
+.news-card .news-excerpt{margin-bottom:10px;}
+.news-card .news-full{display:none; margin-top:6px;}
+.news-card.expanded .news-full{display:block;}
+.news-toggle{background:none; border:none; color:var(--blue-600); font-weight:600; font-size:.88rem; cursor:pointer; padding:0;}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--white);
+  padding:12px 20px; border-radius:var(--radius-s);
+  font-size:.88rem; opacity:0; pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+  z-index:200;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; scroll-behavior:auto !important;}
+}
+
+</style>
+</head>
+<body>
+
+<div id="ev-navbar" class="navbar"></div>
+
+<section class="section" style="padding-bottom:0;">
+  <div class="container section-head">
+    <div class="eyebrow">Berita &amp; Info</div>
+    <h1>Kabar, promo, dan dokumentasi Era Visual</h1>
+    <p>Pengumuman, iklan layanan, dan dokumentasi kegiatan Era Visual — diperbarui langsung oleh admin.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="news-grid" id="news-list"></div>
+  </div>
+</section>
+
+<div id="ev-footer" class="footer"></div>
+
+<script>
+/* ==========================================================================
+   Era Visual — Data Store
+   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages).
+   Semua fungsi CRUD untuk cabang, layanan, karyawan, order & kontak ada di sini.
+   ========================================================================== */
+
+const EV_DB_KEY = 'era_visual_db_v1';
+
+const EV_SEED = {
+  contact: {
+    email: 'eravisual17@gmail.com',
+    whatsapp: '6285348650816',       // format internasional tanpa "+", untuk link wa.me
+    whatsapp_display: '085348650816',
+    instagram: '@eravisual1211'
+  },
+  branches: [
+    { id: 'ende', name: 'Cabang Ende', status: 'active', address: '' },
+    { id: 'batam', name: 'Cabang Batam', status: 'coming_soon', address: '' }
+  ],
+  services: [
+    {
+      id: 'electrical',
+      name: 'Electrical Engineering',
+      icon: '⚡',
+      status: 'active',
+      short: 'Instalasi & perawatan listrik rumah.',
+      description: 'Instalasi listrik rumah, perawatan instalasi listrik berkala, dan pekerjaan listrik sederhana sesuai kemampuan dan kompetensi. Pekerjaan teknis akan disesuaikan dengan kondisi dan kebutuhan pelanggan.',
+      isLocal: true
+    },
+    {
+      id: 'editor',
+      name: 'Editor',
+      icon: '🎨',
+      status: 'active',
+      short: 'Desain, edit video, dan dokumen — bisa online.',
+      description: 'Desain logo, desain banner/spanduk/baliho, desain kartu nama, edit video 2D sederhana, pengetikan & layout dokumen, CV ATS, dan surat lamaran kerja. Layanan Editor dapat dikerjakan sepenuhnya secara online.',
+      isLocal: false
+    },
+    {
+      id: 'mechanical',
+      name: 'Mechanical',
+      icon: '🔧',
+      status: 'dev',
+      short: 'Layanan sederhana, masih tahap pengembangan.',
+      description: 'Mechanical masih dalam tahap pengembangan. Saat ini hanya melayani pekerjaan mechanical sederhana yang sesuai dengan kemampuan Era Visual.',
+      isLocal: true
+    },
+    {
+      id: 'sewing',
+      name: 'Sewing',
+      icon: '🧵',
+      status: 'coming_soon',
+      short: 'Segera hadir.',
+      description: 'Layanan Sewing sedang disiapkan dan belum dapat dipesan.',
+      isLocal: true
+    }
+  ],
+  employees: [
+    {
+      id: 'emp-ewaldus',
+      name: 'Ewaldus Sangga',
+      role: 'Leader / Penanggung Jawab',
+      branchId: 'ende',
+      serviceIds: ['electrical'],
+      whatsapp: '6285348650816',
+      photo: '',
+      description: 'Penanggung jawab Cabang Ende.',
+      active: true
+    },
+    {
+      id: 'emp-placeholder-02',
+      name: 'Karyawan 02',
+      role: 'Divisi Electrical Engineering',
+      branchId: 'ende',
+      serviceIds: ['electrical'],
+      whatsapp: '',
+      photo: '',
+      description: 'Data placeholder — lengkapi lewat Dashboard Admin.',
+      active: true
+    },
+    {
+      id: 'emp-placeholder-03',
+      name: 'Karyawan 03',
+      role: 'Divisi Editor',
+      branchId: 'ende',
+      serviceIds: ['editor'],
+      whatsapp: '',
+      photo: '',
+      description: 'Data placeholder — lengkapi lewat Dashboard Admin.',
+      active: true
+    }
+  ],
+  orders: [],
+  posts: []
+};
+
+function evLoadDB(){
+  let raw = localStorage.getItem(EV_DB_KEY);
+  if(!raw){
+    localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
+    return JSON.parse(JSON.stringify(EV_SEED));
+  }
+  try{
+    const db = JSON.parse(raw);
+    if(!Array.isArray(db.posts)) db.posts = []; // migrasi data lama yang belum punya "posts"
+    return db;
+  }catch(e){
+    localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
+    return JSON.parse(JSON.stringify(EV_SEED));
+  }
+}
+
+function evSaveDB(db){
+  localStorage.setItem(EV_DB_KEY, JSON.stringify(db));
+}
+
+const EraDB = {
+  reset(){ localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED)); },
+
+  // ---------- Contact ----------
+  getContact(){ return evLoadDB().contact; },
+  saveContact(contact){ const db = evLoadDB(); db.contact = contact; evSaveDB(db); },
+
+  // ---------- Branches ----------
+  getBranches(){ return evLoadDB().branches; },
+  getBranch(id){ return evLoadDB().branches.find(b => b.id === id); },
+  saveBranch(branch){
+    const db = evLoadDB();
+    const i = db.branches.findIndex(b => b.id === branch.id);
+    if(i >= 0) db.branches[i] = branch; else db.branches.push(branch);
+    evSaveDB(db);
+  },
+  deleteBranch(id){
+    const db = evLoadDB();
+    db.branches = db.branches.filter(b => b.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Services ----------
+  getServices(){ return evLoadDB().services; },
+  getService(id){ return evLoadDB().services.find(s => s.id === id); },
+  saveService(service){
+    const db = evLoadDB();
+    const i = db.services.findIndex(s => s.id === service.id);
+    if(i >= 0) db.services[i] = service; else db.services.push(service);
+    evSaveDB(db);
+  },
+  deleteService(id){
+    const db = evLoadDB();
+    db.services = db.services.filter(s => s.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Employees ----------
+  getEmployees(){ return evLoadDB().employees; },
+  getEmployee(id){ return evLoadDB().employees.find(e => e.id === id); },
+  getEmployeesFor(branchId, serviceId){
+    return evLoadDB().employees.filter(e =>
+      e.active && e.branchId === branchId && e.serviceIds.includes(serviceId)
+    );
+  },
+  saveEmployee(emp){
+    const db = evLoadDB();
+    const i = db.employees.findIndex(e => e.id === emp.id);
+    if(i >= 0) db.employees[i] = emp; else db.employees.push(emp);
+    evSaveDB(db);
+  },
+  deleteEmployee(id){
+    const db = evLoadDB();
+    db.employees = db.employees.filter(e => e.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Orders ----------
+  getOrders(){ return evLoadDB().orders.slice().reverse(); },
+  getOrder(id){ return evLoadDB().orders.find(o => o.id === id); },
+  createOrder(order){
+    const db = evLoadDB();
+    const now = new Date();
+    const orderNumber = 'EV-' + now.getFullYear().toString().slice(-2) +
+      String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') +
+      '-' + Math.floor(1000 + Math.random()*9000);
+    const full = Object.assign({
+      id: 'ord-' + Date.now(),
+      orderNumber: orderNumber,
+      status: 'Menunggu',
+      createdAt: now.toISOString()
+    }, order);
+    db.orders.push(full);
+    evSaveDB(db);
+    return full;
+  },
+  updateOrderStatus(id, status){
+    const db = evLoadDB();
+    const o = db.orders.find(o => o.id === id);
+    if(o){ o.status = status; evSaveDB(db); }
+  },
+
+  // ---------- Posts (Berita / Info / Iklan) ----------
+  getPosts(){
+    return evLoadDB().posts.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  },
+  getPost(id){ return evLoadDB().posts.find(p => p.id === id); },
+  savePost(post){
+    const db = evLoadDB();
+    const i = db.posts.findIndex(p => p.id === post.id);
+    if(i >= 0) db.posts[i] = post; else db.posts.push(post);
+    evSaveDB(db);
+  },
+  deletePost(id){
+    const db = evLoadDB();
+    db.posts = db.posts.filter(p => p.id !== id);
+    evSaveDB(db);
+  }
+};
+
+const EV_STATUS_LABEL = {
+  'Menunggu': 'Menunggu Konfirmasi',
+  'Dikonfirmasi': 'Dikonfirmasi',
+  'Diproses': 'Diproses',
+  'Selesai': 'Selesai',
+  'Dibatalkan': 'Dibatalkan'
+};
+
+function evServiceStatusBadge(status){
+  if(status === 'dev') return '<span class="badge dev">Tahap Pengembangan</span>';
+  if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  return '<span class="badge">Tersedia</span>';
+}
+
+function evBranchStatusBadge(status){
+  if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  return '<span class="badge">Aktif</span>';
+}
+
+</script>
+<script>
+/* ==========================================================================
+   Era Visual — Shared UI (navbar, footer, helpers)
+   Setiap halaman punya <div id="ev-navbar"></div> dan <div id="ev-footer"></div>
+   yang diisi otomatis supaya navbar & footer konsisten di semua halaman.
+   ========================================================================== */
+
+const EV_LOGO_IMG = "data:image/png;base64,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";
+
+function evNavLink(href, label){
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  const isActive = current === href;
+  return `<a href="${href}"${isActive ? ' class="active"' : ''}>${label}</a>`;
+}
+
+function evRenderNavbar(){
+  const el = document.getElementById('ev-navbar');
+  if(!el) return;
+  el.innerHTML = `
+    <div class="navbar-inner">
+      <a href="index.html" class="nav-brand"><img class="mark" src="${EV_LOGO_IMG}" alt="Logo Era Visual"><span>Era Visual</span></a>
+      <nav class="nav-links" id="ev-nav-links">
+        ${evNavLink('index.html','Home')}
+        ${evNavLink('layanan.html','Layanan')}
+        ${evNavLink('cabang.html','Cabang')}
+        ${evNavLink('berita.html','Berita')}
+        ${evNavLink('cara-order.html','Cara Order')}
+        ${evNavLink('tentang.html','Tentang Kami')}
+        ${evNavLink('kontak.html','Kontak')}
+      </nav>
+      <div class="nav-cta">
+        <a href="pesan.html" class="btn btn-primary btn-sm">Pesan Sekarang</a>
+        <button class="nav-toggle" id="ev-nav-toggle" aria-label="Buka menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  `;
+  const toggle = document.getElementById('ev-nav-toggle');
+  const links = document.getElementById('ev-nav-links');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+}
+
+function evRenderFooter(){
+  const el = document.getElementById('ev-footer');
+  if(!el) return;
+  const c = EraDB.getContact();
+  el.innerHTML = `
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <h4>Era Visual</h4>
+          <p class="services-line">Electrical Engineering &bull; Editor &bull; Mechanical &bull; Sewing</p>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <p class="services-line">📧 <a href="mailto:${c.email}">${c.email}</a></p>
+          <p class="services-line">📱 <a href="https://wa.me/${c.whatsapp}" target="_blank" rel="noopener">${c.whatsapp_display}</a></p>
+          <p class="services-line">📸 <a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">${c.instagram}</a></p>
+        </div>
+        <div>
+          <h4>Cabang</h4>
+          <p class="services-line">Cabang Ende</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2023 Era Visual</span>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  `;
+}
+
+function evShowToast(msg){
+  let t = document.getElementById('ev-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'ev-toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function evWaLink(phone, message){
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+function evEscape(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : str;
+  return d.innerHTML;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  evRenderNavbar();
+  evRenderFooter();
+});
+
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const posts = EraDB.getPosts();
+  const wrap = document.getElementById('news-list');
+
+  if(posts.length === 0){
+    wrap.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Belum ada berita atau info yang dipublikasikan. Cek lagi nanti.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = posts.map(p => {
+    const dateLabel = new Date(p.date).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+    const hasFull = p.body && p.body.trim().length > 0;
+    return `
+      <article class="news-card" data-id="${p.id}">
+        ${p.image ? `<img class="news-img" src="${p.image}" alt="${evEscape(p.title)}">` : ''}
+        <div class="news-body">
+          <div class="news-date">${dateLabel}</div>
+          <h3>${evEscape(p.title)}</h3>
+          <p class="news-excerpt">${evEscape(p.excerpt)}</p>
+          ${hasFull ? `
+            <div class="news-full">${evEscape(p.body).replace(/\n/g,'<br>')}</div>
+            <button class="news-toggle" data-toggle="${p.id}">Baca Selengkapnya &darr;</button>
+          ` : ''}
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  wrap.querySelectorAll('.news-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = wrap.querySelector(`.news-card[data-id="${btn.dataset.toggle}"]`);
+      const expanded = card.classList.toggle('expanded');
+      btn.innerHTML = expanded ? 'Tutup &uarr;' : 'Baca Selengkapnya &darr;';
+    });
+  });
+});
+</script>
+</body>
+</html>
