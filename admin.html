@@ -118,8 +118,8 @@ button{font-family:inherit;}
 .nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
 .nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
 .nav-cta{display:flex; align-items:center; gap:12px;}
-.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px;}
-.nav-toggle span{display:block; width:22px; height:2px; background:var(--ink); margin:5px 0; transition:.2s;}
+.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:10px 9px;}
+.nav-toggle span{display:block; width:25px; height:2.5px; border-radius:2px; background:var(--ink); margin:6px 0; transition:.2s;}
 
 @media (max-width:860px){
   .nav-links{
@@ -335,10 +335,9 @@ button{font-family:inherit;}
 .news-card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
 .news-card .news-img{
   width:100%;
-  aspect-ratio:16/10;
-  object-fit:cover;
-  background:var(--blue-50);
+  height:auto;
   display:block;
+  background:var(--blue-50);
 }
 .news-card .news-body{padding:20px 22px 22px;}
 .news-card .news-date{font-size:.78rem; color:var(--blue-600); font-weight:600; margin-bottom:6px;}
@@ -453,11 +452,44 @@ button{font-family:inherit;}
 <script>
 /* ==========================================================================
    Era Visual — Data Store
-   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages).
+   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages), dengan
+   opsi tambahan menyambung ke Google Sheets (lewat Google Apps Script) supaya
+   ORDER bisa terpusat dari semua perangkat. Lihat README bagian "Order
+   Terpusat dengan Google Sheets" untuk cara mengaktifkannya.
    Semua fungsi CRUD untuk cabang, layanan, karyawan, order & kontak ada di sini.
    ========================================================================== */
 
 const EV_DB_KEY = 'era_visual_db_v1';
+
+// Ganti dengan URL Web App Google Apps Script kamu supaya ORDER tersimpan
+// terpusat (bisa dilihat dari HP mana saja), bukan cuma di localStorage
+// perangkat masing-masing. Biarkan seperti ini (placeholder) untuk tetap
+// pakai mode localStorage biasa.
+const ERA_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyBOOcm_GKhx6J-TpwGUh2deYQXh8fDO9FrLNfBEzy8aP18O4SxbcttBuhHSmwhv7zR/exec';
+
+function evBackendConfigured(){
+  return typeof ERA_BACKEND_URL === 'string' && !ERA_BACKEND_URL.startsWith('GANTI_') && ERA_BACKEND_URL.length > 0;
+}
+
+// Kirim ke Google Sheets tanpa memblokir tampilan (fire-and-forget).
+// Pakai Content-Type text/plain supaya tidak kena preflight CORS yang
+// biasanya gagal di Web App Apps Script.
+function evBackendSend(payload){
+  if(!evBackendConfigured()) return Promise.resolve(null);
+  return fetch(ERA_BACKEND_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(r => r.json()).catch(err => { console.error('Gagal kirim ke backend:', err); return null; });
+}
+
+function evBackendList(){
+  if(!evBackendConfigured()) return Promise.resolve(null);
+  return fetch(ERA_BACKEND_URL + '?action=list')
+    .then(r => r.json())
+    .then(res => (res && res.ok) ? res.orders : null)
+    .catch(err => { console.error('Gagal ambil data dari backend:', err); return null; });
+}
 
 const EV_SEED = {
   contact: {
@@ -627,6 +659,12 @@ const EraDB = {
   // ---------- Orders ----------
   getOrders(){ return evLoadDB().orders.slice().reverse(); },
   getOrder(id){ return evLoadDB().orders.find(o => o.id === id); },
+  getOrdersRemote(){
+    return evBackendList().then(remote => {
+      if(!remote) return null;
+      return remote.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    });
+  },
   createOrder(order){
     const db = evLoadDB();
     const now = new Date();
@@ -641,12 +679,14 @@ const EraDB = {
     }, order);
     db.orders.push(full);
     evSaveDB(db);
+    evBackendSend({ action: 'create', order: full }); // kirim ke Google Sheets kalau sudah dikonfigurasi
     return full;
   },
   updateOrderStatus(id, status){
     const db = evLoadDB();
     const o = db.orders.find(o => o.id === id);
     if(o){ o.status = status; evSaveDB(db); }
+    evBackendSend({ action: 'updateStatus', id, status });
   },
 
   // ---------- Posts (Berita / Info / Iklan) ----------
@@ -883,10 +923,10 @@ function evFileToDataURL(fileInput, callback){
 /* ==================== ORDERS ==================== */
 function evRenderOrdersPanel(){
   const el = document.getElementById('panel-orders');
-  const orders = EraDB.getOrders();
   const branches = EraDB.getBranches();
   const services = EraDB.getServices();
   const employees = EraDB.getEmployees();
+  let currentOrders = EraDB.getOrders();
 
   el.innerHTML = `
     <div class="inline-form">
@@ -905,10 +945,11 @@ function evRenderOrdersPanel(){
         <select id="f-employee"><option value="">Semua Karyawan</option>${employees.map(e=>`<option value="${e.id}">${evEscape(e.name)}</option>`).join('')}</select>
       </div>
     </div>
+    <p class="hint" id="orders-source-note" style="margin-bottom:14px;"></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>No. Order</th><th>Pelanggan</th><th>Cabang</th><th>Layanan</th><th>Penanggung Jawab</th><th>Status</th><th>Waktu</th><th></th></tr></thead>
-        <tbody id="orders-tbody"></tbody>
+        <tbody id="orders-tbody"><tr><td colspan="8" class="empty-state">Memuat order...</td></tr></tbody>
       </table>
     </div>
   `;
@@ -917,7 +958,7 @@ function evRenderOrdersPanel(){
     const fb = document.getElementById('f-branch').value;
     const fs = document.getElementById('f-service').value;
     const fe = document.getElementById('f-employee').value;
-    const filtered = orders.filter(o =>
+    const filtered = currentOrders.filter(o =>
       (!fb || o.branchId === fb) && (!fs || o.serviceId === fs) && (!fe || o.employeeId === fe)
     );
     const tbody = document.getElementById('orders-tbody');
@@ -945,12 +986,15 @@ function evRenderOrdersPanel(){
     tbody.querySelectorAll('.status-select').forEach(sel => {
       sel.addEventListener('change', () => {
         EraDB.updateOrderStatus(sel.dataset.id, sel.value);
+        const o = currentOrders.find(o => o.id === sel.dataset.id);
+        if(o) o.status = sel.value;
         evShowToastAdmin('Status order diperbarui.');
       });
     });
     tbody.querySelectorAll('.view-order').forEach(btn => {
       btn.addEventListener('click', () => {
-        const o = EraDB.getOrder(btn.dataset.id);
+        const o = currentOrders.find(o => o.id === btn.dataset.id);
+        if(!o) return;
         alert(
           `Order ${o.orderNumber}\n\nDeskripsi:\n${o.description}\n\n` +
           (o.location ? `Lokasi: ${o.location}\n` : '') +
@@ -963,7 +1007,24 @@ function evRenderOrdersPanel(){
   }
 
   ['f-branch','f-service','f-employee'].forEach(id => document.getElementById(id).addEventListener('change', draw));
-  draw();
+
+  const noteEl = document.getElementById('orders-source-note');
+  if(evBackendConfigured()){
+    noteEl.textContent = 'Memuat order dari Google Sheets...';
+    EraDB.getOrdersRemote().then(remote => {
+      if(remote){
+        currentOrders = remote;
+        noteEl.textContent = 'Order terpusat dari Google Sheets — bisa dilihat dari HP mana saja.';
+      } else {
+        currentOrders = EraDB.getOrders();
+        noteEl.textContent = 'Gagal memuat dari Google Sheets, menampilkan data di HP ini saja.';
+      }
+      draw();
+    });
+  } else {
+    noteEl.textContent = 'Order lokal saja (belum disambungkan ke Google Sheets — lihat README).';
+    draw();
+  }
 }
 
 /* ==================== BRANCHES ==================== */
