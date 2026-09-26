@@ -1,6 +1,6 @@
 # Era Visual
 
-> **Catatan versi ini:** ini versi *flat* (semua CSS & JS digabung langsung ke tiap file .html, tanpa folder) supaya gampang di-upload lewat HP/GitHub browser. Isinya identik secara fungsi dengan versi terstruktur (folder assets/ + admin/) — cuma beda cara filenya disusun. `admin/index.html` sekarang jadi `admin.html` di root.
+> **Catatan versi ini:** ini versi *flat* (semua CSS & JS digabung langsung ke tiap file .html, tanpa folder) supaya gampang di-upload lewat HP/GitHub browser. Isinya identik secara fungsi dengan versi terstruktur (folder assets/ + admin/) — cuma beda cara filenya disusun. `admin/index.html` sekarang jadi `admin.html` di root. Logo asli Era Visual sudah dipasang (di-encode langsung ke dalam file, tanpa file gambar terpisah). Untuk login Google, edit `GOOGLE_CLIENT_ID` dan `ADMIN_ALLOWED_EMAILS` langsung di dalam `admin.html` (cari dengan Ctrl+F / cari teks), bukan di file `admin.js` terpisah.
 
  — Website & Sistem Order
 
@@ -93,7 +93,28 @@ Saat ini status dan deskripsi singkat 4 layanan (Electrical, Editor, Mechanical,
 - **Nomor WhatsApp Karyawan 02 & 03** masih kosong sehingga tombol WhatsApp di order akan jatuh ke nomor kontak utama Era Visual — lengkapi lewat dashboard admin begitu data asli tersedia.
 - **Cabang Batam**: struktur sudah mendukung, tinggal ditambahkan lewat dashboard admin begitu ada karyawan dan layanan yang nyata.
 
-## 9. Deploy ke GitHub Pages
+## 9. Login Admin dengan Google
+
+Dashboard admin sekarang punya dua cara masuk: **Login dengan akun Google** (utama) dan **PIN** (cadangan). Supaya tombol Google-nya aktif, kamu perlu daftarkan situs ini ke Google Cloud Console sendiri (Claude tidak bisa melakukan ini karena butuh akun Google kamu):
+
+1. Buka **console.cloud.google.com** → buat project baru (nama bebas, misal "Era Visual").
+2. Menu kiri → **APIs & Services → OAuth consent screen** → pilih **External** → isi nama app "Era Visual", email kamu → Save.
+3. Menu kiri → **APIs & Services → Credentials** → **Create Credentials → OAuth client ID**.
+4. Application type: **Web application**.
+5. Di **Authorized JavaScript origins**, tambahkan persis: `https://eravisual17-ui.github.io` (tanpa garis miring di akhir, tanpa nama repo).
+6. Klik **Create** — akan muncul **Client ID** (contoh: `xxxxx.apps.googleusercontent.com`). Salin itu.
+7. Buka file `admin.html` (atau `admin/admin.js` di versi terstruktur), cari baris:
+   ```js
+   const GOOGLE_CLIENT_ID = 'GANTI_DENGAN_CLIENT_ID_ANDA.apps.googleusercontent.com';
+   ```
+   Ganti dengan Client ID asli dari langkah 6, lalu simpan dan upload ulang ke GitHub.
+8. Di baris `ADMIN_ALLOWED_EMAILS`, isi daftar alamat Gmail yang boleh masuk sebagai admin (default sudah diisi `eravisual17@gmail.com` dan `kbatam275@gmail.com` — tambah/kurangi sesuai kebutuhan).
+
+Setelah Client ID terpasang, tombol **"Sign in with Google"** akan aktif di halaman `/admin`. Login dengan akun Google yang ada di daftar `ADMIN_ALLOWED_EMAILS` akan langsung masuk ke dashboard; akun lain akan ditolak dengan pesan "belum terdaftar sebagai admin". Tombol **Keluar** di sidebar dashboard untuk logout.
+
+**Catatan keamanan:** Login Google ini memverifikasi identitas akun secara sah, tapi karena situs ini murni statis (tanpa server), pengecekan email tetap dilakukan di sisi browser (client-side) — sama seperti PIN, ini cukup untuk mencegah orang iseng, tapi bukan proteksi tingkat enterprise. Untuk keamanan penuh (verifikasi token di server), langkah berikutnya adalah menambahkan backend sungguhan.
+
+## 10. Deploy ke GitHub Pages
 
 ```bash
 # di dalam folder era-visual/

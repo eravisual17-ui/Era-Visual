@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEeklEQVR42u2X3W8UVRjGf+/M7G7pdqGlZbEQLAgqKkYjEQE1kqgx/gPGC78SvTHh0lv9A7hQLtQbI4k3Jhi50sQIRmNCSJDwZfkQLJrSdqn2k+0y3Z0557xezOx2abtYKwk3nOQkZyaT9zzznud9nveIc065Q0NV1eMOj7sAgqV+aFOmCOAJqEIzeTxJnlXn1nK7AAgQeM3kAc+rh0+3UkUkWToHnpd8d1sAWIGDQ46qwhMdsK3To1Q2RA6ygVCOHFu7AoYrinGwZZVQuqH0tsvyOeAAk/7cF5cMYQyliYj3T9WoWmU8tAxORRwfDFFgPLQc6HfsO2EYmFYOX1U0PTq3HAC+QEZAEMYmY3prVfqIeKagDJUtEsWYaoytGWwYUYssH+wKaFfl05OGtx7y8NKj82+RCJkvRHUSnSkrf4SQzwrtMzU++uFvNnf6bCiuYO+zXRw6PcXhX6cZDQ07N3Xw3gtr+fCYxQlsWCWMlB27t2WZqCr35eHxguCUhCdNQoRzTudPa50eHLI6EzudNcm78XKk/cOhqnNqrVVV1YlKpJdGQ02G0zMlo7XYqqrTPyeMzhqnldjpVyNWjV1sH+uCxRjvgA4POoKE5Ap0FzJ0FzLYNGGxcazOZ1idz2CswxPhsV4PFKyDjau9RoF0eDeX7JKqwFlFdS5fzimK4nseIPhN7Al8SUtOUBQvLUUREAVrEyTCQiALSNj4wM4DpMnmH/80yov7LvDS/ot8eXyM1w8MMD5jAHjlswHODoeICNqsVO4/VIEsQDJHToCjAxVilHeeXsOeB1dxfPAGR367ztnhkO8vTHN/sQ1VRZrY5i/LC+zisLvzAaOTEV+fnaJYCNi7Zy2HTk3x+dExXtvRQz7nY+ycKgKsW9FallsDaJG2sYphQ7GNN3esYaxieHV7Nz9eLvPJz3/x7nPFhi80j6GytpTl1hzQhUejCnseKCBW2X+4xLmRkOLKDG/v7uGNnT1sW9eOczenH0BUaVkH82tTnVNjnX5zMZp7b52q1ue84dy8dTKb4337e6SxWaIOzEmkJspF4nzToUUEAk8QgawvTN4w5HNeo/wCT7AOrCor23ycJqmXJivXpepAbBx+ephOoVJzKJDxhZpx3NuVpWrA95SqcdgUMEChzcelko4Icf1PluoFIvDd+RqqypN9WYor/WV1OxOzjpMlg1F4eXOmEbvZC2SxrrjezfSPxJwbifE9YXtfhi3FTANlzSgzNYsg5HMeuUAawa9OO05fM9QcbO3xebToL9ohtQTQSE8a8eqk4cj5WWILT23K8cj6DNlAmA4NqtCV97EOLo9bTlwzxMDzfRk2dqb8aFGD/wpAFVQV3/eYDg3HrsxyqRThi8eWtTl2bc6RCYRfBiOuTBiqKJvuybJjfYZiLiFkSoPlAbi5B0x4fD2Mmak6JipC/1ANFeHh9Vl6O4VcIHTnfVAWeP//AtDsBZ5366guNSGRpcRUXXJbXg9Yx9tMquZ1swfc1nvBfCCymIPevZot52qmqnoH99d/AOk7ClM1cGSoAAAAAElFTkSuQmCC">
 <title>Kontak — Era Visual</title>
 <style>
 /* ==========================================================================
@@ -112,7 +113,7 @@ button{font-family:inherit;}
   margin:0 auto;
 }
 .nav-brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
-.nav-brand .mark{width:34px; height:34px;}
+.nav-brand .mark{width:34px; height:34px; object-fit:contain;}
 .nav-links{display:flex; align-items:center; gap:28px;}
 .nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
 .nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
@@ -150,7 +151,7 @@ button{font-family:inherit;}
   max-width:640px;
   margin:0 auto;
 }
-.hero-logo{width:76px; height:76px; margin-bottom:6px;}
+.hero-logo{width:92px; height:92px; margin-bottom:6px; object-fit:contain;}
 .hero-tag{
   color:var(--blue-600); font-weight:600; font-size:.95rem;
 }
@@ -581,11 +582,7 @@ function evBranchStatusBadge(status){
    yang diisi otomatis supaya navbar & footer konsisten di semua halaman.
    ========================================================================== */
 
-const EV_LOGO_SVG = `
-<svg class="mark" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo Era Visual">
-  <rect x="1" y="1" width="46" height="46" rx="12" fill="#2F6FED"/>
-  <path d="M16 34 L24 12 L32 34 M19.2 26 H28.8" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-</svg>`;
+const EV_LOGO_IMG = "data:image/png;base64,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";
 
 function evNavLink(href, label){
   const current = window.location.pathname.split('/').pop() || 'index.html';
@@ -598,7 +595,7 @@ function evRenderNavbar(){
   if(!el) return;
   el.innerHTML = `
     <div class="navbar-inner">
-      <a href="index.html" class="nav-brand">${EV_LOGO_SVG}<span>Era Visual</span></a>
+      <a href="index.html" class="nav-brand"><img class="mark" src="${EV_LOGO_IMG}" alt="Logo Era Visual"><span>Era Visual</span></a>
       <nav class="nav-links" id="ev-nav-links">
         ${evNavLink('index.html','Home')}
         ${evNavLink('layanan.html','Layanan')}

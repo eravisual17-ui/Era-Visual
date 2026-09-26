@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEeklEQVR42u2X3W8UVRjGf+/M7G7pdqGlZbEQLAgqKkYjEQE1kqgx/gPGC78SvTHh0lv9A7hQLtQbI4k3Jhi50sQIRmNCSJDwZfkQLJrSdqn2k+0y3Z0557xezOx2abtYKwk3nOQkZyaT9zzznud9nveIc065Q0NV1eMOj7sAgqV+aFOmCOAJqEIzeTxJnlXn1nK7AAgQeM3kAc+rh0+3UkUkWToHnpd8d1sAWIGDQ46qwhMdsK3To1Q2RA6ygVCOHFu7AoYrinGwZZVQuqH0tsvyOeAAk/7cF5cMYQyliYj3T9WoWmU8tAxORRwfDFFgPLQc6HfsO2EYmFYOX1U0PTq3HAC+QEZAEMYmY3prVfqIeKagDJUtEsWYaoytGWwYUYssH+wKaFfl05OGtx7y8NKj82+RCJkvRHUSnSkrf4SQzwrtMzU++uFvNnf6bCiuYO+zXRw6PcXhX6cZDQ07N3Xw3gtr+fCYxQlsWCWMlB27t2WZqCr35eHxguCUhCdNQoRzTudPa50eHLI6EzudNcm78XKk/cOhqnNqrVVV1YlKpJdGQ02G0zMlo7XYqqrTPyeMzhqnldjpVyNWjV1sH+uCxRjvgA4POoKE5Ap0FzJ0FzLYNGGxcazOZ1idz2CswxPhsV4PFKyDjau9RoF0eDeX7JKqwFlFdS5fzimK4nseIPhN7Al8SUtOUBQvLUUREAVrEyTCQiALSNj4wM4DpMnmH/80yov7LvDS/ot8eXyM1w8MMD5jAHjlswHODoeICNqsVO4/VIEsQDJHToCjAxVilHeeXsOeB1dxfPAGR367ztnhkO8vTHN/sQ1VRZrY5i/LC+zisLvzAaOTEV+fnaJYCNi7Zy2HTk3x+dExXtvRQz7nY+ycKgKsW9FallsDaJG2sYphQ7GNN3esYaxieHV7Nz9eLvPJz3/x7nPFhi80j6GytpTl1hzQhUejCnseKCBW2X+4xLmRkOLKDG/v7uGNnT1sW9eOczenH0BUaVkH82tTnVNjnX5zMZp7b52q1ue84dy8dTKb4337e6SxWaIOzEmkJspF4nzToUUEAk8QgawvTN4w5HNeo/wCT7AOrCor23ycJqmXJivXpepAbBx+ephOoVJzKJDxhZpx3NuVpWrA95SqcdgUMEChzcelko4Icf1PluoFIvDd+RqqypN9WYor/WV1OxOzjpMlg1F4eXOmEbvZC2SxrrjezfSPxJwbifE9YXtfhi3FTANlzSgzNYsg5HMeuUAawa9OO05fM9QcbO3xebToL9ohtQTQSE8a8eqk4cj5WWILT23K8cj6DNlAmA4NqtCV97EOLo9bTlwzxMDzfRk2dqb8aFGD/wpAFVQV3/eYDg3HrsxyqRThi8eWtTl2bc6RCYRfBiOuTBiqKJvuybJjfYZiLiFkSoPlAbi5B0x4fD2Mmak6JipC/1ANFeHh9Vl6O4VcIHTnfVAWeP//AtDsBZ5366guNSGRpcRUXXJbXg9Yx9tMquZ1swfc1nvBfCCymIPevZot52qmqnoH99d/AOk7ClM1cGSoAAAAAElFTkSuQmCC">
 <title>Dashboard Admin — Era Visual</title>
 <style>
 /* ==========================================================================
@@ -112,7 +113,7 @@ button{font-family:inherit;}
   margin:0 auto;
 }
 .nav-brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
-.nav-brand .mark{width:34px; height:34px;}
+.nav-brand .mark{width:34px; height:34px; object-fit:contain;}
 .nav-links{display:flex; align-items:center; gap:28px;}
 .nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
 .nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
@@ -150,7 +151,7 @@ button{font-family:inherit;}
   max-width:640px;
   margin:0 auto;
 }
-.hero-logo{width:76px; height:76px; margin-bottom:6px;}
+.hero-logo{width:92px; height:92px; margin-bottom:6px; object-fit:contain;}
 .hero-tag{
   color:var(--blue-600); font-weight:600; font-size:.95rem;
 }
@@ -363,6 +364,10 @@ button{font-family:inherit;}
     position:fixed; inset:0; background:var(--ink); display:flex; align-items:center; justify-content:center; z-index:500;
   }
   .gate-box{background:var(--white); padding:32px; border-radius:var(--radius-m); width:100%; max-width:340px;}
+  .gate-divider{display:flex; align-items:center; gap:10px; margin:20px 0; color:var(--slate-light); font-size:.8rem;}
+  .gate-divider::before, .gate-divider::after{content:''; flex:1; height:1px; background:var(--line);}
+  #g_id_signin{display:flex; justify-content:center; margin-bottom:4px;}
+  .admin-user{padding:10px 12px; font-size:.78rem; color:#8E97A6; border-bottom:1px solid #2A3444; margin-bottom:8px; word-break:break-all;}
   @media (max-width:800px){
     .admin-shell{flex-direction:column;}
     .admin-side{width:100%; height:auto; position:static; display:flex; overflow-x:auto; padding:12px;}
@@ -377,11 +382,15 @@ button{font-family:inherit;}
 <div class="gate" id="admin-gate">
   <div class="gate-box">
     <h3>Masuk Dashboard Admin</h3>
-    <p style="font-size:.85rem;">PIN default: <code>eravisual2023</code>. Ganti di <code>admin/admin.js</code> sebelum deploy.</p>
+    <p style="font-size:.85rem;">Masuk dengan akun Google yang terdaftar sebagai admin.</p>
+    <div id="g_id_signin"></div>
+    <p class="hint" id="google-error" style="color:var(--red); display:none; text-align:center;">Akun ini belum terdaftar sebagai admin.</p>
+
+    <div class="gate-divider">atau pakai PIN</div>
     <div class="form-field">
       <input type="password" id="gate-pin" placeholder="Masukkan PIN">
     </div>
-    <button class="btn btn-primary btn-block" id="gate-submit">Masuk</button>
+    <button class="btn btn-outline btn-block" id="gate-submit">Masuk dengan PIN</button>
     <p class="hint" id="gate-error" style="color:var(--red); display:none;">PIN salah.</p>
   </div>
 </div>
@@ -389,11 +398,13 @@ button{font-family:inherit;}
 <div class="admin-shell" id="admin-shell" style="display:none;">
   <aside class="admin-side">
     <div class="brand">Era Visual<br><span style="font-weight:400; font-size:.75rem; color:#8E97A6;">Dashboard Admin</span></div>
+    <div class="admin-user" id="admin-user-label"></div>
     <a href="#" data-panel="orders" class="active">🧾 Order</a>
     <a href="#" data-panel="branches">📍 Cabang</a>
     <a href="#" data-panel="employees">👤 Karyawan</a>
     <a href="#" data-panel="services">🧩 Layanan</a>
     <a href="#" data-panel="contact">☎️ Kontak</a>
+    <a href="#" id="admin-logout">🚪 Keluar</a>
     <a href="index.html" style="margin-top:16px; border-top:1px solid #2A3444; padding-top:16px;">&larr; Kembali ke Situs</a>
   </aside>
 
@@ -628,6 +639,7 @@ function evBranchStatusBadge(status){
 
 </script>
 <script>function evEscape(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 /* ==========================================================================
    Era Visual — Dashboard Admin
@@ -638,6 +650,68 @@ function evBranchStatusBadge(status){
 
 const ADMIN_PIN = 'eravisual2023';
 const ADMIN_SESSION_KEY = 'era_visual_admin_session';
+const ADMIN_EMAIL_KEY = 'era_visual_admin_email';
+
+// ---- Login dengan Google (Google Identity Services) ----
+// 1. Ganti GOOGLE_CLIENT_ID dengan Client ID asli dari Google Cloud Console
+//    (lihat README bagian "Login Admin dengan Google" untuk langkah lengkapnya).
+// 2. Tambahkan / kurangi email di ADMIN_ALLOWED_EMAILS sesuai siapa saja yang
+//    boleh masuk Dashboard Admin dengan akun Google mereka.
+const GOOGLE_CLIENT_ID = 'GANTI_DENGAN_CLIENT_ID_ANDA.apps.googleusercontent.com';
+const ADMIN_ALLOWED_EMAILS = [
+  'eravisual17@gmail.com',
+  'kbatam275@gmail.com'
+];
+
+function evDecodeJwt(token){
+  try{
+    const payload = token.split('.')[1];
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(atob(base64).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return JSON.parse(json);
+  }catch(e){
+    return null;
+  }
+}
+
+function handleGoogleCredentialResponse(response){
+  const payload = evDecodeJwt(response.credential);
+  const errorEl = document.getElementById('google-error');
+  if(!payload || !payload.email){
+    errorEl.textContent = 'Gagal membaca akun Google. Coba lagi.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  const email = payload.email.toLowerCase();
+  const allowed = ADMIN_ALLOWED_EMAILS.map(e => e.toLowerCase()).includes(email);
+  if(!payload.email_verified || !allowed){
+    errorEl.textContent = `Akun ${payload.email} belum terdaftar sebagai admin.`;
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+  sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+  sessionStorage.setItem(ADMIN_EMAIL_KEY, payload.email);
+  evAdminCheckGate();
+}
+
+function evInitGoogleSignIn(){
+  if(typeof google === 'undefined' || !google.accounts || GOOGLE_CLIENT_ID.startsWith('GANTI_')){
+    const box = document.getElementById('g_id_signin');
+    if(box) box.innerHTML = '<p class="hint">Login Google belum dikonfigurasi — isi GOOGLE_CLIENT_ID di admin.js. Gunakan PIN di bawah untuk sementara.</p>';
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredentialResponse
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('g_id_signin'),
+    { theme: 'outline', size: 'large', width: 280, text: 'signin_with' }
+  );
+}
 
 function evAdminCheckGate(){
   const gate = document.getElementById('admin-gate');
@@ -645,6 +719,9 @@ function evAdminCheckGate(){
   if(sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'){
     gate.style.display = 'none';
     shell.style.display = 'flex';
+    const email = sessionStorage.getItem(ADMIN_EMAIL_KEY);
+    const label = document.getElementById('admin-user-label');
+    if(label) label.textContent = email ? ('Masuk sebagai ' + email) : 'Masuk dengan PIN';
     evAdminInit();
   }
 }
@@ -653,6 +730,7 @@ document.getElementById('gate-submit').addEventListener('click', () => {
   const val = document.getElementById('gate-pin').value;
   if(val === ADMIN_PIN){
     sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    sessionStorage.removeItem(ADMIN_EMAIL_KEY);
     evAdminCheckGate();
   } else {
     document.getElementById('gate-error').style.display = 'block';
@@ -662,6 +740,7 @@ document.getElementById('gate-pin').addEventListener('keydown', (e) => {
   if(e.key === 'Enter') document.getElementById('gate-submit').click();
 });
 
+window.addEventListener('load', evInitGoogleSignIn);
 evAdminCheckGate();
 
 /* ---------------------------------------------------------------------- */
@@ -672,6 +751,17 @@ const PANEL_TITLES = {
 };
 
 function evAdminInit(){
+  const logoutLink = document.getElementById('admin-logout');
+  if(logoutLink && !logoutLink._bound){
+    logoutLink._bound = true;
+    logoutLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      sessionStorage.removeItem(ADMIN_EMAIL_KEY);
+      if(typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
+      window.location.reload();
+    });
+  }
   document.querySelectorAll('.admin-side a[data-panel]').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
