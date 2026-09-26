@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin — Era Visual</title>
+<style>
+/* ==========================================================================
+   Era Visual — Design System
+   Electrical + creative service brand. Blueprint precision meets craft.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  /* Color */
+  --blue-600:#2F6FED;
+  --blue-500:#4C86FF;
+  --blue-100:#EAF1FF;
+  --blue-50:#F6F9FF;
+  --ink:#16202E;
+  --slate:#5B6472;
+  --slate-light:#8A93A1;
+  --line:#E2E8F1;
+  --white:#FFFFFF;
+  --amber:#E8A33D;
+  --green:#2E9E64;
+  --red:#D9503F;
+
+  /* Type */
+  --font-display:'Sora', 'Inter', sans-serif;
+  --font-body:'Inter', sans-serif;
+
+  /* Layout */
+  --max-w:1120px;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:22px;
+  --shadow-card: 0 1px 2px rgba(22,32,46,0.04), 0 8px 24px rgba(22,32,46,0.06);
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--white);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:var(--font-display);
+  margin:0 0 .5em 0;
+  line-height:1.2;
+  letter-spacing:-0.01em;
+}
+h1{font-size:clamp(2rem,5vw,2.9rem); font-weight:700;}
+h2{font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:700;}
+h3{font-size:1.15rem; font-weight:600;}
+p{margin:0 0 1em 0; color:var(--slate);}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+ul{margin:0; padding:0;}
+button{font-family:inherit;}
+
+.container{
+  max-width:var(--max-w);
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:13px 22px;
+  border-radius:var(--radius-s);
+  font-weight:600;
+  font-size:.95rem;
+  cursor:pointer;
+  border:1.5px solid transparent;
+  transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--blue-600); color:var(--white);}
+.btn-primary:hover{background:#255cd1;}
+.btn-outline{background:var(--white); color:var(--blue-600); border-color:var(--blue-600);}
+.btn-outline:hover{background:var(--blue-50);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+.btn-ghost:hover{border-color:var(--slate-light);}
+.btn-whatsapp{background:#25D366; color:#04361b;}
+.btn-whatsapp:hover{background:#1fbd5a;}
+.btn-block{width:100%;}
+.btn-sm{padding:9px 14px; font-size:.85rem;}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+
+/* ---------- Navbar ---------- */
+.navbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.navbar-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px;
+  max-width:var(--max-w);
+  margin:0 auto;
+}
+.nav-brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+.nav-brand .mark{width:34px; height:34px;}
+.nav-links{display:flex; align-items:center; gap:28px;}
+.nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
+.nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
+.nav-cta{display:flex; align-items:center; gap:12px;}
+.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px;}
+.nav-toggle span{display:block; width:22px; height:2px; background:var(--ink); margin:5px 0; transition:.2s;}
+
+@media (max-width:860px){
+  .nav-links{
+    position:fixed; top:64px; left:0; right:0; bottom:0;
+    background:var(--white);
+    flex-direction:column; align-items:flex-start;
+    padding:24px 24px 40px;
+    gap:6px;
+    transform:translateX(100%);
+    transition:transform .25s ease;
+    overflow-y:auto;
+  }
+  .nav-links a{width:100%; padding:14px 4px; border-bottom:1px solid var(--line); border-radius:0;}
+  .nav-links.open{transform:translateX(0);}
+  .nav-toggle{display:block;}
+  .nav-cta .btn-outline{display:none;}
+}
+
+/* ---------- Hero ---------- */
+.hero{
+  padding:64px 0 56px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(180deg, var(--blue-50) 0%, rgba(255,255,255,0) 60%);
+}
+.hero-inner{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:18px;
+  max-width:640px;
+  margin:0 auto;
+}
+.hero-logo{width:76px; height:76px; margin-bottom:6px;}
+.hero-tag{
+  color:var(--blue-600); font-weight:600; font-size:.95rem;
+}
+.hero p.lead{font-size:1.05rem; max-width:520px;}
+.hero-actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:8px;}
+
+/* ---------- Section ---------- */
+.section{padding:56px 0;}
+.section-head{max-width:620px; margin:0 0 32px 0;}
+.section-head.center{margin:0 auto 36px; text-align:center;}
+
+/* ---------- Cards ---------- */
+.grid{display:grid; gap:20px;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:860px){ .grid-3,.grid-2{grid-template-columns:1fr;} }
+
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:24px;
+  background:var(--white);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
+
+.service-card .icon{
+  width:44px; height:44px;
+  border-radius:10px;
+  background:var(--blue-100);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.35rem;
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-block;
+  font-size:.72rem;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:100px;
+  background:var(--blue-100); color:var(--blue-600);
+}
+.badge.soon{background:#FCEFDC; color:#9A6A1B;}
+.badge.dev{background:#EDEAFB; color:#5B4BB8;}
+.badge.inactive{background:#F1F3F6; color:var(--slate-light);}
+.badge.status-Menunggu{background:#FCEFDC;color:#9A6A1B;}
+.badge.status-Dikonfirmasi{background:var(--blue-100);color:var(--blue-600);}
+.badge.status-Diproses{background:#EDEAFB;color:#5B4BB8;}
+.badge.status-Selesai{background:#E4F6EC;color:var(--green);}
+.badge.status-Dibatalkan{background:#FBEAE7;color:var(--red);}
+
+.branch-card{position:relative;}
+.branch-card .badge{position:absolute; top:20px; right:20px;}
+
+.employee-card{display:flex; flex-direction:column; align-items:center; text-align:center;}
+.avatar{
+  width:76px; height:76px; border-radius:50%;
+  background:var(--blue-100); color:var(--blue-600);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:1.3rem;
+  margin-bottom:12px; overflow:hidden;
+}
+.avatar img{width:100%; height:100%; object-fit:cover;}
+
+/* ---------- Steps ---------- */
+.stepper{display:flex; gap:8px; margin-bottom:36px; flex-wrap:wrap;}
+.step-pill{
+  flex:1; min-width:110px;
+  text-align:center;
+  padding:10px 6px;
+  font-size:.78rem; font-weight:600;
+  color:var(--slate-light);
+  border-bottom:3px solid var(--line);
+}
+.step-pill.active{color:var(--blue-600); border-color:var(--blue-600);}
+.step-pill.done{color:var(--ink); border-color:var(--green);}
+
+.option-list{display:grid; gap:12px;}
+.option-item{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px;
+  border:1.5px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:18px 20px;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+  background:var(--white);
+}
+.option-item:hover{border-color:var(--blue-500);}
+.option-item.selected{border-color:var(--blue-600); background:var(--blue-50);}
+.option-item.disabled{cursor:not-allowed; opacity:.55;}
+.option-item .opt-title{font-weight:600; margin-bottom:2px;}
+.option-item .opt-sub{font-size:.85rem; color:var(--slate-light);}
+
+/* ---------- Forms ---------- */
+.form-field{margin-bottom:18px;}
+.form-field label{display:block; font-size:.86rem; font-weight:600; margin-bottom:6px;}
+.form-field .hint{font-size:.78rem; color:var(--slate-light); margin-top:4px;}
+.form-field input,
+.form-field textarea,
+.form-field select{
+  width:100%;
+  padding:12px 14px;
+  border:1.5px solid var(--line);
+  border-radius:var(--radius-s);
+  font-size:.95rem;
+  font-family:inherit;
+  background:var(--white);
+  color:var(--ink);
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus{outline:2px solid var(--blue-500); outline-offset:1px; border-color:var(--blue-500);}
+.form-field.error input,
+.form-field.error textarea,
+.form-field.error select{border-color:var(--red);}
+.form-field .err-msg{color:var(--red); font-size:.78rem; margin-top:4px; display:none;}
+.form-field.error .err-msg{display:block;}
+.form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media (max-width:640px){ .form-row{grid-template-columns:1fr;} }
+
+/* ---------- Summary box ---------- */
+.summary-box{
+  background:var(--blue-50);
+  border:1px solid var(--blue-100);
+  border-radius:var(--radius-m);
+  padding:20px;
+  margin-bottom:24px;
+}
+.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(47,111,237,0.1);}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .k{color:var(--slate);}
+.summary-row .v{font-weight:600; text-align:right;}
+
+/* ---------- Confirmation ---------- */
+.confirm-icon{
+  width:64px; height:64px; border-radius:50%;
+  background:#E4F6EC; color:var(--green);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem; margin:0 auto 18px;
+}
+
+/* ---------- Footer ---------- */
+.footer{background:var(--ink); color:#C7CEDA; padding:44px 0 26px; margin-top:60px;}
+.footer .container{display:flex; flex-direction:column; gap:22px;}
+.footer-top{display:flex; flex-wrap:wrap; justify-content:space-between; gap:24px;}
+.footer h4{color:var(--white); font-size:.95rem; margin-bottom:10px;}
+.footer a{color:#C7CEDA;}
+.footer a:hover{color:var(--white);}
+.footer .services-line{font-size:.88rem; color:#8E97A6;}
+.footer-bottom{border-top:1px solid #2A3444; padding-top:18px; font-size:.8rem; color:#8E97A6; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+/* ---------- Misc ---------- */
+.divider{height:1px; background:var(--line); margin:36px 0;}
+.eyebrow{color:var(--blue-600); font-weight:600; font-size:.9rem; margin-bottom:6px;}
+.text-center{text-align:center;}
+.empty-state{text-align:center; padding:48px 20px; color:var(--slate-light);}
+.timeline{display:grid; gap:18px;}
+.timeline-item{display:flex; gap:16px;}
+.timeline-num{
+  width:32px; height:32px; border-radius:50%;
+  background:var(--blue-100); color:var(--blue-600);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.9rem; flex-shrink:0;
+}
+.timeline-item h3{margin-bottom:4px;}
+
+.mono-note{font-size:.8rem; color:var(--slate-light); background:var(--blue-50); border-radius:var(--radius-s); padding:10px 14px;}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--white);
+  padding:12px 20px; border-radius:var(--radius-s);
+  font-size:.88rem; opacity:0; pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+  z-index:200;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; scroll-behavior:auto !important;}
+}
+
+</style>
+<style>
+  body{background:var(--blue-50);}
+  .admin-shell{display:flex; min-height:100vh;}
+  .admin-side{
+    width:220px; background:var(--ink); color:#C7CEDA; flex-shrink:0;
+    padding:22px 14px; position:sticky; top:0; height:100vh;
+  }
+  .admin-side .brand{color:var(--white); font-family:var(--font-display); font-weight:700; padding:0 8px 20px;}
+  .admin-side a{
+    display:block; padding:11px 12px; border-radius:8px; font-size:.9rem; margin-bottom:2px; color:#C7CEDA;
+  }
+  .admin-side a.active, .admin-side a:hover{background:rgba(255,255,255,.08); color:var(--white);}
+  .admin-main{flex:1; padding:28px 32px; max-width:1000px;}
+  .admin-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  table{width:100%; border-collapse:collapse; background:var(--white); border-radius:var(--radius-m); overflow:hidden;}
+  th,td{padding:12px 14px; text-align:left; font-size:.88rem; border-bottom:1px solid var(--line);}
+  th{background:var(--blue-50); font-weight:600; color:var(--slate);}
+  tr:last-child td{border-bottom:none;}
+  .table-wrap{background:var(--white); border:1px solid var(--line); border-radius:var(--radius-m); overflow-x:auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .inline-form{background:var(--white); border:1px solid var(--line); border-radius:var(--radius-m); padding:20px; margin-bottom:20px;}
+  .actions-cell{display:flex; gap:8px;}
+  .gate{
+    position:fixed; inset:0; background:var(--ink); display:flex; align-items:center; justify-content:center; z-index:500;
+  }
+  .gate-box{background:var(--white); padding:32px; border-radius:var(--radius-m); width:100%; max-width:340px;}
+  @media (max-width:800px){
+    .admin-shell{flex-direction:column;}
+    .admin-side{width:100%; height:auto; position:static; display:flex; overflow-x:auto; padding:12px;}
+    .admin-side .brand{display:none;}
+    .admin-side a{white-space:nowrap;}
+    .admin-main{padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="gate" id="admin-gate">
+  <div class="gate-box">
+    <h3>Masuk Dashboard Admin</h3>
+    <p style="font-size:.85rem;">PIN default: <code>eravisual2023</code>. Ganti di <code>admin/admin.js</code> sebelum deploy.</p>
+    <div class="form-field">
+      <input type="password" id="gate-pin" placeholder="Masukkan PIN">
+    </div>
+    <button class="btn btn-primary btn-block" id="gate-submit">Masuk</button>
+    <p class="hint" id="gate-error" style="color:var(--red); display:none;">PIN salah.</p>
+  </div>
+</div>
+
+<div class="admin-shell" id="admin-shell" style="display:none;">
+  <aside class="admin-side">
+    <div class="brand">Era Visual<br><span style="font-weight:400; font-size:.75rem; color:#8E97A6;">Dashboard Admin</span></div>
+    <a href="#" data-panel="orders" class="active">🧾 Order</a>
+    <a href="#" data-panel="branches">📍 Cabang</a>
+    <a href="#" data-panel="employees">👤 Karyawan</a>
+    <a href="#" data-panel="services">🧩 Layanan</a>
+    <a href="#" data-panel="contact">☎️ Kontak</a>
+    <a href="index.html" style="margin-top:16px; border-top:1px solid #2A3444; padding-top:16px;">&larr; Kembali ke Situs</a>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h2 id="panel-title" style="margin:0;">Order</h2>
+    </div>
+
+    <section class="panel active" id="panel-orders"></section>
+    <section class="panel" id="panel-branches"></section>
+    <section class="panel" id="panel-employees"></section>
+    <section class="panel" id="panel-services"></section>
+    <section class="panel" id="panel-contact"></section>
+  </main>
+</div>
+
+<script>
+/* ==========================================================================
+   Era Visual — Data Store
+   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages).
+   Semua fungsi CRUD untuk cabang, layanan, karyawan, order & kontak ada di sini.
+   ========================================================================== */
+
+const EV_DB_KEY = 'era_visual_db_v1';
+
+const EV_SEED = {
+  contact: {
+    email: 'eravisual17@gmail.com',
+    whatsapp: '6285348650816',       // format internasional tanpa "+", untuk link wa.me
+    whatsapp_display: '085348650816',
+    instagram: '@eravisual1211'
+  },
+  branches: [
+    { id: 'ende', name: 'Cabang Ende', status: 'active', address: '' },
+    { id: 'batam', name: 'Cabang Batam', status: 'coming_soon', address: '' }
+  ],
+  services: [
+    {
+      id: 'electrical',
+      name: 'Electrical Engineering',
+      icon: '⚡',
+      status: 'active',
+      short: 'Instalasi & perawatan listrik rumah.',
+      description: 'Instalasi listrik rumah, perawatan instalasi listrik berkala, dan pekerjaan listrik sederhana sesuai kemampuan dan kompetensi. Pekerjaan teknis akan disesuaikan dengan kondisi dan kebutuhan pelanggan.',
+      isLocal: true
+    },
+    {
+      id: 'editor',
+      name: 'Editor',
+      icon: '🎨',
+      status: 'active',
+      short: 'Desain, edit video, dan dokumen — bisa online.',
+      description: 'Desain logo, desain banner/spanduk/baliho, desain kartu nama, edit video 2D sederhana, pengetikan & layout dokumen, CV ATS, dan surat lamaran kerja. Layanan Editor dapat dikerjakan sepenuhnya secara online.',
+      isLocal: false
+    },
+    {
+      id: 'mechanical',
+      name: 'Mechanical',
+      icon: '🔧',
+      status: 'dev',
+      short: 'Layanan sederhana, masih tahap pengembangan.',
+      description: 'Mechanical masih dalam tahap pengembangan. Saat ini hanya melayani pekerjaan mechanical sederhana yang sesuai dengan kemampuan Era Visual.',
+      isLocal: true
+    },
+    {
+      id: 'sewing',
+      name: 'Sewing',
+      icon: '🧵',
+      status: 'coming_soon',
+      short: 'Segera hadir.',
+      description: 'Layanan Sewing sedang disiapkan dan belum dapat dipesan.',
+      isLocal: true
+    }
+  ],
+  employees: [
+    {
+      id: 'emp-ewaldus',
+      name: 'Ewaldus Sangga',
+      role: 'Leader / Penanggung Jawab',
+      branchId: 'ende',
+      serviceIds: ['electrical'],
+      whatsapp: '6285348650816',
+      photo: '',
+      description: 'Penanggung jawab Cabang Ende.',
+      active: true
+    },
+    {
+      id: 'emp-placeholder-02',
+      name: 'Karyawan 02',
+      role: 'Divisi Electrical Engineering',
+      branchId: 'ende',
+      serviceIds: ['electrical'],
+      whatsapp: '',
+      photo: '',
+      description: 'Data placeholder — lengkapi lewat Dashboard Admin.',
+      active: true
+    },
+    {
+      id: 'emp-placeholder-03',
+      name: 'Karyawan 03',
+      role: 'Divisi Editor',
+      branchId: 'ende',
+      serviceIds: ['editor'],
+      whatsapp: '',
+      photo: '',
+      description: 'Data placeholder — lengkapi lewat Dashboard Admin.',
+      active: true
+    }
+  ],
+  orders: []
+};
+
+function evLoadDB(){
+  let raw = localStorage.getItem(EV_DB_KEY);
+  if(!raw){
+    localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
+    return JSON.parse(JSON.stringify(EV_SEED));
+  }
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
+    return JSON.parse(JSON.stringify(EV_SEED));
+  }
+}
+
+function evSaveDB(db){
+  localStorage.setItem(EV_DB_KEY, JSON.stringify(db));
+}
+
+const EraDB = {
+  reset(){ localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED)); },
+
+  // ---------- Contact ----------
+  getContact(){ return evLoadDB().contact; },
+  saveContact(contact){ const db = evLoadDB(); db.contact = contact; evSaveDB(db); },
+
+  // ---------- Branches ----------
+  getBranches(){ return evLoadDB().branches; },
+  getBranch(id){ return evLoadDB().branches.find(b => b.id === id); },
+  saveBranch(branch){
+    const db = evLoadDB();
+    const i = db.branches.findIndex(b => b.id === branch.id);
+    if(i >= 0) db.branches[i] = branch; else db.branches.push(branch);
+    evSaveDB(db);
+  },
+  deleteBranch(id){
+    const db = evLoadDB();
+    db.branches = db.branches.filter(b => b.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Services ----------
+  getServices(){ return evLoadDB().services; },
+  getService(id){ return evLoadDB().services.find(s => s.id === id); },
+  saveService(service){
+    const db = evLoadDB();
+    const i = db.services.findIndex(s => s.id === service.id);
+    if(i >= 0) db.services[i] = service; else db.services.push(service);
+    evSaveDB(db);
+  },
+  deleteService(id){
+    const db = evLoadDB();
+    db.services = db.services.filter(s => s.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Employees ----------
+  getEmployees(){ return evLoadDB().employees; },
+  getEmployee(id){ return evLoadDB().employees.find(e => e.id === id); },
+  getEmployeesFor(branchId, serviceId){
+    return evLoadDB().employees.filter(e =>
+      e.active && e.branchId === branchId && e.serviceIds.includes(serviceId)
+    );
+  },
+  saveEmployee(emp){
+    const db = evLoadDB();
+    const i = db.employees.findIndex(e => e.id === emp.id);
+    if(i >= 0) db.employees[i] = emp; else db.employees.push(emp);
+    evSaveDB(db);
+  },
+  deleteEmployee(id){
+    const db = evLoadDB();
+    db.employees = db.employees.filter(e => e.id !== id);
+    evSaveDB(db);
+  },
+
+  // ---------- Orders ----------
+  getOrders(){ return evLoadDB().orders.slice().reverse(); },
+  getOrder(id){ return evLoadDB().orders.find(o => o.id === id); },
+  createOrder(order){
+    const db = evLoadDB();
+    const now = new Date();
+    const orderNumber = 'EV-' + now.getFullYear().toString().slice(-2) +
+      String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') +
+      '-' + Math.floor(1000 + Math.random()*9000);
+    const full = Object.assign({
+      id: 'ord-' + Date.now(),
+      orderNumber: orderNumber,
+      status: 'Menunggu',
+      createdAt: now.toISOString()
+    }, order);
+    db.orders.push(full);
+    evSaveDB(db);
+    return full;
+  },
+  updateOrderStatus(id, status){
+    const db = evLoadDB();
+    const o = db.orders.find(o => o.id === id);
+    if(o){ o.status = status; evSaveDB(db); }
+  }
+};
+
+const EV_STATUS_LABEL = {
+  'Menunggu': 'Menunggu Konfirmasi',
+  'Dikonfirmasi': 'Dikonfirmasi',
+  'Diproses': 'Diproses',
+  'Selesai': 'Selesai',
+  'Dibatalkan': 'Dibatalkan'
+};
+
+function evServiceStatusBadge(status){
+  if(status === 'dev') return '<span class="badge dev">Tahap Pengembangan</span>';
+  if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  return '<span class="badge">Tersedia</span>';
+}
+
+function evBranchStatusBadge(status){
+  if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  return '<span class="badge">Aktif</span>';
+}
+
+</script>
+<script>function evEscape(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}</script>
+<script>
+/* ==========================================================================
+   Era Visual — Dashboard Admin
+   Catatan: ini proteksi PIN sisi-klien untuk MVP saja, BUKAN autentikasi
+   yang aman. Ganti ADMIN_PIN sebelum deploy, dan pertimbangkan backend +
+   login sungguhan begitu Era Visual butuh keamanan lebih serius.
+   ========================================================================== */
+
+const ADMIN_PIN = 'eravisual2023';
+const ADMIN_SESSION_KEY = 'era_visual_admin_session';
+
+function evAdminCheckGate(){
+  const gate = document.getElementById('admin-gate');
+  const shell = document.getElementById('admin-shell');
+  if(sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'){
+    gate.style.display = 'none';
+    shell.style.display = 'flex';
+    evAdminInit();
+  }
+}
+
+document.getElementById('gate-submit').addEventListener('click', () => {
+  const val = document.getElementById('gate-pin').value;
+  if(val === ADMIN_PIN){
+    sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    evAdminCheckGate();
+  } else {
+    document.getElementById('gate-error').style.display = 'block';
+  }
+});
+document.getElementById('gate-pin').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') document.getElementById('gate-submit').click();
+});
+
+evAdminCheckGate();
+
+/* ---------------------------------------------------------------------- */
+
+const PANEL_TITLES = {
+  orders: 'Order', branches: 'Cabang', employees: 'Karyawan',
+  services: 'Layanan', contact: 'Kontak'
+};
+
+function evAdminInit(){
+  document.querySelectorAll('.admin-side a[data-panel]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const panel = link.dataset.panel;
+      document.querySelectorAll('.admin-side a[data-panel]').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + panel).classList.add('active');
+      document.getElementById('panel-title').textContent = PANEL_TITLES[panel];
+      evRenderPanel(panel);
+    });
+  });
+  evRenderPanel('orders');
+}
+
+function evRenderPanel(name){
+  const renderers = {
+    orders: evRenderOrdersPanel,
+    branches: evRenderBranchesPanel,
+    employees: evRenderEmployeesPanel,
+    services: evRenderServicesPanel,
+    contact: evRenderContactPanel
+  };
+  renderers[name]();
+}
+
+/* ==================== ORDERS ==================== */
+function evRenderOrdersPanel(){
+  const el = document.getElementById('panel-orders');
+  const orders = EraDB.getOrders();
+  const branches = EraDB.getBranches();
+  const services = EraDB.getServices();
+  const employees = EraDB.getEmployees();
+
+  el.innerHTML = `
+    <div class="inline-form">
+      <div class="form-row">
+        <div class="form-field" style="margin-bottom:0;">
+          <label>Filter Cabang</label>
+          <select id="f-branch"><option value="">Semua Cabang</option>${branches.map(b=>`<option value="${b.id}">${evEscape(b.name)}</option>`).join('')}</select>
+        </div>
+        <div class="form-field" style="margin-bottom:0;">
+          <label>Filter Layanan</label>
+          <select id="f-service"><option value="">Semua Layanan</option>${services.map(s=>`<option value="${s.id}">${evEscape(s.name)}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="form-field" style="margin-bottom:0; margin-top:16px;">
+        <label>Filter Karyawan</label>
+        <select id="f-employee"><option value="">Semua Karyawan</option>${employees.map(e=>`<option value="${e.id}">${evEscape(e.name)}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>No. Order</th><th>Pelanggan</th><th>Cabang</th><th>Layanan</th><th>Penanggung Jawab</th><th>Status</th><th>Waktu</th><th></th></tr></thead>
+        <tbody id="orders-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  function draw(){
+    const fb = document.getElementById('f-branch').value;
+    const fs = document.getElementById('f-service').value;
+    const fe = document.getElementById('f-employee').value;
+    const filtered = orders.filter(o =>
+      (!fb || o.branchId === fb) && (!fs || o.serviceId === fs) && (!fe || o.employeeId === fe)
+    );
+    const tbody = document.getElementById('orders-tbody');
+    if(filtered.length === 0){
+      tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Belum ada order.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = filtered.map(o => `
+      <tr>
+        <td>${evEscape(o.orderNumber)}</td>
+        <td>${evEscape(o.customerName)}<br><span style="color:var(--slate-light); font-size:.8rem;">${evEscape(o.customerWhatsapp)}</span></td>
+        <td>${evEscape(o.branchName)}</td>
+        <td>${evEscape(o.serviceName)}</td>
+        <td>${evEscape(o.employeeName)}</td>
+        <td>
+          <select class="status-select" data-id="${o.id}">
+            ${Object.keys(EV_STATUS_LABEL).map(s => `<option value="${s}" ${o.status===s?'selected':''}>${EV_STATUS_LABEL[s]}</option>`).join('')}
+          </select>
+        </td>
+        <td>${new Date(o.createdAt).toLocaleString('id-ID')}</td>
+        <td><button class="btn btn-ghost btn-sm view-order" data-id="${o.id}">Detail</button></td>
+      </tr>
+    `).join('');
+
+    tbody.querySelectorAll('.status-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        EraDB.updateOrderStatus(sel.dataset.id, sel.value);
+        evShowToastAdmin('Status order diperbarui.');
+      });
+    });
+    tbody.querySelectorAll('.view-order').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const o = EraDB.getOrder(btn.dataset.id);
+        alert(
+          `Order ${o.orderNumber}\n\nDeskripsi:\n${o.description}\n\n` +
+          (o.location ? `Lokasi: ${o.location}\n` : '') +
+          (o.customerEmail ? `Email: ${o.customerEmail}\n` : '') +
+          (o.attachmentName ? `Lampiran: ${o.attachmentName}\n` : '') +
+          (o.notes ? `Catatan: ${o.notes}\n` : '')
+        );
+      });
+    });
+  }
+
+  ['f-branch','f-service','f-employee'].forEach(id => document.getElementById(id).addEventListener('change', draw));
+  draw();
+}
+
+/* ==================== BRANCHES ==================== */
+function evRenderBranchesPanel(){
+  const el = document.getElementById('panel-branches');
+  el.innerHTML = `
+    <div class="inline-form">
+      <h3>Tambah Cabang</h3>
+      <div class="form-row">
+        <div class="form-field"><label>Nama Cabang</label><input id="nb-name" placeholder="Contoh: Cabang Maumere"></div>
+        <div class="form-field"><label>Status</label>
+          <select id="nb-status"><option value="coming_soon">Segera Hadir</option><option value="active">Aktif</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="nb-add">Tambah Cabang</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nama</th><th>Status</th><th></th></tr></thead>
+        <tbody id="branches-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  function draw(){
+    const branches = EraDB.getBranches();
+    document.getElementById('branches-tbody').innerHTML = branches.map(b => `
+      <tr>
+        <td><input class="edit-name" data-id="${b.id}" value="${evEscape(b.name)}" style="border:none; background:transparent; width:100%; font:inherit;"></td>
+        <td>
+          <select class="edit-status" data-id="${b.id}">
+            <option value="active" ${b.status==='active'?'selected':''}>Aktif</option>
+            <option value="coming_soon" ${b.status==='coming_soon'?'selected':''}>Segera Hadir</option>
+          </select>
+        </td>
+        <td class="actions-cell"><button class="btn btn-ghost btn-sm del-branch" data-id="${b.id}">Hapus</button></td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.edit-name').forEach(inp => inp.addEventListener('change', () => {
+      const b = EraDB.getBranch(inp.dataset.id); b.name = inp.value; EraDB.saveBranch(b);
+      evShowToastAdmin('Cabang diperbarui.');
+    }));
+    document.querySelectorAll('.edit-status').forEach(sel => sel.addEventListener('change', () => {
+      const b = EraDB.getBranch(sel.dataset.id); b.status = sel.value; EraDB.saveBranch(b);
+      evShowToastAdmin('Status cabang diperbarui.');
+    }));
+    document.querySelectorAll('.del-branch').forEach(btn => btn.addEventListener('click', () => {
+      if(confirm('Hapus cabang ini? Karyawan pada cabang ini tidak akan otomatis terhapus.')){
+        EraDB.deleteBranch(btn.dataset.id); draw();
+      }
+    }));
+  }
+
+  document.getElementById('nb-add').addEventListener('click', () => {
+    const name = document.getElementById('nb-name').value.trim();
+    if(!name){ evShowToastAdmin('Nama cabang wajib diisi.'); return; }
+    const id = 'branch-' + Date.now();
+    EraDB.saveBranch({ id, name, status: document.getElementById('nb-status').value, address: '' });
+    document.getElementById('nb-name').value = '';
+    draw();
+    evShowToastAdmin('Cabang ditambahkan.');
+  });
+
+  draw();
+}
+
+/* ==================== EMPLOYEES ==================== */
+function evRenderEmployeesPanel(){
+  const el = document.getElementById('panel-employees');
+  const branches = EraDB.getBranches();
+  const services = EraDB.getServices();
+
+  el.innerHTML = `
+    <div class="inline-form">
+      <h3>Tambah Karyawan</h3>
+      <div class="form-row">
+        <div class="form-field"><label>Nama</label><input id="ne-name" placeholder="Nama karyawan"></div>
+        <div class="form-field"><label>Jabatan</label><input id="ne-role" placeholder="Contoh: Divisi Editor"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Cabang</label>
+          <select id="ne-branch">${branches.map(b=>`<option value="${b.id}">${evEscape(b.name)}</option>`).join('')}</select>
+        </div>
+        <div class="form-field"><label>Nomor WhatsApp</label><input id="ne-wa" placeholder="62xxxxxxxxxx"></div>
+      </div>
+      <div class="form-field">
+        <label>Layanan / Divisi</label>
+        <div id="ne-services" style="display:flex; gap:14px; flex-wrap:wrap;">
+          ${services.map(s => `<label style="font-weight:400; font-size:.88rem; display:flex; gap:6px; align-items:center;"><input type="checkbox" value="${s.id}"> ${evEscape(s.name)}</label>`).join('')}
+        </div>
+      </div>
+      <div class="form-field"><label>Foto (URL)</label><input id="ne-photo" placeholder="https://... (opsional)"></div>
+      <div class="form-field"><label>Deskripsi Singkat</label><input id="ne-desc" placeholder="Opsional"></div>
+      <button class="btn btn-primary btn-sm" id="ne-add">Tambah Karyawan</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nama</th><th>Jabatan</th><th>Cabang</th><th>Layanan</th><th>WhatsApp</th><th>Aktif</th><th></th></tr></thead>
+        <tbody id="employees-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  function draw(){
+    const employees = EraDB.getEmployees();
+    document.getElementById('employees-tbody').innerHTML = employees.map(e => {
+      const svcNames = e.serviceIds.map(id => (EraDB.getService(id)||{}).name).filter(Boolean).join(', ');
+      const branchName = (EraDB.getBranch(e.branchId)||{}).name || '-';
+      return `
+        <tr>
+          <td>${evEscape(e.name)}</td>
+          <td>${evEscape(e.role)}</td>
+          <td>${evEscape(branchName)}</td>
+          <td>${evEscape(svcNames)}</td>
+          <td>${evEscape(e.whatsapp || '-')}</td>
+          <td><input type="checkbox" class="edit-active" data-id="${e.id}" ${e.active ? 'checked' : ''}></td>
+          <td><button class="btn btn-ghost btn-sm del-emp" data-id="${e.id}">Hapus</button></td>
+        </tr>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.edit-active').forEach(cb => cb.addEventListener('change', () => {
+      const emp = EraDB.getEmployee(cb.dataset.id); emp.active = cb.checked; EraDB.saveEmployee(emp);
+      evShowToastAdmin('Status aktif karyawan diperbarui.');
+    }));
+    document.querySelectorAll('.del-emp').forEach(btn => btn.addEventListener('click', () => {
+      if(confirm('Hapus karyawan ini?')){ EraDB.deleteEmployee(btn.dataset.id); draw(); }
+    }));
+  }
+
+  document.getElementById('ne-add').addEventListener('click', () => {
+    const name = document.getElementById('ne-name').value.trim();
+    const role = document.getElementById('ne-role').value.trim();
+    const branchId = document.getElementById('ne-branch').value;
+    const whatsapp = document.getElementById('ne-wa').value.trim();
+    const photo = document.getElementById('ne-photo').value.trim();
+    const description = document.getElementById('ne-desc').value.trim();
+    const serviceIds = Array.from(document.querySelectorAll('#ne-services input:checked')).map(i => i.value);
+
+    if(!name || !role || serviceIds.length === 0){
+      evShowToastAdmin('Nama, jabatan, dan minimal satu layanan wajib diisi.'); return;
+    }
+    EraDB.saveEmployee({
+      id: 'emp-' + Date.now(), name, role, branchId, serviceIds, whatsapp, photo, description, active: true
+    });
+    ['ne-name','ne-role','ne-wa','ne-photo','ne-desc'].forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('#ne-services input').forEach(i => i.checked = false);
+    draw();
+    evShowToastAdmin('Karyawan ditambahkan.');
+  });
+
+  draw();
+}
+
+/* ==================== SERVICES ==================== */
+function evRenderServicesPanel(){
+  const el = document.getElementById('panel-services');
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Layanan</th><th>Status</th><th>Deskripsi Singkat</th></tr></thead>
+    <tbody id="services-tbody"></tbody>
+  </table></div>`;
+
+  function draw(){
+    const services = EraDB.getServices();
+    document.getElementById('services-tbody').innerHTML = services.map(s => `
+      <tr>
+        <td>${s.icon} ${evEscape(s.name)}</td>
+        <td>
+          <select class="edit-svc-status" data-id="${s.id}">
+            <option value="active" ${s.status==='active'?'selected':''}>Aktif</option>
+            <option value="dev" ${s.status==='dev'?'selected':''}>Tahap Pengembangan</option>
+            <option value="coming_soon" ${s.status==='coming_soon'?'selected':''}>Segera Hadir</option>
+          </select>
+        </td>
+        <td><input class="edit-svc-short" data-id="${s.id}" value="${evEscape(s.short)}" style="border:none; background:transparent; width:100%; font:inherit;"></td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.edit-svc-status').forEach(sel => sel.addEventListener('change', () => {
+      const s = EraDB.getService(sel.dataset.id); s.status = sel.value; EraDB.saveService(s);
+      evShowToastAdmin('Status layanan diperbarui.');
+    }));
+    document.querySelectorAll('.edit-svc-short').forEach(inp => inp.addEventListener('change', () => {
+      const s = EraDB.getService(inp.dataset.id); s.short = inp.value; EraDB.saveService(s);
+      evShowToastAdmin('Deskripsi layanan diperbarui.');
+    }));
+  }
+  draw();
+}
+
+/* ==================== CONTACT ==================== */
+function evRenderContactPanel(){
+  const el = document.getElementById('panel-contact');
+  const c = EraDB.getContact();
+  el.innerHTML = `
+    <div class="inline-form" style="max-width:480px;">
+      <div class="form-field"><label>Email</label><input id="c-email" value="${evEscape(c.email)}"></div>
+      <div class="form-field"><label>WhatsApp (format 62xxxxxxxxxx)</label><input id="c-wa" value="${evEscape(c.whatsapp)}"></div>
+      <div class="form-field"><label>WhatsApp (tampilan, contoh 08xxxxxxxxxx)</label><input id="c-wa-display" value="${evEscape(c.whatsapp_display)}"></div>
+      <div class="form-field"><label>Instagram</label><input id="c-ig" value="${evEscape(c.instagram)}"></div>
+      <button class="btn btn-primary btn-sm" id="c-save">Simpan Kontak</button>
+    </div>
+  `;
+  document.getElementById('c-save').addEventListener('click', () => {
+    EraDB.saveContact({
+      email: document.getElementById('c-email').value.trim(),
+      whatsapp: document.getElementById('c-wa').value.trim(),
+      whatsapp_display: document.getElementById('c-wa-display').value.trim(),
+      instagram: document.getElementById('c-ig').value.trim()
+    });
+    evShowToastAdmin('Kontak diperbarui.');
+  });
+}
+
+/* ==================== Toast (admin, tanpa app.js) ==================== */
+function evShowToastAdmin(msg){
+  let t = document.getElementById('admin-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'admin-toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+</script>
+</body>
+</html>
