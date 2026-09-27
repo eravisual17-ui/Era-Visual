@@ -386,42 +386,54 @@ button{font-family:inherit;}
 /* ==========================================================================
    Era Visual — Data Store
    Simulasi backend memakai localStorage (khusus MVP / GitHub Pages), dengan
-   opsi tambahan menyambung ke Google Sheets (lewat Google Apps Script) supaya
-   ORDER bisa terpusat dari semua perangkat. Lihat README bagian "Order
-   Terpusat dengan Google Sheets" untuk cara mengaktifkannya.
+   opsi tambahan menyambung ke Google Sheets lewat SheetDB.io supaya ORDER
+   bisa terpusat dari semua perangkat. Lihat README bagian "Order Terpusat
+   dengan Google Sheets (SheetDB)" untuk cara mengaktifkannya.
    Semua fungsi CRUD untuk cabang, layanan, karyawan, order & kontak ada di sini.
    ========================================================================== */
 
 const EV_DB_KEY = 'era_visual_db_v1';
 
-// Ganti dengan URL Web App Google Apps Script kamu supaya ORDER tersimpan
-// terpusat (bisa dilihat dari HP mana saja), bukan cuma di localStorage
-// perangkat masing-masing. Biarkan seperti ini (placeholder) untuk tetap
-// pakai mode localStorage biasa.
-const ERA_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyBOOcm_GKhx6J-TpwGUh2deYQXh8fDO9FrLNfBEzy8aP18O4SxbcttBuhHSmwhv7zR/exec';
+// Ganti dengan URL API dari SheetDB.io (format: https://sheetdb.io/api/v1/xxxxxxxxxxxxx)
+// supaya ORDER tersimpan terpusat (bisa dilihat dari HP mana saja), bukan
+// cuma di localStorage perangkat masing-masing. Biarkan seperti ini
+// (placeholder) untuk tetap pakai mode localStorage biasa.
+const ERA_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_ANDA';
 
 function evBackendConfigured(){
   return typeof ERA_BACKEND_URL === 'string' && !ERA_BACKEND_URL.startsWith('GANTI_') && ERA_BACKEND_URL.length > 0;
 }
 
-// Kirim ke Google Sheets tanpa memblokir tampilan (fire-and-forget).
-// Pakai Content-Type text/plain supaya tidak kena preflight CORS yang
-// biasanya gagal di Web App Apps Script.
+// Kirim order baru ke SheetDB (fire-and-forget, tidak memblokir tampilan).
 function evBackendSend(payload){
   if(!evBackendConfigured()) return Promise.resolve(null);
-  return fetch(ERA_BACKEND_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  }).then(r => r.json()).catch(err => { console.error('Gagal kirim ke backend:', err); return null; });
+
+  if(payload.action === 'create'){
+    return fetch(ERA_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload.order] })
+    }).catch(err => { console.error('Gagal kirim ke SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'updateStatus'){
+    // SheetDB: PATCH ke /id/<id> untuk update baris yang cocok di kolom "id"
+    return fetch(ERA_BACKEND_URL + '/id/' + encodeURIComponent(payload.id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { status: payload.status } })
+    }).catch(err => { console.error('Gagal update status di SheetDB:', err); return null; });
+  }
+
+  return Promise.resolve(null);
 }
 
 function evBackendList(){
   if(!evBackendConfigured()) return Promise.resolve(null);
-  return fetch(ERA_BACKEND_URL + '?action=list')
+  return fetch(ERA_BACKEND_URL)
     .then(r => r.json())
-    .then(res => (res && res.ok) ? res.orders : null)
-    .catch(err => { console.error('Gagal ambil data dari backend:', err); return null; });
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil data dari SheetDB:', err); return null; });
 }
 
 const EV_SEED = {

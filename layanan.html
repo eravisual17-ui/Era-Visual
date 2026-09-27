@@ -118,8 +118,8 @@ button{font-family:inherit;}
 .nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
 .nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
 .nav-cta{display:flex; align-items:center; gap:12px;}
-.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px;}
-.nav-toggle span{display:block; width:22px; height:2px; background:var(--ink); margin:5px 0; transition:.2s;}
+.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:10px 9px;}
+.nav-toggle span{display:block; width:25px; height:2.5px; border-radius:2px; background:var(--ink); margin:6px 0; transition:.2s;}
 
 @media (max-width:860px){
   .nav-links{
@@ -321,6 +321,32 @@ button{font-family:inherit;}
 
 .mono-note{font-size:.8rem; color:var(--slate-light); background:var(--blue-50); border-radius:var(--radius-s); padding:10px 14px;}
 
+/* ---------- News / Berita cards ---------- */
+.news-grid{display:grid; gap:26px; grid-template-columns:repeat(2,1fr);}
+@media (max-width:760px){ .news-grid{grid-template-columns:1fr;} }
+.news-card{
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  overflow:hidden;
+  background:var(--white);
+  transition:box-shadow .15s ease, border-color .15s ease;
+  display:flex; flex-direction:column;
+}
+.news-card:hover{box-shadow:var(--shadow-card); border-color:#D3DEEE;}
+.news-card .news-img{
+  width:100%;
+  height:auto;
+  display:block;
+  background:var(--blue-50);
+}
+.news-card .news-body{padding:20px 22px 22px;}
+.news-card .news-date{font-size:.78rem; color:var(--blue-600); font-weight:600; margin-bottom:6px;}
+.news-card h3{margin-bottom:8px;}
+.news-card .news-excerpt{margin-bottom:10px;}
+.news-card .news-full{display:none; margin-top:6px;}
+.news-card.expanded .news-full{display:block;}
+.news-toggle{background:none; border:none; color:var(--blue-600); font-weight:600; font-size:.88rem; cursor:pointer; padding:0;}
+
 /* ---------- Toast ---------- */
 .toast{
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -361,11 +387,56 @@ button{font-family:inherit;}
 <script>
 /* ==========================================================================
    Era Visual — Data Store
-   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages).
+   Simulasi backend memakai localStorage (khusus MVP / GitHub Pages), dengan
+   opsi tambahan menyambung ke Google Sheets lewat SheetDB.io supaya ORDER
+   bisa terpusat dari semua perangkat. Lihat README bagian "Order Terpusat
+   dengan Google Sheets (SheetDB)" untuk cara mengaktifkannya.
    Semua fungsi CRUD untuk cabang, layanan, karyawan, order & kontak ada di sini.
    ========================================================================== */
 
 const EV_DB_KEY = 'era_visual_db_v1';
+
+// Ganti dengan URL API dari SheetDB.io (format: https://sheetdb.io/api/v1/xxxxxxxxxxxxx)
+// supaya ORDER tersimpan terpusat (bisa dilihat dari HP mana saja), bukan
+// cuma di localStorage perangkat masing-masing. Biarkan seperti ini
+// (placeholder) untuk tetap pakai mode localStorage biasa.
+const ERA_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_ANDA';
+
+function evBackendConfigured(){
+  return typeof ERA_BACKEND_URL === 'string' && !ERA_BACKEND_URL.startsWith('GANTI_') && ERA_BACKEND_URL.length > 0;
+}
+
+// Kirim order baru ke SheetDB (fire-and-forget, tidak memblokir tampilan).
+function evBackendSend(payload){
+  if(!evBackendConfigured()) return Promise.resolve(null);
+
+  if(payload.action === 'create'){
+    return fetch(ERA_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload.order] })
+    }).catch(err => { console.error('Gagal kirim ke SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'updateStatus'){
+    // SheetDB: PATCH ke /id/<id> untuk update baris yang cocok di kolom "id"
+    return fetch(ERA_BACKEND_URL + '/id/' + encodeURIComponent(payload.id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { status: payload.status } })
+    }).catch(err => { console.error('Gagal update status di SheetDB:', err); return null; });
+  }
+
+  return Promise.resolve(null);
+}
+
+function evBackendList(){
+  if(!evBackendConfigured()) return Promise.resolve(null);
+  return fetch(ERA_BACKEND_URL)
+    .then(r => r.json())
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil data dari SheetDB:', err); return null; });
+}
 
 const EV_SEED = {
   contact: {
@@ -451,7 +522,8 @@ const EV_SEED = {
       active: true
     }
   ],
-  orders: []
+  orders: [],
+  posts: []
 };
 
 function evLoadDB(){
@@ -461,7 +533,9 @@ function evLoadDB(){
     return JSON.parse(JSON.stringify(EV_SEED));
   }
   try{
-    return JSON.parse(raw);
+    const db = JSON.parse(raw);
+    if(!Array.isArray(db.posts)) db.posts = []; // migrasi data lama yang belum punya "posts"
+    return db;
   }catch(e){
     localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED));
     return JSON.parse(JSON.stringify(EV_SEED));
@@ -532,6 +606,12 @@ const EraDB = {
   // ---------- Orders ----------
   getOrders(){ return evLoadDB().orders.slice().reverse(); },
   getOrder(id){ return evLoadDB().orders.find(o => o.id === id); },
+  getOrdersRemote(){
+    return evBackendList().then(remote => {
+      if(!remote) return null;
+      return remote.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    });
+  },
   createOrder(order){
     const db = evLoadDB();
     const now = new Date();
@@ -546,12 +626,31 @@ const EraDB = {
     }, order);
     db.orders.push(full);
     evSaveDB(db);
+    evBackendSend({ action: 'create', order: full }); // kirim ke Google Sheets kalau sudah dikonfigurasi
     return full;
   },
   updateOrderStatus(id, status){
     const db = evLoadDB();
     const o = db.orders.find(o => o.id === id);
     if(o){ o.status = status; evSaveDB(db); }
+    evBackendSend({ action: 'updateStatus', id, status });
+  },
+
+  // ---------- Posts (Berita / Info / Iklan) ----------
+  getPosts(){
+    return evLoadDB().posts.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  },
+  getPost(id){ return evLoadDB().posts.find(p => p.id === id); },
+  savePost(post){
+    const db = evLoadDB();
+    const i = db.posts.findIndex(p => p.id === post.id);
+    if(i >= 0) db.posts[i] = post; else db.posts.push(post);
+    evSaveDB(db);
+  },
+  deletePost(id){
+    const db = evLoadDB();
+    db.posts = db.posts.filter(p => p.id !== id);
+    evSaveDB(db);
   }
 };
 
@@ -600,6 +699,7 @@ function evRenderNavbar(){
         ${evNavLink('index.html','Home')}
         ${evNavLink('layanan.html','Layanan')}
         ${evNavLink('cabang.html','Cabang')}
+        ${evNavLink('berita.html','Berita')}
         ${evNavLink('cara-order.html','Cara Order')}
         ${evNavLink('tentang.html','Tentang Kami')}
         ${evNavLink('kontak.html','Kontak')}
