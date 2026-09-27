@@ -843,6 +843,25 @@ function evRenderNavbar(){
   el.innerHTML = `
     <div class="navbar-inner">
       <a href="index.html" class="nav-brand"><img class="mark" src="${EV_LOGO_IMG}" alt="Logo Era Visual"><span>Era Visual</span></a>
+      <div class="nav-cta">
+        <a href="pesan.html" class="btn btn-primary btn-sm">Pesan Sekarang</a>
+        <button class="nav-toggle" id="ev-nav-toggle" aria-label="Buka menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Panel menu & overlay-nya sengaja ditaruh langsung di <body> (bukan di
+  // dalam .navbar) karena .navbar punya backdrop-filter — elemen dengan
+  // position:fixed di dalam ancestor ber-backdrop-filter jadi "fixed" relatif
+  // ke ancestor itu, bukan ke layar, sehingga ikut bergeser saat halaman
+  // discroll. Menaruhnya di body menghindari masalah itu.
+  let drawer = document.getElementById('ev-nav-drawer-root');
+  if(!drawer){
+    drawer = document.createElement('div');
+    drawer.id = 'ev-nav-drawer-root';
+    drawer.innerHTML = `
       <div class="nav-overlay" id="ev-nav-overlay"></div>
       <nav class="nav-links" id="ev-nav-links">
         <div class="nav-links-head">
@@ -857,14 +876,10 @@ function evRenderNavbar(){
         ${evNavLink('tentang.html','Tentang Kami')}
         ${evNavLink('kontak.html','Kontak')}
       </nav>
-      <div class="nav-cta">
-        <a href="pesan.html" class="btn btn-primary btn-sm">Pesan Sekarang</a>
-        <button class="nav-toggle" id="ev-nav-toggle" aria-label="Buka menu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </div>
-  `;
+    `;
+    document.body.appendChild(drawer);
+  }
+
   const toggle = document.getElementById('ev-nav-toggle');
   const closeBtn = document.getElementById('ev-nav-close');
   const overlay = document.getElementById('ev-nav-overlay');
