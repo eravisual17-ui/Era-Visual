@@ -117,25 +117,54 @@ button{font-family:inherit;}
 .nav-links{display:flex; align-items:center; gap:28px;}
 .nav-links a{font-size:.92rem; font-weight:500; color:var(--slate); padding:6px 0; border-bottom:2px solid transparent;}
 .nav-links a.active, .nav-links a:hover{color:var(--ink); border-color:var(--blue-600);}
+.nav-links-head{display:none;}
 .nav-cta{display:flex; align-items:center; gap:12px;}
 .nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:10px 9px;}
 .nav-toggle span{display:block; width:25px; height:2.5px; border-radius:2px; background:var(--ink); margin:6px 0; transition:.2s;}
 
 @media (max-width:860px){
-  .nav-links{
-    position:fixed; top:64px; left:0; right:0; bottom:0;
-    background:var(--white);
-    flex-direction:column; align-items:flex-start;
-    padding:24px 24px 40px;
-    gap:6px;
-    transform:translateX(100%);
-    transition:transform .25s ease;
-    overflow-y:auto;
+  .nav-overlay{
+    position:fixed; inset:0;
+    background:rgba(16,22,32,0.55);
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:150;
   }
-  .nav-links a{width:100%; padding:14px 4px; border-bottom:1px solid var(--line); border-radius:0;}
+  .nav-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .nav-links{
+    position:fixed; top:0; right:0; bottom:0;
+    width:82%; max-width:320px;
+    background:var(--white);
+    flex-direction:column; align-items:stretch;
+    padding:22px 22px 40px;
+    gap:2px;
+    transform:translateX(100%);
+    transition:transform .28s ease;
+    overflow-y:auto;
+    z-index:200;
+    box-shadow:-8px 0 32px rgba(22,32,46,0.18);
+  }
+  .nav-links-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:16px; margin-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .nav-links-head span{font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+  .nav-close{
+    background:var(--blue-50); border:none; border-radius:10px;
+    width:36px; height:36px; font-size:1.2rem; line-height:1;
+    color:var(--ink); cursor:pointer;
+  }
+  .nav-links a{
+    width:100%; padding:16px 8px;
+    font-size:1.05rem; font-weight:600;
+    border-bottom:1px solid var(--line); border-radius:0;
+  }
   .nav-links.open{transform:translateX(0);}
   .nav-toggle{display:block;}
   .nav-cta .btn-outline{display:none;}
+  body.nav-open{overflow:hidden;}
 }
 
 /* ---------- Hero ---------- */
@@ -151,7 +180,17 @@ button{font-family:inherit;}
   max-width:640px;
   margin:0 auto;
 }
-.hero-logo{width:92px; height:92px; margin-bottom:6px; object-fit:contain;}
+.hero-logo{width:92px; height:92px; margin-bottom:6px; object-fit:contain; display:block;}
+.hero-logo-frame{
+  width:120px; height:120px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--white);
+  border-radius:24px;
+  border:1px solid var(--blue-100);
+  box-shadow:0 6px 20px rgba(47,111,237,0.14), 0 2px 6px rgba(22,32,46,0.06);
+  margin:0 auto 4px;
+}
+.hero-logo-frame .hero-logo{margin-bottom:0;}
 .hero-tag{
   color:var(--blue-600); font-weight:600; font-size:.95rem;
 }
@@ -804,7 +843,12 @@ function evRenderNavbar(){
   el.innerHTML = `
     <div class="navbar-inner">
       <a href="index.html" class="nav-brand"><img class="mark" src="${EV_LOGO_IMG}" alt="Logo Era Visual"><span>Era Visual</span></a>
+      <div class="nav-overlay" id="ev-nav-overlay"></div>
       <nav class="nav-links" id="ev-nav-links">
+        <div class="nav-links-head">
+          <span>Menu</span>
+          <button class="nav-close" id="ev-nav-close" aria-label="Tutup menu">&times;</button>
+        </div>
         ${evNavLink('index.html','Home')}
         ${evNavLink('layanan.html','Layanan')}
         ${evNavLink('cabang.html','Cabang')}
@@ -822,8 +866,27 @@ function evRenderNavbar(){
     </div>
   `;
   const toggle = document.getElementById('ev-nav-toggle');
+  const closeBtn = document.getElementById('ev-nav-close');
+  const overlay = document.getElementById('ev-nav-overlay');
   const links = document.getElementById('ev-nav-links');
-  toggle.addEventListener('click', () => links.classList.toggle('open'));
+
+  function openMenu(){
+    links.classList.add('open');
+    overlay.classList.add('open');
+    document.body.classList.add('nav-open');
+  }
+  function closeMenu(){
+    links.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.classList.remove('nav-open');
+  }
+
+  toggle.addEventListener('click', () => {
+    links.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  closeBtn.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', closeMenu);
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 }
 
 function evRenderFooter(){
