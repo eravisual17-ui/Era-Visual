@@ -439,7 +439,7 @@ function evBackendList(){
 // ---- Karyawan terpusat (SheetDB terpisah, sheet berbeda dari Order) ----
 // Ganti dengan URL API SheetDB khusus untuk data Karyawan.
 // Foto TIDAK ikut disinkron (tetap tersimpan lokal per HP saja).
-const ERA_EMPLOYEES_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_KARYAWAN_ANDA';
+const ERA_EMPLOYEES_BACKEND_URL = 'https://sheetdb.io/api/v1/y6x046dtx26y9';
 
 function evEmployeesBackendConfigured(){
   return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
@@ -666,7 +666,9 @@ const EraDB = {
   syncEmployeesFromRemote(){
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
     return evEmployeesBackendList().then(remote => {
-      if(!remote) return false;
+      // Kalau sheet masih kosong, jangan timpa data lokal (supaya karyawan
+      // yang sudah ada tidak hilang sebelum sempat dikirim ke Sheets).
+      if(!remote || remote.length === 0) return false;
       const db = evLoadDB();
       const localPhotoById = {};
       db.employees.forEach(e => { if(e.photo) localPhotoById[e.id] = e.photo; });
@@ -683,6 +685,30 @@ const EraDB = {
       }));
       evSaveDB(db);
       return true;
+    });
+  },
+  // Kirim SEMUA karyawan yang ada di HP ini ke Google Sheets sekaligus.
+  // Dipakai sekali di awal supaya karyawan bawaan/lama ikut masuk ke sheet
+  // (karena mereka dibuat sebelum sheet-nya disambungkan).
+  pushAllEmployeesToRemote(){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    const employees = evLoadDB().employees;
+    if(employees.length === 0) return Promise.resolve(true);
+    const rows = employees.map(e => ({
+      id: e.id,
+      name: e.name,
+      role: e.role,
+      branchId: e.branchId,
+      serviceIds: (e.serviceIds || []).join(','),
+      whatsapp: e.whatsapp || '',
+      description: e.description || '',
+      active: e.active ? 'true' : 'false'
+    }));
+    return fetch(ERA_EMPLOYEES_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: rows })
+    }).then(r => r.ok).catch(err => { console.error('Gagal kirim semua karyawan:', err); return false;
     });
   },
 
