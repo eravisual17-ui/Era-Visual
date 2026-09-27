@@ -398,7 +398,7 @@ const EV_DB_KEY = 'era_visual_db_v1';
 // supaya ORDER tersimpan terpusat (bisa dilihat dari HP mana saja), bukan
 // cuma di localStorage perangkat masing-masing. Biarkan seperti ini
 // (placeholder) untuk tetap pakai mode localStorage biasa.
-const ERA_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_ANDA';
+const ERA_BACKEND_URL = 'https://sheetdb.io/api/v1/a03ovjkr3edll';
 
 function evBackendConfigured(){
   return typeof ERA_BACKEND_URL === 'string' && !ERA_BACKEND_URL.startsWith('GANTI_') && ERA_BACKEND_URL.length > 0;
@@ -434,6 +434,51 @@ function evBackendList(){
     .then(r => r.json())
     .then(rows => Array.isArray(rows) ? rows : null)
     .catch(err => { console.error('Gagal ambil data dari SheetDB:', err); return null; });
+}
+
+// ---- Karyawan terpusat (SheetDB terpisah, sheet berbeda dari Order) ----
+// Ganti dengan URL API SheetDB khusus untuk data Karyawan.
+// Foto TIDAK ikut disinkron (tetap tersimpan lokal per HP saja).
+const ERA_EMPLOYEES_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_KARYAWAN_ANDA';
+
+function evEmployeesBackendConfigured(){
+  return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
+}
+
+function evEmployeesBackendSend(payload){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+
+  if(payload.action === 'create'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload.employee] })
+    }).catch(err => { console.error('Gagal kirim karyawan ke SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'update'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL + '/id/' + encodeURIComponent(payload.employee.id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: payload.employee })
+    }).catch(err => { console.error('Gagal update karyawan di SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'delete'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL + '/id/' + encodeURIComponent(payload.id), {
+      method: 'DELETE'
+    }).catch(err => { console.error('Gagal hapus karyawan di SheetDB:', err); return null; });
+  }
+
+  return Promise.resolve(null);
+}
+
+function evEmployeesBackendList(){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  return fetch(ERA_EMPLOYEES_BACKEND_URL)
+    .then(r => r.json())
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil data karyawan dari SheetDB:', err); return null; });
 }
 
 const EV_SEED = {
@@ -592,13 +637,53 @@ const EraDB = {
   saveEmployee(emp){
     const db = evLoadDB();
     const i = db.employees.findIndex(e => e.id === emp.id);
+    const isNew = i < 0;
     if(i >= 0) db.employees[i] = emp; else db.employees.push(emp);
     evSaveDB(db);
+    // Kirim ke SheetDB (foto sengaja TIDAK ikut dikirim — tetap lokal per HP)
+    evEmployeesBackendSend({
+      action: isNew ? 'create' : 'update',
+      employee: {
+        id: emp.id,
+        name: emp.name,
+        role: emp.role,
+        branchId: emp.branchId,
+        serviceIds: (emp.serviceIds || []).join(','),
+        whatsapp: emp.whatsapp || '',
+        description: emp.description || '',
+        active: emp.active ? 'true' : 'false'
+      }
+    });
   },
   deleteEmployee(id){
     const db = evLoadDB();
     db.employees = db.employees.filter(e => e.id !== id);
     evSaveDB(db);
+    evEmployeesBackendSend({ action: 'delete', id });
+  },
+  // Ambil data karyawan terbaru dari SheetDB dan perbarui cache lokal.
+  // Foto lokal yang sudah ada tetap dipertahankan (tidak ikut disinkron).
+  syncEmployeesFromRemote(){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    return evEmployeesBackendList().then(remote => {
+      if(!remote) return false;
+      const db = evLoadDB();
+      const localPhotoById = {};
+      db.employees.forEach(e => { if(e.photo) localPhotoById[e.id] = e.photo; });
+      db.employees = remote.map(r => ({
+        id: r.id,
+        name: r.name || '',
+        role: r.role || '',
+        branchId: r.branchId || '',
+        serviceIds: (r.serviceIds || '').split(',').map(s => s.trim()).filter(Boolean),
+        whatsapp: r.whatsapp || '',
+        photo: localPhotoById[r.id] || '',
+        description: r.description || '',
+        active: (r.active === 'true' || r.active === true)
+      }));
+      evSaveDB(db);
+      return true;
+    });
   },
 
   // ---------- Orders ----------
@@ -777,43 +862,48 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const branches = EraDB.getBranches();
-  const employees = EraDB.getEmployees();
-  const services = EraDB.getServices();
-  const wrap = document.getElementById('branch-list');
+  function render(){
+    const branches = EraDB.getBranches();
+    const employees = EraDB.getEmployees();
+    const services = EraDB.getServices();
+    const wrap = document.getElementById('branch-list');
 
-  wrap.innerHTML = branches.map(b => {
-    const branchEmployees = employees.filter(e => e.branchId === b.id && e.active);
-    const isActive = b.status === 'active';
+    wrap.innerHTML = branches.map(b => {
+      const branchEmployees = employees.filter(e => e.branchId === b.id && e.active);
+      const isActive = b.status === 'active';
 
-    let body;
-    if(!isActive){
-      body = `<p class="mono-note">Cabang ini akan dikembangkan kemudian. Data karyawan dan layanan belum tersedia.</p>`;
-    } else if(branchEmployees.length === 0){
-      body = `<p class="mono-note">Belum ada karyawan terdaftar di cabang ini.</p>`;
-    } else {
-      body = `<div class="grid grid-3">` + branchEmployees.map(emp => {
-        const svcNames = emp.serviceIds.map(id => (services.find(s=>s.id===id)||{}).name).filter(Boolean).join(', ');
-        return `
-          <div class="card employee-card">
-            <div class="avatar">${emp.photo ? `<img src="${evEscape(emp.photo)}" alt="${evEscape(emp.name)}">` : evEscape(emp.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</div>
-            <h3 style="margin-bottom:2px;">${evEscape(emp.name)}</h3>
-            <p style="margin-bottom:4px; color:var(--blue-600); font-weight:600; font-size:.85rem;">${evEscape(emp.role)}</p>
-            <p style="font-size:.85rem;">${evEscape(svcNames)}</p>
-          </div>`;
-      }).join('') + `</div>`;
-    }
+      let body;
+      if(!isActive){
+        body = `<p class="mono-note">Cabang ini akan dikembangkan kemudian. Data karyawan dan layanan belum tersedia.</p>`;
+      } else if(branchEmployees.length === 0){
+        body = `<p class="mono-note">Belum ada karyawan terdaftar di cabang ini.</p>`;
+      } else {
+        body = `<div class="grid grid-3">` + branchEmployees.map(emp => {
+          const svcNames = emp.serviceIds.map(id => (services.find(s=>s.id===id)||{}).name).filter(Boolean).join(', ');
+          return `
+            <div class="card employee-card">
+              <div class="avatar">${emp.photo ? `<img src="${evEscape(emp.photo)}" alt="${evEscape(emp.name)}">` : evEscape(emp.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</div>
+              <h3 style="margin-bottom:2px;">${evEscape(emp.name)}</h3>
+              <p style="margin-bottom:4px; color:var(--blue-600); font-weight:600; font-size:.85rem;">${evEscape(emp.role)}</p>
+              <p style="font-size:.85rem;">${evEscape(svcNames)}</p>
+            </div>`;
+        }).join('') + `</div>`;
+      }
 
-    return `
-      <div class="card branch-card">
-        ${evBranchStatusBadge(b.status)}
-        <h2 style="margin-bottom:6px;">${evEscape(b.name)}</h2>
-        <p>${isActive ? 'Cabang yang aktif saat ini.' : 'Segera Hadir.'}</p>
+      return `
+        <div class="card branch-card">
+          ${evBranchStatusBadge(b.status)}
+          <h2 style="margin-bottom:6px;">${evEscape(b.name)}</h2>
+          <p>${isActive ? 'Cabang yang aktif saat ini.' : 'Segera Hadir.'}</p>
         ${body}
         ${isActive ? `<a href="pesan.html?branch=${b.id}" class="btn btn-primary btn-sm">Pesan di ${evEscape(b.name)}</a>` : ''}
       </div>
     `;
-  }).join('');
+    }).join('');
+  }
+
+  render();
+  EraDB.syncEmployeesFromRemote().then(changed => { if(changed) render(); });
 });
 </script>
 </body>

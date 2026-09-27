@@ -436,6 +436,51 @@ function evBackendList(){
     .catch(err => { console.error('Gagal ambil data dari SheetDB:', err); return null; });
 }
 
+// ---- Karyawan terpusat (SheetDB terpisah, sheet berbeda dari Order) ----
+// Ganti dengan URL API SheetDB khusus untuk data Karyawan.
+// Foto TIDAK ikut disinkron (tetap tersimpan lokal per HP saja).
+const ERA_EMPLOYEES_BACKEND_URL = 'GANTI_DENGAN_URL_SHEETDB_KARYAWAN_ANDA';
+
+function evEmployeesBackendConfigured(){
+  return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
+}
+
+function evEmployeesBackendSend(payload){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+
+  if(payload.action === 'create'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload.employee] })
+    }).catch(err => { console.error('Gagal kirim karyawan ke SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'update'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL + '/id/' + encodeURIComponent(payload.employee.id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: payload.employee })
+    }).catch(err => { console.error('Gagal update karyawan di SheetDB:', err); return null; });
+  }
+
+  if(payload.action === 'delete'){
+    return fetch(ERA_EMPLOYEES_BACKEND_URL + '/id/' + encodeURIComponent(payload.id), {
+      method: 'DELETE'
+    }).catch(err => { console.error('Gagal hapus karyawan di SheetDB:', err); return null; });
+  }
+
+  return Promise.resolve(null);
+}
+
+function evEmployeesBackendList(){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  return fetch(ERA_EMPLOYEES_BACKEND_URL)
+    .then(r => r.json())
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil data karyawan dari SheetDB:', err); return null; });
+}
+
 const EV_SEED = {
   contact: {
     email: 'eravisual17@gmail.com',
@@ -592,13 +637,53 @@ const EraDB = {
   saveEmployee(emp){
     const db = evLoadDB();
     const i = db.employees.findIndex(e => e.id === emp.id);
+    const isNew = i < 0;
     if(i >= 0) db.employees[i] = emp; else db.employees.push(emp);
     evSaveDB(db);
+    // Kirim ke SheetDB (foto sengaja TIDAK ikut dikirim — tetap lokal per HP)
+    evEmployeesBackendSend({
+      action: isNew ? 'create' : 'update',
+      employee: {
+        id: emp.id,
+        name: emp.name,
+        role: emp.role,
+        branchId: emp.branchId,
+        serviceIds: (emp.serviceIds || []).join(','),
+        whatsapp: emp.whatsapp || '',
+        description: emp.description || '',
+        active: emp.active ? 'true' : 'false'
+      }
+    });
   },
   deleteEmployee(id){
     const db = evLoadDB();
     db.employees = db.employees.filter(e => e.id !== id);
     evSaveDB(db);
+    evEmployeesBackendSend({ action: 'delete', id });
+  },
+  // Ambil data karyawan terbaru dari SheetDB dan perbarui cache lokal.
+  // Foto lokal yang sudah ada tetap dipertahankan (tidak ikut disinkron).
+  syncEmployeesFromRemote(){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    return evEmployeesBackendList().then(remote => {
+      if(!remote) return false;
+      const db = evLoadDB();
+      const localPhotoById = {};
+      db.employees.forEach(e => { if(e.photo) localPhotoById[e.id] = e.photo; });
+      db.employees = remote.map(r => ({
+        id: r.id,
+        name: r.name || '',
+        role: r.role || '',
+        branchId: r.branchId || '',
+        serviceIds: (r.serviceIds || '').split(',').map(s => s.trim()).filter(Boolean),
+        whatsapp: r.whatsapp || '',
+        photo: localPhotoById[r.id] || '',
+        description: r.description || '',
+        active: (r.active === 'true' || r.active === true)
+      }));
+      evSaveDB(db);
+      return true;
+    });
   },
 
   // ---------- Orders ----------
@@ -1109,6 +1194,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if(EvOrder.branchId && EvOrder.serviceId) evGoStep(3);
   else if(EvOrder.branchId) evGoStep(2);
   else evGoStep(1);
+
+  // Perbarui daftar karyawan dari Google Sheets (kalau sudah disambungkan).
+  // Kalau pelanggan sudah di langkah 3 (Pilih Karyawan) waktu sinkron selesai,
+  // tampilkan ulang supaya datanya paling baru.
+  EraDB.syncEmployeesFromRemote().then(changed => {
+    if(changed && EvOrder.step === 3) evRenderStep3();
+  });
 });
 
 </script>
