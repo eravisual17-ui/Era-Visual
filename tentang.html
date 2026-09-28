@@ -15,11 +15,11 @@
 
 :root{
   /* Color */
-  --blue-600:#2F6FED;
-  --blue-500:#4C86FF;
-  --blue-100:#EAF1FF;
-  --blue-50:#F6F9FF;
-  --ink:#16202E;
+  --blue-600:#0B5ABD;
+  --blue-500:#2F7AD9;
+  --blue-100:#E3ECF8;
+  --blue-50:#F5F8FD;
+  --ink:#0E1D2C;
   --slate:#5B6472;
   --slate-light:#8A93A1;
   --line:#E2E8F1;
@@ -37,7 +37,7 @@
   --radius-s:8px;
   --radius-m:14px;
   --radius-l:22px;
-  --shadow-card: 0 1px 2px rgba(22,32,46,0.04), 0 8px 24px rgba(22,32,46,0.06);
+  --shadow-card: 0 1px 2px rgba(14,29,44,0.04), 0 8px 24px rgba(14,29,44,0.06);
 }
 
 *,*::before,*::after{box-sizing:border-box;}
@@ -88,7 +88,7 @@ button{font-family:inherit;}
 }
 .btn:active{transform:translateY(1px);}
 .btn-primary{background:var(--blue-600); color:var(--white);}
-.btn-primary:hover{background:#255cd1;}
+.btn-primary:hover{background:#084A9C;}
 .btn-outline{background:var(--white); color:var(--blue-600); border-color:var(--blue-600);}
 .btn-outline:hover{background:var(--blue-50);}
 .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
@@ -140,10 +140,11 @@ button{font-family:inherit;}
     padding:22px 22px 40px;
     gap:2px;
     transform:translateX(100%);
-    transition:transform .28s ease;
+    transition:transform .28s ease, visibility 0s linear .28s;
+    visibility:hidden;
     overflow-y:auto;
     z-index:200;
-    box-shadow:-8px 0 32px rgba(22,32,46,0.18);
+    box-shadow:none;
   }
   .nav-links-head{
     display:flex; align-items:center; justify-content:space-between;
@@ -161,7 +162,7 @@ button{font-family:inherit;}
     font-size:1.05rem; font-weight:600;
     border-bottom:1px solid var(--line); border-radius:0;
   }
-  .nav-links.open{transform:translateX(0);}
+  .nav-links.open{transform:translateX(0); visibility:visible; transition:transform .28s ease, visibility 0s; box-shadow:-8px 0 32px rgba(14,29,44,0.18);}
   .nav-toggle{display:block;}
   .nav-cta .btn-outline{display:none;}
   body.nav-open{overflow:hidden;}
@@ -187,7 +188,7 @@ button{font-family:inherit;}
   background:var(--white);
   border-radius:24px;
   border:1px solid var(--blue-100);
-  box-shadow:0 6px 20px rgba(47,111,237,0.14), 0 2px 6px rgba(22,32,46,0.06);
+  box-shadow:0 6px 20px rgba(11,90,189,0.14), 0 2px 6px rgba(14,29,44,0.06);
   margin:0 auto 4px;
 }
 .hero-logo-frame .hero-logo{margin-bottom:0;}
@@ -320,7 +321,7 @@ button{font-family:inherit;}
   padding:20px;
   margin-bottom:24px;
 }
-.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(47,111,237,0.1);}
+.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(11,90,189,0.1);}
 .summary-row:last-child{border-bottom:none;}
 .summary-row .k{color:var(--slate);}
 .summary-row .v{font-weight:600; text-align:right;}
@@ -402,6 +403,24 @@ button{font-family:inherit;}
 }
 
 </style>
+<style>
+.about-tagline{
+  margin:28px 0 8px; padding:16px 18px;
+  border-left:4px solid var(--blue-600); background:var(--blue-50);
+  border-radius:0 var(--radius-m) var(--radius-m) 0;
+  color:var(--ink); font-weight:600;
+}
+.about-services{display:grid; gap:14px; margin-top:14px;}
+.about-svc h4{margin:0 0 10px; font-size:1.02rem; color:var(--ink);}
+.about-svc ul{list-style:none; margin:0; padding:0; display:grid; gap:7px;}
+.about-svc li{position:relative; padding-left:18px; color:var(--slate); font-size:.95rem;}
+.about-svc li::before{
+  content:''; position:absolute; left:0; top:.6em;
+  width:7px; height:7px; border-radius:50%; background:var(--blue-600);
+}
+.about-soon{background:var(--blue-50); border-style:dashed;}
+.about-soon p{color:var(--slate);}
+</style>
 </head>
 <body>
 
@@ -416,19 +435,54 @@ button{font-family:inherit;}
 
 <section class="section">
   <div class="container" style="max-width:700px;">
-    <p style="font-size:1.05rem;">Era Visual adalah usaha yang bergerak di bidang layanan teknik, digital, kreatif, dan layanan yang terus dikembangkan.</p>
+    <p style="font-size:1.05rem;">Era Visual adalah usaha yang bergerak di bidang layanan teknik, digital, kreatif, dan jasa yang terus dikembangkan untuk membantu memenuhi berbagai kebutuhan pelanggan.</p>
+    <p>Didirikan pada tahun 2023 dan berawal dari Cabang Ende, Era Visual hadir dengan menggabungkan beberapa bidang layanan dalam satu tempat, yaitu Electrical Engineering, Editor, Mechanical, dan Sewing.</p>
+    <p>Kami berusaha memberikan layanan yang rapi, mudah diakses, dan sesuai dengan kebutuhan pelanggan. Untuk layanan tertentu, pelanggan tidak harus datang langsung ke tempat kami. Pemesanan dapat dilakukan secara online melalui website Era Visual, sehingga pelanggan dari luar daerah maupun dari jauh tetap dapat menghubungi, memilih layanan, dan mengajukan pesanan.</p>
+    <p>Era Visual terus mengembangkan kemampuan, layanan, dan sistem kerja agar dapat memberikan pelayanan yang lebih baik dari waktu ke waktu.</p>
+
+    <p class="about-tagline">Era Visual — satu tempat untuk berbagai kebutuhan teknik dan kreatif.</p>
 
     <div class="divider"></div>
 
     <h3>Bidang Layanan</h3>
-    <ul style="list-style:none; display:grid; gap:8px; margin-bottom:24px;">
-      <li>⚡ Electrical Engineering</li>
-      <li>🎨 Editor</li>
-      <li>🔧 Mechanical</li>
-      <li>🧵 Sewing</li>
-    </ul>
+    <div class="about-services">
+      <div class="card about-svc">
+        <h4>⚡ Electrical Engineering</h4>
+        <ul>
+          <li>Instalasi listrik rumah</li>
+          <li>Perbaikan instalasi listrik</li>
+          <li>Pemasangan lampu, stop kontak, dan saklar</li>
+          <li>Pengecekan dan troubleshooting listrik</li>
+          <li>Perawatan instalasi listrik berkala</li>
+        </ul>
+      </div>
+      <div class="card about-svc">
+        <h4>💻 Editor</h4>
+        <ul>
+          <li>Desain logo</li>
+          <li>Banner, spanduk, dan baliho</li>
+          <li>Kartu nama</li>
+          <li>Edit video 2D</li>
+          <li>Pengetikan dan layout dokumen</li>
+          <li>Laporan PKL siswa</li>
+          <li>CV ATS dan surat lamaran</li>
+        </ul>
+      </div>
+      <div class="card about-svc">
+        <h4>🔧 Mechanical</h4>
+        <ul>
+          <li>Servis kipas angin</li>
+          <li>Servis pompa air ringan</li>
+          <li>Bongkar-pasang komponen sederhana</li>
+        </ul>
+      </div>
+      <div class="card about-svc about-soon">
+        <h4>🧵 Sewing</h4>
+        <p style="margin:0;">Segera hadir. Nantikan informasi selanjutnya.</p>
+      </div>
+    </div>
 
-    <div class="form-row">
+    <div class="form-row" style="margin-top:24px;">
       <div class="card">
         <h3 style="margin-bottom:4px;">Tahun Berdiri</h3>
         <p style="margin-bottom:0;">2023</p>
