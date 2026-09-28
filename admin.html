@@ -614,6 +614,50 @@ function evPostsBackendSend(payload){
   return Promise.resolve(null);
 }
 
+// ---- Cabang & Layanan terpusat (tab "Cabang" dan "Layanan" di spreadsheet yang sama) ----
+function evTabUrl(tab, path){
+  return ERA_EMPLOYEES_BACKEND_URL + (path || '') + '?sheet=' + encodeURIComponent(tab);
+}
+function evTabList(tab){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  return fetch(evTabUrl(tab, ''), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil tab ' + tab + ':', err); return null; });
+}
+function evTabUpsert(tab, row){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  const head = { 'Content-Type': 'application/json' };
+  return fetch(evTabUrl(tab, '/id/' + encodeURIComponent(row.id)), {
+    method: 'PATCH', headers: head, body: JSON.stringify({ data: row })
+  }).then(r => r.json()).then(res => {
+    if(res && res.updated === 0){
+      return fetch(evTabUrl(tab, ''), { method: 'POST', headers: head, body: JSON.stringify({ data: [row] }) });
+    }
+    return res;
+  }).catch(err => { console.error('Gagal simpan ke tab ' + tab + ':', err); return null; });
+}
+function evTabDelete(tab, id){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  return fetch(evTabUrl(tab, '/id/' + encodeURIComponent(id)), { method: 'DELETE' })
+    .catch(err => { console.error('Gagal hapus dari tab ' + tab + ':', err); return null; });
+}
+function evTabPushAll(tab, rows){
+  if(!evEmployeesBackendConfigured() || rows.length === 0) return Promise.resolve(false);
+  return fetch(evTabUrl(tab, ''), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: rows })
+  }).then(r => r.ok).catch(err => { console.error('Gagal kirim awal ke tab ' + tab + ':', err); return false; });
+}
+function evBranchToRow(b){
+  return { id: b.id, name: b.name || '', status: b.status || 'active', address: b.address || '' };
+}
+function evServiceToRow(s){
+  return {
+    id: s.id, name: s.name || '', icon: s.icon || '', status: s.status || 'active',
+    short: s.short || '', description: s.description || '', isLocal: s.isLocal ? 'true' : 'false'
+  };
+}
+
 function evEmployeesBackendConfigured(){
   return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
 }
@@ -787,11 +831,13 @@ const EraDB = {
     const i = db.branches.findIndex(b => b.id === branch.id);
     if(i >= 0) db.branches[i] = branch; else db.branches.push(branch);
     evSaveDB(db);
+    return evTabUpsert('Cabang', evBranchToRow(branch)).then(() => true);
   },
   deleteBranch(id){
     const db = evLoadDB();
     db.branches = db.branches.filter(b => b.id !== id);
     evSaveDB(db);
+    return evTabDelete('Cabang', id).then(() => true);
   },
 
   // ---------- Services ----------
@@ -802,11 +848,46 @@ const EraDB = {
     const i = db.services.findIndex(s => s.id === service.id);
     if(i >= 0) db.services[i] = service; else db.services.push(service);
     evSaveDB(db);
+    return evTabUpsert('Layanan', evServiceToRow(service)).then(() => true);
   },
   deleteService(id){
     const db = evLoadDB();
     db.services = db.services.filter(s => s.id !== id);
     evSaveDB(db);
+    return evTabDelete('Layanan', id).then(() => true);
+  },
+  // Ambil cabang & layanan terbaru dari sheet. Mengembalikan true kalau ada yang berubah.
+  // opts.admin = true: kalau tab masih kosong, kirim data bawaan/lokal ke sheet (sekali di awal).
+  syncCatalogFromRemote(opts){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    const admin = !!(opts && opts.admin);
+    return Promise.all([evTabList('Cabang'), evTabList('Layanan')]).then(res => {
+      const rb = res[0], rs = res[1];
+      const db = evLoadDB();
+      const before = JSON.stringify([db.branches, db.services]);
+      const pushes = [];
+      if(rb){
+        if(rb.length === 0){
+          if(admin && db.branches.length) pushes.push(evTabPushAll('Cabang', db.branches.map(evBranchToRow)));
+        } else {
+          db.branches = rb.filter(r => r.id).map(r => ({
+            id: r.id, name: r.name || '', status: r.status || 'active', address: r.address || ''
+          }));
+        }
+      }
+      if(rs){
+        if(rs.length === 0){
+          if(admin && db.services.length) pushes.push(evTabPushAll('Layanan', db.services.map(evServiceToRow)));
+        } else {
+          db.services = rs.filter(r => r.id).map(r => ({
+            id: r.id, name: r.name || '', icon: r.icon || '', status: r.status || 'active',
+            short: r.short || '', description: r.description || '', isLocal: evIsTrue(r.isLocal)
+          }));
+        }
+      }
+      evSaveDB(db);
+      return Promise.all(pushes).then(() => before !== JSON.stringify([db.branches, db.services]));
+    });
   },
 
   // ---------- Employees ----------
@@ -1399,6 +1480,7 @@ function evRenderBranchesPanel(){
   });
 
   draw();
+  EraDB.syncCatalogFromRemote({ admin: true }).then(changed => { if(changed) draw(); });
 }
 
 /* ==================== EMPLOYEES ==================== */
@@ -1577,6 +1659,7 @@ function evRenderServicesPanel(){
     }));
   }
   draw();
+  EraDB.syncCatalogFromRemote({ admin: true }).then(changed => { if(changed) draw(); });
 }
 
 /* ==================== POSTS (Berita / Info / Iklan) ==================== */
