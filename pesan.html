@@ -488,6 +488,65 @@ function evIsTrue(v){
   return s === 'true' || s === '1' || s === 'yes' || s === 'ya' || s === 'aktif';
 }
 
+// ---- Berita terpusat (tab "Berita" di spreadsheet yang sama dengan Karyawan) ----
+// Satu API SheetDB bisa dipakai untuk beberapa tab lewat parameter ?sheet=NamaTab.
+const EV_POSTS_TAB = 'Berita';
+
+function evPostsUrl(path){
+  return ERA_EMPLOYEES_BACKEND_URL + (path || '') + '?sheet=' + encodeURIComponent(EV_POSTS_TAB);
+}
+
+function evPostToRow(p){
+  return {
+    id: p.id,
+    title: p.title || '',
+    excerpt: p.excerpt || '',
+    body: p.body || '',
+    date: (p.date || '').slice(0, 10),
+    image: p.image || ''
+  };
+}
+
+function evPostsBackendList(){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  return fetch(evPostsUrl(''), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(rows => Array.isArray(rows) ? rows : null)
+    .catch(err => { console.error('Gagal ambil berita dari SheetDB:', err); return null; });
+}
+
+function evPostsBackendSend(payload){
+  if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
+  const jsonHead = { 'Content-Type': 'application/json' };
+
+  if(payload.action === 'create'){
+    return fetch(evPostsUrl(''), {
+      method: 'POST', headers: jsonHead,
+      body: JSON.stringify({ data: [evPostToRow(payload.post)] })
+    }).catch(err => { console.error('Gagal kirim berita:', err); return null; });
+  }
+  if(payload.action === 'update'){
+    return fetch(evPostsUrl('/id/' + encodeURIComponent(payload.post.id)), {
+      method: 'PATCH', headers: jsonHead,
+      body: JSON.stringify({ data: evPostToRow(payload.post) })
+    }).then(r => r.json()).then(res => {
+      // Baris belum ada di sheet -> buat baru.
+      if(res && res.updated === 0){
+        return fetch(evPostsUrl(''), {
+          method: 'POST', headers: jsonHead,
+          body: JSON.stringify({ data: [evPostToRow(payload.post)] })
+        });
+      }
+      return res;
+    }).catch(err => { console.error('Gagal update berita:', err); return null; });
+  }
+  if(payload.action === 'delete'){
+    return fetch(evPostsUrl('/id/' + encodeURIComponent(payload.id)), { method: 'DELETE' })
+      .catch(err => { console.error('Gagal hapus berita:', err); return null; });
+  }
+  return Promise.resolve(null);
+}
+
 function evEmployeesBackendConfigured(){
   return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
 }
@@ -810,13 +869,51 @@ const EraDB = {
   savePost(post){
     const db = evLoadDB();
     const i = db.posts.findIndex(p => p.id === post.id);
+    const isNew = i < 0;
     if(i >= 0) db.posts[i] = post; else db.posts.push(post);
     evSaveDB(db);
+    // Kembalikan promise supaya admin bisa menunggu sampai tersimpan di sheet.
+    return evPostsBackendSend({ action: isNew ? 'create' : 'update', post }).then(() => true);
   },
   deletePost(id){
     const db = evLoadDB();
     db.posts = db.posts.filter(p => p.id !== id);
     evSaveDB(db);
+    return evPostsBackendSend({ action: 'delete', id }).then(() => true);
+  },
+  // Ambil berita terbaru dari tab "Berita". Foto ikut tersimpan (sudah dikompres).
+  // opts.admin = true: kalau sheet masih kosong tetapi HP admin punya berita,
+  // kirim berita itu ke sheet (sekali di awal) alih-alih menimpanya.
+  syncPostsFromRemote(opts){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    const admin = !!(opts && opts.admin);
+    return evPostsBackendList().then(remote => {
+      if(!remote) return false; // gagal ambil / tab belum ada -> jangan timpa data lokal
+      const db = evLoadDB();
+      if(remote.length === 0 && admin && db.posts.length > 0){
+        return EraDB.pushAllPostsToRemote().then(() => false);
+      }
+      db.posts = remote.filter(r => r.id).map(r => ({
+        id: r.id,
+        title: r.title || '',
+        excerpt: r.excerpt || '',
+        body: r.body || '',
+        date: r.date || '',
+        image: r.image || ''
+      }));
+      evSaveDB(db);
+      return true;
+    });
+  },
+  pushAllPostsToRemote(){
+    if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
+    const posts = evLoadDB().posts;
+    if(posts.length === 0) return Promise.resolve(true);
+    return fetch(evPostsUrl(''), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: posts.map(evPostToRow) })
+    }).then(r => r.ok).catch(err => { console.error('Gagal kirim semua berita:', err); return false; });
   }
 };
 
