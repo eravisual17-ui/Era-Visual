@@ -497,6 +497,27 @@ function evPostsUrl(path){
   return ERA_EMPLOYEES_BACKEND_URL + (path || '') + '?sheet=' + encodeURIComponent(EV_POSTS_TAB);
 }
 
+// ---- Foto berita beresolusi tinggi lewat ImgBB (opsional) ----
+// Isi dengan API key dari api.imgbb.com. Selama masih "GANTI_...", foto berita
+// dikecilkan otomatis supaya muat di satu sel Google Sheets (kualitas lebih rendah).
+const ERA_IMGBB_KEY = '77bc28c7915292eb75af9632723df301';
+
+function evImgbbConfigured(){
+  return typeof ERA_IMGBB_KEY === 'string' && !ERA_IMGBB_KEY.startsWith('GANTI_') && ERA_IMGBB_KEY.length > 0;
+}
+
+function evUploadImage(blob){
+  if(!evImgbbConfigured()) return Promise.resolve(null);
+  const fd = new FormData();
+  fd.append('image', blob, 'berita.jpg');
+  return fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(ERA_IMGBB_KEY), {
+    method: 'POST', body: fd
+  })
+    .then(r => r.json())
+    .then(res => (res && res.success && res.data && res.data.url) ? res.data.url : null)
+    .catch(err => { console.error('Gagal upload foto ke ImgBB:', err); return null; });
+}
+
 function evPostToRow(p){
   return {
     id: p.id,
@@ -758,6 +779,25 @@ function evSaveDB(db){
   localStorage.setItem(EV_DB_KEY, JSON.stringify(db));
 }
 
+// Batasi seberapa sering situs ini bertanya ke Google Sheets. Setiap halaman
+// (Cabang, Layanan, Karyawan, Rating, Berita) sebelumnya menghubungi Sheets
+// sendiri-sendiri setiap kali dibuka, jadi satu orang buka beberapa halaman
+// bisa memakai belasan permintaan sekaligus -- jatah bulanan SheetDB (gratis)
+// jadi cepat habis. Sekarang: dalam jeda ini, cukup pakai data lokal yang
+// sudah ada, tidak usah tanya ke Sheets lagi.
+const EV_SYNC_COOLDOWN_MS = 10 * 60 * 1000; // 10 menit
+
+function evThrottledSync(key, run){
+  const storeKey = 'ev_sync_' + key;
+  let last = 0;
+  try{ last = parseInt(localStorage.getItem(storeKey) || '0', 10) || 0; }catch(e){}
+  if(Date.now() - last < EV_SYNC_COOLDOWN_MS){
+    return Promise.resolve(false);
+  }
+  try{ localStorage.setItem(storeKey, String(Date.now())); }catch(e){}
+  return run();
+}
+
 const EraDB = {
   reset(){ localStorage.setItem(EV_DB_KEY, JSON.stringify(EV_SEED)); },
 
@@ -806,6 +846,7 @@ const EraDB = {
     return { avg: sum / rs.length, count: rs.length };
   },
   syncRatingsFromRemote(){
+    return evThrottledSync('ratings', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
     return evTabList('Rating').then(remote => {
       if(!remote) return false; // gagal ambil / tab belum ada -> jangan timpa
@@ -819,10 +860,12 @@ const EraDB = {
       evSaveDB(db);
       return before !== JSON.stringify(db.ratings);
     });
+  });
   },
   // Ambil cabang & layanan terbaru dari sheet. Mengembalikan true kalau ada yang berubah.
   // opts.admin = true: kalau tab masih kosong, kirim data bawaan/lokal ke sheet (sekali di awal).
   syncCatalogFromRemote(opts){
+    return evThrottledSync('catalog', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
     const admin = !!(opts && opts.admin);
     return Promise.all([evTabList('Cabang'), evTabList('Layanan')]).then(res => {
@@ -852,6 +895,7 @@ const EraDB = {
       evSaveDB(db);
       return Promise.all(pushes).then(() => before !== JSON.stringify([db.branches, db.services]));
     });
+  });
   },
 
   // ---------- Employees ----------
@@ -892,6 +936,7 @@ const EraDB = {
   // Ambil data karyawan terbaru dari SheetDB dan perbarui cache lokal.
   // Foto lokal yang sudah ada tetap dipertahankan (tidak ikut disinkron).
   syncEmployeesFromRemote(){
+    return evThrottledSync('employees', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
     return evEmployeesBackendList().then(remote => {
       // Kalau sheet masih kosong, jangan timpa data lokal (supaya karyawan
@@ -914,6 +959,7 @@ const EraDB = {
       evSaveDB(db);
       return true;
     });
+  });
   },
   // Kirim SEMUA karyawan yang ada di HP ini ke Google Sheets sekaligus.
   // Dipakai sekali di awal supaya karyawan bawaan/lama ikut masuk ke sheet
@@ -997,6 +1043,7 @@ const EraDB = {
   // opts.admin = true: kalau sheet masih kosong tetapi HP admin punya berita,
   // kirim berita itu ke sheet (sekali di awal) alih-alih menimpanya.
   syncPostsFromRemote(opts){
+    return evThrottledSync('posts', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
     const admin = !!(opts && opts.admin);
     return evPostsBackendList().then(remote => {
@@ -1016,6 +1063,7 @@ const EraDB = {
       evSaveDB(db);
       return true;
     });
+  });
   },
   pushAllPostsToRemote(){
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
@@ -1100,6 +1148,7 @@ function evRenderNavbar(){
         ${evNavLink('cabang.html','Cabang')}
         ${evNavLink('berita.html','Berita')}
         ${evNavLink('rating.html','Beri Rating')}
+        ${evNavLink('lacak.html','Lacak Order')}
         ${evNavLink('cara-order.html','Cara Order')}
         ${evNavLink('tentang.html','Tentang Kami')}
         ${evNavLink('kontak.html','Kontak')}
