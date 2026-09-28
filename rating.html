@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEeklEQVR42u2X3W8UVRjGf+/M7G7pdqGlZbEQLAgqKkYjEQE1kqgx/gPGC78SvTHh0lv9A7hQLtQbI4k3Jhi50sQIRmNCSJDwZfkQLJrSdqn2k+0y3Z0557xezOx2abtYKwk3nOQkZyaT9zzznud9nveIc065Q0NV1eMOj7sAgqV+aFOmCOAJqEIzeTxJnlXn1nK7AAgQeM3kAc+rh0+3UkUkWToHnpd8d1sAWIGDQ46qwhMdsK3To1Q2RA6ygVCOHFu7AoYrinGwZZVQuqH0tsvyOeAAk/7cF5cMYQyliYj3T9WoWmU8tAxORRwfDFFgPLQc6HfsO2EYmFYOX1U0PTq3HAC+QEZAEMYmY3prVfqIeKagDJUtEsWYaoytGWwYUYssH+wKaFfl05OGtx7y8NKj82+RCJkvRHUSnSkrf4SQzwrtMzU++uFvNnf6bCiuYO+zXRw6PcXhX6cZDQ07N3Xw3gtr+fCYxQlsWCWMlB27t2WZqCr35eHxguCUhCdNQoRzTudPa50eHLI6EzudNcm78XKk/cOhqnNqrVVV1YlKpJdGQ02G0zMlo7XYqqrTPyeMzhqnldjpVyNWjV1sH+uCxRjvgA4POoKE5Ap0FzJ0FzLYNGGxcazOZ1idz2CswxPhsV4PFKyDjau9RoF0eDeX7JKqwFlFdS5fzimK4nseIPhN7Al8SUtOUBQvLUUREAVrEyTCQiALSNj4wM4DpMnmH/80yov7LvDS/ot8eXyM1w8MMD5jAHjlswHODoeICNqsVO4/VIEsQDJHToCjAxVilHeeXsOeB1dxfPAGR367ztnhkO8vTHN/sQ1VRZrY5i/LC+zisLvzAaOTEV+fnaJYCNi7Zy2HTk3x+dExXtvRQz7nY+ycKgKsW9FallsDaJG2sYphQ7GNN3esYaxieHV7Nz9eLvPJz3/x7nPFhi80j6GytpTl1hzQhUejCnseKCBW2X+4xLmRkOLKDG/v7uGNnT1sW9eOczenH0BUaVkH82tTnVNjnX5zMZp7b52q1ue84dy8dTKb4337e6SxWaIOzEmkJspF4nzToUUEAk8QgawvTN4w5HNeo/wCT7AOrCor23ycJqmXJivXpepAbBx+ephOoVJzKJDxhZpx3NuVpWrA95SqcdgUMEChzcelko4Icf1PluoFIvDd+RqqypN9WYor/WV1OxOzjpMlg1F4eXOmEbvZC2SxrrjezfSPxJwbifE9YXtfhi3FTANlzSgzNYsg5HMeuUAawa9OO05fM9QcbO3xebToL9ohtQTQSE8a8eqk4cj5WWILT23K8cj6DNlAmA4NqtCV97EOLo9bTlwzxMDzfRk2dqb8aFGD/wpAFVQV3/eYDg3HrsxyqRThi8eWtTl2bc6RCYRfBiOuTBiqKJvuybJjfYZiLiFkSoPlAbi5B0x4fD2Mmak6JipC/1ANFeHh9Vl6O4VcIHTnfVAWeP//AtDsBZ5366guNSGRpcRUXXJbXg9Yx9tMquZ1swfc1nvBfCCymIPevZot52qmqnoH99d/AOk7ClM1cGSoAAAAAElFTkSuQmCC">
-<title>Layanan — Era Visual</title>
+<title>Rating — Era Visual</title>
 <style>
 /* ==========================================================================
    Era Visual — Design System
@@ -409,15 +408,33 @@ button{font-family:inherit;}
 
 <section class="section" style="padding-bottom:0;">
   <div class="container section-head">
-    <div class="eyebrow">Layanan</div>
-    <h1>Empat bidang layanan Era Visual</h1>
-    <p>Setiap layanan punya status yang jelas — supaya kamu tahu persis mana yang sudah bisa dipesan.</p>
+    <div class="eyebrow">Rating</div>
+    <h1>Beri rating untuk karyawan kami</h1>
+    <p>Order kamu sudah selesai? Masukkan nomor order untuk menilai karyawan yang menangani order kamu.</p>
   </div>
 </section>
 
 <section class="section">
-  <div class="container">
-    <div id="service-list" style="display:grid; gap:22px;"></div>
+  <div class="container" style="max-width:520px;">
+    <div class="card">
+      <div class="form-field">
+        <label for="rt-number">Nomor Order</label>
+        <input id="rt-number" placeholder="Contoh: EV-260928-1234" autocomplete="off">
+        <div class="hint">Nomor order ada di konfirmasi setelah kamu memesan.</div>
+      </div>
+      <button class="btn btn-primary" id="rt-check" style="width:100%;">Cek Order</button>
+      <div id="rt-msg" style="margin-top:14px;"></div>
+
+      <div id="rt-form" style="display:none; margin-top:18px;">
+        <p id="rt-who" style="margin-bottom:8px; font-weight:600;"></p>
+        <div id="rt-stars" style="text-align:center; margin-bottom:10px;"></div>
+        <div class="form-field">
+          <label for="rt-comment">Komentar (opsional)</label>
+          <textarea id="rt-comment" rows="3" maxlength="300" placeholder="Ceritakan pengalaman kamu"></textarea>
+        </div>
+        <button class="btn btn-primary" id="rt-send" style="width:100%;">Kirim Rating</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1194,27 +1211,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const services = EraDB.getServices();
-  const wrap = document.getElementById('service-list');
-  wrap.innerHTML = services.map(s => `
-    <div class="card" style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
-      <div class="icon" style="font-size:1.6rem; width:56px; height:56px;">${s.icon}</div>
-      <div style="flex:1; min-width:220px;">
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
-          <h3 style="margin:0;">${evEscape(s.name)}</h3>
-          ${evServiceStatusBadge(s.status)}
-        </div>
-        <p style="margin-bottom:0;">${evEscape(s.description)}</p>
-      </div>
-      <div>
-        ${s.status === 'active'
-          ? `<a href="pesan.html?service=${s.id}" class="btn btn-primary btn-sm">Pesan Layanan Ini</a>`
-          : `<span class="mono-note">Belum bisa dipesan</span>`}
-      </div>
-    </div>
-  `).join('');
-});
+(function(){
+  const $ = id => document.getElementById(id);
+  let order = null, stars = 0, busy = false;
+
+  function msg(text, ok){
+    $('rt-msg').innerHTML = '<div class="empty-state" style="padding:14px;' + (ok ? 'color:#1a7f37;' : '') + '">' + evEscape(text) + '</div>';
+  }
+
+  function drawStars(){
+    $('rt-stars').innerHTML = [1,2,3,4,5].map(n =>
+      '<button type="button" class="rt-star" data-n="' + n + '" aria-label="' + n + ' bintang" ' +
+      'style="background:none; border:none; cursor:pointer; padding:2px 4px; font-size:2.3rem; line-height:1; color:' + (n <= stars ? '#F5B301' : '#9AA5B5') + ';">' +
+      (n <= stars ? '&#9733;' : '&#9734;') + '</button>').join('');
+    document.querySelectorAll('.rt-star').forEach(b => b.addEventListener('click', () => {
+      stars = +b.dataset.n; drawStars();
+    }));
+  }
+
+  function getJson(url){
+    return fetch(url, { cache: 'no-store' }).then(r => r.json()).then(j => Array.isArray(j) ? j : null).catch(() => null);
+  }
+
+  $('rt-check').addEventListener('click', () => {
+    const num = $('rt-number').value.trim().toUpperCase();
+    $('rt-form').style.display = 'none'; order = null; stars = 0;
+    if(!num){ msg('Masukkan nomor order dulu.'); return; }
+    msg('Memeriksa order...');
+    const q = encodeURIComponent(num);
+    Promise.all([
+      getJson(ERA_BACKEND_URL + '/search?orderNumber=' + q),
+      getJson(ERA_EMPLOYEES_BACKEND_URL + '/search?orderNumber=' + q + '&sheet=Rating')
+    ]).then(res => {
+      const orders = res[0], ratings = res[1];
+      if(orders === null){ msg('Gagal memeriksa order. Coba lagi sebentar lagi.'); return; }
+      if(orders.length === 0){ msg('Nomor order tidak ditemukan. Cek lagi penulisannya.'); return; }
+      const o = orders[0];
+      if(String(o.status || '').trim().toLowerCase() !== 'selesai'){
+        msg('Order ini belum berstatus Selesai. Rating bisa diberikan setelah order selesai.'); return;
+      }
+      if(ratings === null){ msg('Gagal memeriksa rating. Coba lagi sebentar lagi.'); return; }
+      if(ratings.length > 0){ msg('Order ini sudah pernah diberi rating. Terima kasih!', true); return; }
+      order = o;
+      const emp = EraDB.getEmployee(o.employeeId);
+      $('rt-who').textContent = 'Nilai ' + (emp ? emp.name : 'karyawan yang menangani order kamu');
+      $('rt-comment').value = '';
+      drawStars();
+      $('rt-msg').innerHTML = '';
+      $('rt-form').style.display = 'block';
+    });
+  });
+
+  $('rt-send').addEventListener('click', () => {
+    if(busy || !order) return;
+    if(stars < 1){ msg('Pilih jumlah bintang dulu.'); return; }
+    busy = true; $('rt-send').disabled = true;
+    let comment = $('rt-comment').value.trim().slice(0, 300);
+    if(/^[=+\-@]/.test(comment)) comment = ' ' + comment; // cegah rumus di Google Sheets
+    const row = {
+      id: 'rt-' + Date.now(),
+      orderNumber: order.orderNumber,
+      employeeId: order.employeeId,
+      stars: String(stars),
+      comment: comment,
+      createdAt: new Date().toISOString()
+    };
+    fetch(evTabUrl('Rating', ''), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [row] })
+    }).then(r => {
+      if(!r.ok) throw new Error('gagal');
+      $('rt-form').style.display = 'none';
+      msg('Terima kasih! Rating kamu sudah terkirim.', true);
+      order = null;
+      EraDB.syncRatingsFromRemote();
+    }).catch(() => {
+      msg('Rating gagal terkirim. Coba lagi sebentar lagi.');
+    }).then(() => { busy = false; $('rt-send').disabled = false; });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    EraDB.syncEmployeesFromRemote();
+  });
+})();
 </script>
 <script>
 // Ambil cabang & layanan terbaru dari sheet; kalau ada perubahan, muat ulang halaman sekali.
