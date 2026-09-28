@@ -510,6 +510,14 @@ function evBackendList(){
 // Foto TIDAK ikut disinkron (tetap tersimpan lokal per HP saja).
 const ERA_EMPLOYEES_BACKEND_URL = 'https://sheetdb.io/api/v1/y6x046dtx26y9';
 
+// Google Sheets bisa mengubah teks "true" menjadi boolean TRUE (dikembalikan "TRUE").
+// Fungsi ini menerima semua bentuknya supaya status aktif tidak salah baca.
+function evIsTrue(v){
+  if(v === true) return true;
+  const s = String(v == null ? '' : v).trim().toLowerCase();
+  return s === 'true' || s === '1' || s === 'yes' || s === 'ya' || s === 'aktif';
+}
+
 function evEmployeesBackendConfigured(){
   return typeof ERA_EMPLOYEES_BACKEND_URL === 'string' && !ERA_EMPLOYEES_BACKEND_URL.startsWith('GANTI_') && ERA_EMPLOYEES_BACKEND_URL.length > 0;
 }
@@ -530,6 +538,16 @@ function evEmployeesBackendSend(payload){
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: payload.employee })
+    }).then(r => r.json()).then(res => {
+      // Kalau baris belum ada di sheet (updated = 0), buat baris barunya.
+      if(res && res.updated === 0){
+        return fetch(ERA_EMPLOYEES_BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: [payload.employee] })
+        });
+      }
+      return res;
     }).catch(err => { console.error('Gagal update karyawan di SheetDB:', err); return null; });
   }
 
@@ -544,7 +562,7 @@ function evEmployeesBackendSend(payload){
 
 function evEmployeesBackendList(){
   if(!evEmployeesBackendConfigured()) return Promise.resolve(null);
-  return fetch(ERA_EMPLOYEES_BACKEND_URL)
+  return fetch(ERA_EMPLOYEES_BACKEND_URL, { cache: 'no-store' })
     .then(r => r.json())
     .then(rows => Array.isArray(rows) ? rows : null)
     .catch(err => { console.error('Gagal ambil data karyawan dari SheetDB:', err); return null; });
@@ -750,7 +768,7 @@ const EraDB = {
         whatsapp: r.whatsapp || '',
         photo: localPhotoById[r.id] || '',
         description: r.description || '',
-        active: (r.active === 'true' || r.active === true)
+        active: evIsTrue(r.active)
       }));
       evSaveDB(db);
       return true;
