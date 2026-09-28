@@ -16,11 +16,11 @@
 
 :root{
   /* Color */
-  --blue-600:#0B5ABD;
-  --blue-500:#2F7AD9;
-  --blue-100:#E3ECF8;
-  --blue-50:#F5F8FD;
-  --ink:#0E1D2C;
+  --blue-600:#2F6FED;
+  --blue-500:#4C86FF;
+  --blue-100:#EAF1FF;
+  --blue-50:#F6F9FF;
+  --ink:#16202E;
   --slate:#5B6472;
   --slate-light:#8A93A1;
   --line:#E2E8F1;
@@ -38,7 +38,7 @@
   --radius-s:8px;
   --radius-m:14px;
   --radius-l:22px;
-  --shadow-card: 0 1px 2px rgba(14,29,44,0.04), 0 8px 24px rgba(14,29,44,0.06);
+  --shadow-card: 0 1px 2px rgba(22,32,46,0.04), 0 8px 24px rgba(22,32,46,0.06);
 }
 
 *,*::before,*::after{box-sizing:border-box;}
@@ -89,7 +89,7 @@ button{font-family:inherit;}
 }
 .btn:active{transform:translateY(1px);}
 .btn-primary{background:var(--blue-600); color:var(--white);}
-.btn-primary:hover{background:#084A9C;}
+.btn-primary:hover{background:#255cd1;}
 .btn-outline{background:var(--white); color:var(--blue-600); border-color:var(--blue-600);}
 .btn-outline:hover{background:var(--blue-50);}
 .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
@@ -163,7 +163,7 @@ button{font-family:inherit;}
     font-size:1.05rem; font-weight:600;
     border-bottom:1px solid var(--line); border-radius:0;
   }
-  .nav-links.open{transform:translateX(0); visibility:visible; transition:transform .28s ease, visibility 0s; box-shadow:-8px 0 32px rgba(14,29,44,0.18);}
+  .nav-links.open{transform:translateX(0); visibility:visible; transition:transform .28s ease, visibility 0s; box-shadow:-8px 0 32px rgba(22,32,46,0.18);}
   .nav-toggle{display:block;}
   .nav-cta .btn-outline{display:none;}
   body.nav-open{overflow:hidden;}
@@ -174,7 +174,7 @@ button{font-family:inherit;}
   position:relative; overflow:hidden;
   padding:72px 0 64px;
   border-bottom:1px solid var(--line);
-  background:#F7F8FB;
+  background:#F7FAFD;
 }
 .hero-inner{
   position:relative; z-index:1;
@@ -188,6 +188,7 @@ button{font-family:inherit;}
 .hero-deco svg{position:absolute; display:block;}
 .hero-deco .blob{width:clamp(110px, 30vw, 250px); height:auto;}
 .hero-deco .blob.tl{top:0; left:0;}
+.hero-deco .blob.tr{top:0; right:0; width:clamp(80px, 24vw, 210px);}
 .hero-deco .blob.br{bottom:0; right:0; transform:rotate(180deg);}
 .hero-deco .ring{top:22%; right:7%; width:clamp(18px, 4vw, 34px); height:auto;}
 .hero-deco .ring-sm{bottom:11%; left:12%; width:clamp(12px, 2.6vw, 22px); height:auto;}
@@ -197,7 +198,7 @@ button{font-family:inherit;}
   text-transform:uppercase; letter-spacing:.32em; font-size:.78rem; font-weight:600;
   margin:6px 0 0; padding-left:.32em;
 }
-.hero h1{font-weight:800; color:var(--ink); line-height:1.15; margin:0;}
+.hero h1{font-weight:800; color:#0B2A5E; line-height:1.15; margin:0;}
 .hero-divider{display:flex; align-items:center; justify-content:center; gap:10px; margin:2px 0 4px;}
 .hero-divider::before,.hero-divider::after{content:''; width:44px; height:2px; background:var(--blue-600); opacity:.85;}
 .hero-divider span{display:flex; gap:6px;}
@@ -209,7 +210,7 @@ button{font-family:inherit;}
   background:var(--white);
   border-radius:24px;
   border:1px solid var(--blue-100);
-  box-shadow:0 6px 20px rgba(11,90,189,0.14), 0 2px 6px rgba(14,29,44,0.06);
+  box-shadow:0 6px 20px rgba(47,111,237,0.14), 0 2px 6px rgba(22,32,46,0.06);
   margin:0 auto 4px;
 }
 .hero-logo-frame .hero-logo{margin-bottom:0;}
@@ -342,7 +343,7 @@ button{font-family:inherit;}
   padding:20px;
   margin-bottom:24px;
 }
-.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(11,90,189,0.1);}
+.summary-row{display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:.92rem; border-bottom:1px solid rgba(47,111,237,0.1);}
 .summary-row:last-child{border-bottom:none;}
 .summary-row .k{color:var(--slate);}
 .summary-row .v{font-weight:600; text-align:right;}
@@ -431,9 +432,11 @@ button{font-family:inherit;}
 
 <header class="hero">
   <div class="hero-deco" aria-hidden="true">
+    <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="evBlobBr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9CFFA"/><stop offset="1" stop-color="#5FA6F5"/></linearGradient></defs></svg>
+    <svg class="blob tr" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M40 0H200V112C150 122 92 92 66 58C52 40 46 20 40 0Z" fill="#CFE7FD"/></svg>
     <svg class="blob tl" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 0H190C150 30 112 62 84 100C62 130 30 160 0 178Z" fill="#0B5ABD"/>
-      <g fill="#fff" opacity=".9">
+      <path d="M0 0H200C160 32 118 66 90 104C66 136 32 166 0 184Z" fill="#C1DFFB"/>
+      <g fill="#2F6FED" opacity=".6">
         <circle cx="24" cy="24" r="2.6"/><circle cx="44" cy="24" r="2.6"/><circle cx="64" cy="24" r="2.6"/><circle cx="84" cy="24" r="2.6"/>
         <circle cx="24" cy="44" r="2.6"/><circle cx="44" cy="44" r="2.6"/><circle cx="64" cy="44" r="2.6"/><circle cx="84" cy="44" r="2.6"/>
         <circle cx="24" cy="64" r="2.6"/><circle cx="44" cy="64" r="2.6"/><circle cx="64" cy="64" r="2.6"/>
@@ -441,18 +444,18 @@ button{font-family:inherit;}
       </g>
     </svg>
     <svg class="blob br" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 0H190C150 30 112 62 84 100C62 130 30 160 0 178Z" fill="#0B5ABD"/>
-      <g fill="#fff" opacity=".9">
+      <path d="M0 0H200C160 32 118 66 90 104C66 136 32 166 0 184Z" fill="url(#evBlobBr)"/>
+      <g fill="#2F6FED" opacity=".6">
         <circle cx="24" cy="24" r="2.6"/><circle cx="44" cy="24" r="2.6"/><circle cx="64" cy="24" r="2.6"/><circle cx="84" cy="24" r="2.6"/>
         <circle cx="24" cy="44" r="2.6"/><circle cx="44" cy="44" r="2.6"/><circle cx="64" cy="44" r="2.6"/><circle cx="84" cy="44" r="2.6"/>
         <circle cx="24" cy="64" r="2.6"/><circle cx="44" cy="64" r="2.6"/><circle cx="64" cy="64" r="2.6"/>
         <circle cx="24" cy="84" r="2.6"/><circle cx="44" cy="84" r="2.6"/>
       </g>
     </svg>
-    <svg class="ring" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg"><circle cx="17" cy="17" r="15" fill="none" stroke="#0B5ABD" stroke-width="2.5"/></svg>
-    <svg class="ring-sm" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg"><circle cx="17" cy="17" r="15" fill="none" stroke="#0B5ABD" stroke-width="3"/></svg>
-    <svg class="plus" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M11 2V20M2 11H20" stroke="#0B5ABD" stroke-width="2.5" stroke-linecap="round"/></svg>
-    <svg class="wave" viewBox="0 0 60 16" xmlns="http://www.w3.org/2000/svg"><path d="M2 9C7 2 12 2 17 9S27 16 32 9S42 2 47 9S55 14 58 9" fill="none" stroke="#0B5ABD" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <svg class="ring" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg"><circle cx="17" cy="17" r="15" fill="none" stroke="#2F6FED" stroke-width="2.5"/></svg>
+    <svg class="ring-sm" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg"><circle cx="17" cy="17" r="15" fill="none" stroke="#2F6FED" stroke-width="3"/></svg>
+    <svg class="plus" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M11 2V20M2 11H20" stroke="#2F6FED" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <svg class="wave" viewBox="0 0 60 16" xmlns="http://www.w3.org/2000/svg"><path d="M2 9C7 2 12 2 17 9S27 16 32 9S42 2 47 9S55 14 58 9" fill="none" stroke="#2F6FED" stroke-width="2.5" stroke-linecap="round"/></svg>
   </div>
   <div class="container hero-inner">
     <div class="hero-logo-frame">
