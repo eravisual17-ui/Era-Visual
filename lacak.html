@@ -438,11 +438,15 @@ button{font-family:inherit;}
         </div>
         <div class="divider" style="margin:14px 0;"></div>
         <dl class="lc-detail">
+          <dt>Nama Pelanggan</dt><dd id="lc-customer"></dd>
+          <dt>WhatsApp</dt><dd id="lc-wa"></dd>
           <dt>Layanan</dt><dd id="lc-service"></dd>
           <dt>Cabang</dt><dd id="lc-branch"></dd>
           <dt>Karyawan</dt><dd id="lc-employee"></dd>
           <dt>Tanggal order</dt><dd id="lc-date"></dd>
           <dt>Deskripsi</dt><dd id="lc-desc"></dd>
+          <div id="lc-location-row" style="display:contents;"><dt>Lokasi</dt><dd id="lc-location"></dd></div>
+          <div id="lc-notes-row" style="display:contents;"><dt>Catatan</dt><dd id="lc-notes"></dd></div>
         </dl>
       </div>
     </div>
@@ -1301,15 +1305,25 @@ document.addEventListener('DOMContentLoaded', () => {
     return fetch(url, { cache: 'no-store' }).then(r => r.json()).then(j => Array.isArray(j) ? j : null).catch(() => null);
   }
 
+  function showRowIf(rowId, ddId, value){
+    const has = value && String(value).trim().length > 0;
+    $(rowId).style.display = has ? 'contents' : 'none';
+    if(has) $(ddId).textContent = value;
+  }
+
   function show(o){
     $('lc-order-number').textContent = o.orderNumber || '-';
     const st = o.status || 'Menunggu';
     $('lc-status-badge').innerHTML = '<span class="badge status-' + evEscape(st) + '">' + evEscape(statusLabel(st)) + '</span>';
+    $('lc-customer').textContent = o.customerName || '-';
+    $('lc-wa').textContent = o.customerWhatsapp || '-';
     $('lc-service').textContent = o.serviceName || '-';
     $('lc-branch').textContent = o.branchName || '-';
     $('lc-employee').textContent = o.employeeName || '-';
     $('lc-date').textContent = fmtDate(o.createdAt);
     $('lc-desc').textContent = o.description || '-';
+    showRowIf('lc-location-row', 'lc-location', o.location);
+    showRowIf('lc-notes-row', 'lc-notes', o.notes);
     $('lc-result').style.display = 'block';
   }
 
