@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEeklEQVR42u2X3W8UVRjGf+/M7G7pdqGlZbEQLAgqKkYjEQE1kqgx/gPGC78SvTHh0lv9A7hQLtQbI4k3Jhi50sQIRmNCSJDwZfkQLJrSdqn2k+0y3Z0557xezOx2abtYKwk3nOQkZyaT9zzznud9nveIc065Q0NV1eMOj7sAgqV+aFOmCOAJqEIzeTxJnlXn1nK7AAgQeM3kAc+rh0+3UkUkWToHnpd8d1sAWIGDQ46qwhMdsK3To1Q2RA6ygVCOHFu7AoYrinGwZZVQuqH0tsvyOeAAk/7cF5cMYQyliYj3T9WoWmU8tAxORRwfDFFgPLQc6HfsO2EYmFYOX1U0PTq3HAC+QEZAEMYmY3prVfqIeKagDJUtEsWYaoytGWwYUYssH+wKaFfl05OGtx7y8NKj82+RCJkvRHUSnSkrf4SQzwrtMzU++uFvNnf6bCiuYO+zXRw6PcXhX6cZDQ07N3Xw3gtr+fCYxQlsWCWMlB27t2WZqCr35eHxguCUhCdNQoRzTudPa50eHLI6EzudNcm78XKk/cOhqnNqrVVV1YlKpJdGQ02G0zMlo7XYqqrTPyeMzhqnldjpVyNWjV1sH+uCxRjvgA4POoKE5Ap0FzJ0FzLYNGGxcazOZ1idz2CswxPhsV4PFKyDjau9RoF0eDeX7JKqwFlFdS5fzimK4nseIPhN7Al8SUtOUBQvLUUREAVrEyTCQiALSNj4wM4DpMnmH/80yov7LvDS/ot8eXyM1w8MMD5jAHjlswHODoeICNqsVO4/VIEsQDJHToCjAxVilHeeXsOeB1dxfPAGR367ztnhkO8vTHN/sQ1VRZrY5i/LC+zisLvzAaOTEV+fnaJYCNi7Zy2HTk3x+dExXtvRQz7nY+ycKgKsW9FallsDaJG2sYphQ7GNN3esYaxieHV7Nz9eLvPJz3/x7nPFhi80j6GytpTl1hzQhUejCnseKCBW2X+4xLmRkOLKDG/v7uGNnT1sW9eOczenH0BUaVkH82tTnVNjnX5zMZp7b52q1ue84dy8dTKb4337e6SxWaIOzEmkJspF4nzToUUEAk8QgawvTN4w5HNeo/wCT7AOrCor23ycJqmXJivXpepAbBx+ephOoVJzKJDxhZpx3NuVpWrA95SqcdgUMEChzcelko4Icf1PluoFIvDd+RqqypN9WYor/WV1OxOzjpMlg1F4eXOmEbvZC2SxrrjezfSPxJwbifE9YXtfhi3FTANlzSgzNYsg5HMeuUAawa9OO05fM9QcbO3xebToL9ohtQTQSE8a8eqk4cj5WWILT23K8cj6DNlAmA4NqtCV97EOLo9bTlwzxMDzfRk2dqb8aFGD/wpAFVQV3/eYDg3HrsxyqRThi8eWtTl2bc6RCYRfBiOuTBiqKJvuybJjfYZiLiFkSoPlAbi5B0x4fD2Mmak6JipC/1ANFeHh9Vl6O4VcIHTnfVAWeP//AtDsBZ5366guNSGRpcRUXXJbXg9Yx9tMquZ1swfc1nvBfCCymIPevZot52qmqnoH99d/AOk7ClM1cGSoAAAAAElFTkSuQmCC">
 <title>Dashboard Admin — Era Visual</title>
+<link rel="manifest" href="admin-manifest.webmanifest">
+<meta name="theme-color" content="#2F6FED">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EV Admin">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 /* ==========================================================================
    Era Visual — Design System
@@ -474,6 +481,7 @@ button{font-family:inherit;}
     <a href="#" data-panel="posts">📰 Berita/Info</a>
     <a href="#" data-panel="contact">☎️ Kontak</a>
     <a href="#" id="admin-logout">🚪 Keluar</a>
+    <a href="#" id="admin-install-btn" style="display:none;">📲 Install sebagai Aplikasi</a>
     <a href="index.html" style="margin-top:16px; border-top:1px solid #2A3444; padding-top:16px;">&larr; Kembali ke Situs</a>
   </aside>
 
@@ -1177,6 +1185,28 @@ function evBranchStatusBadge(status){
    login sungguhan begitu Era Visual butuh keamanan lebih serius.
    ========================================================================== */
 
+/* ---- PWA: daftarkan service worker + tombol "Install sebagai Aplikasi" ---- */
+let evDeferredInstallPrompt = null;
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('admin-sw.js').catch(err => console.error('Gagal daftar service worker:', err));
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  evDeferredInstallPrompt = e;
+  const btn = document.getElementById('admin-install-btn');
+  if(btn) btn.style.display = '';
+});
+
+window.addEventListener('appinstalled', () => {
+  evDeferredInstallPrompt = null;
+  const btn = document.getElementById('admin-install-btn');
+  if(btn) btn.style.display = 'none';
+});
+
 const ADMIN_PIN = 'eravisual2023';
 const ADMIN_SESSION_KEY = 'era_visual_admin_session';
 const ADMIN_EMAIL_KEY = 'era_visual_admin_email';
@@ -1319,6 +1349,23 @@ function evAdminInit(){
       sessionStorage.removeItem(ADMIN_EMAIL_KEY);
       if(typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
       window.location.reload();
+    });
+  }
+
+  const installBtn = document.getElementById('admin-install-btn');
+  if(installBtn && !installBtn._bound){
+    installBtn._bound = true;
+    if(evDeferredInstallPrompt) installBtn.style.display = '';
+    installBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if(!evDeferredInstallPrompt){
+        evShowToastAdmin('Buka menu browser (⋮) lalu pilih "Install app" atau "Tambahkan ke layar utama".');
+        return;
+      }
+      evDeferredInstallPrompt.prompt();
+      await evDeferredInstallPrompt.userChoice;
+      evDeferredInstallPrompt = null;
+      installBtn.style.display = 'none';
     });
   }
   document.querySelectorAll('.admin-side a[data-panel]').forEach(link => {
