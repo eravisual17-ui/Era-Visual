@@ -264,6 +264,8 @@ button{font-family:inherit;}
 .badge.status-Diproses{background:#EDEAFB;color:#5B4BB8;}
 .badge.status-Selesai{background:#E4F6EC;color:var(--green);}
 .badge.status-Dibatalkan{background:#FBEAE7;color:var(--red);}
+.badge.istirahat{background:#F1F3F6;color:var(--slate-light);}
+.badge.sibuk{background:#FBEAE7;color:var(--red);}
 
 .branch-card{position:relative;}
 .branch-card .badge{position:absolute; top:20px; right:20px;}
@@ -464,6 +466,14 @@ button{font-family:inherit;}
     <div class="eyebrow">Era Visual</div>
     <h1>Satu tempat, empat layanan: teknik dan kreatif dalam satu pesanan.</h1>
     <div class="hero-divider" aria-hidden="true"><span><i></i><i></i><i></i></span></div>
+    <div id="hero-hours-pill" style="display:none; align-items:center; gap:8px; justify-content:center; margin:4px 0 10px;">
+      <svg id="hp-clock" width="22" height="22" viewBox="0 0 150 150" style="flex-shrink:0;">
+        <circle cx="75" cy="75" r="70" fill="var(--white)" stroke="var(--line)" stroke-width="5"/>
+        <line id="hp-hour" x1="75" y1="75" x2="75" y2="45" stroke="var(--ink)" stroke-width="10" stroke-linecap="round"/>
+        <line id="hp-min" x1="75" y1="75" x2="75" y2="25" stroke="var(--ink)" stroke-width="7" stroke-linecap="round"/>
+      </svg>
+      <span id="hero-hours-text" class="badge"></span>
+    </div>
     <p class="lead">Era Visual mengerjakan kebutuhan Electrical Engineering, Editor, Mechanical, dan Sewing. Pilih layanan, pilih penanggung jawab, dan pesan langsung dari sini.</p>
     <div class="hero-actions">
       <a href="pesan.html" class="btn btn-primary">Pesan Layanan</a>
@@ -704,6 +714,45 @@ function evTabPushAll(tab, rows){
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: rows })
   }).then(r => r.ok).catch(err => { console.error('Gagal kirim awal ke tab ' + tab + ':', err); return false; });
 }
+// ---- Jam Operasional terpusat (tab "Jam" di spreadsheet yang sama) ----
+const EV_HOURS_TAB = 'Jam';
+
+// Waktu "sekarang" versi Ende (WITA, UTC+8) -- TIDAK memakai jam HP pengunjung,
+// supaya status buka/tutup selalu benar dari HP manapun, di zona waktu manapun.
+function evNowInEnde(){
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utcMs + 8 * 3600000);
+}
+
+function evHoursToRow(h){
+  return { id: 'default', open: h.open || '08:00', close: h.close || '17:00', closedDays: h.closedDays || '' };
+}
+
+// Status buka/tutup saat ini. hours == null/belum diatur -> selalu dianggap buka
+// (supaya situs tidak tiba-tiba "tutup" sebelum admin sempat mengatur jam).
+function evBusinessStatus(hours){
+  if(!hours || !hours.open || !hours.close){
+    return { configured: false, open: true };
+  }
+  const now = evNowInEnde();
+  const day = now.getDay(); // 0 = Minggu .. 6 = Sabtu
+  const closedDays = (hours.closedDays || '').split(',').map(s => s.trim()).filter(s => s !== '').map(Number);
+  const hhmm = (n) => String(n).padStart(2, '0');
+  const nowLabel = hhmm(now.getHours()) + ':' + hhmm(now.getMinutes());
+
+  if(closedDays.includes(day)){
+    return { configured: true, open: false, reason: 'libur', now, nowLabel, open_: hours.open, close_: hours.close };
+  }
+  const [oh, om] = hours.open.split(':').map(Number);
+  const [ch, cm] = hours.close.split(':').map(Number);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const openMin = (oh || 0) * 60 + (om || 0);
+  const closeMin = (ch || 0) * 60 + (cm || 0);
+  const isOpen = nowMin >= openMin && nowMin < closeMin;
+  return { configured: true, open: isOpen, reason: isOpen ? null : 'jam', now, nowLabel, open_: hours.open, close_: hours.close };
+}
+
 function evBranchToRow(b){
   return { id: b.id, name: b.name || '', status: b.status || 'active', address: b.address || '' };
 }
@@ -905,6 +954,28 @@ const EraDB = {
   // ---------- Contact ----------
   getContact(){ return evLoadDB().contact; },
   saveContact(contact){ const db = evLoadDB(); db.contact = contact; evSaveDB(db); },
+
+  // ---------- Jam Operasional ----------
+  getHours(){ return evLoadDB().hours || null; },
+  saveHours(hours){
+    const db = evLoadDB();
+    db.hours = hours;
+    evSaveDB(db);
+    return evTabUpsert(EV_HOURS_TAB, evHoursToRow(hours)).then(() => true);
+  },
+  syncHoursFromRemote(){
+    return evThrottledSync('hours', () => {
+      return evTabList(EV_HOURS_TAB).then(remote => {
+        if(!remote || remote.length === 0) return false; // belum diatur -> jangan timpa lokal
+        const row = remote.find(r => r.id === 'default') || remote[0];
+        const db = evLoadDB();
+        const before = JSON.stringify(db.hours || null);
+        db.hours = { open: row.open || '08:00', close: row.close || '17:00', closedDays: row.closedDays || '' };
+        evSaveDB(db);
+        return before !== JSON.stringify(db.hours);
+      });
+    });
+  },
 
   // ---------- Branches ----------
   getBranches(){ return evLoadDB().branches; },
@@ -1189,6 +1260,8 @@ const EV_STATUS_LABEL = {
 function evServiceStatusBadge(status){
   if(status === 'dev') return '<span class="badge dev">Tahap Pengembangan</span>';
   if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  if(status === 'istirahat') return '<span class="badge istirahat">Istirahat</span>';
+  if(status === 'sibuk') return '<span class="badge sibuk">Sibuk</span>';
   return '<span class="badge">Tersedia</span>';
 }
 
@@ -1249,7 +1322,6 @@ function evRenderNavbar(){
         ${evNavLink('cabang.html','Cabang')}
         ${evNavLink('berita.html','Berita')}
         ${evNavLink('rating.html','Beri Rating')}
-        ${evNavLink('lacak.html','Lacak Order')}
         ${evNavLink('cara-order.html','Cara Order')}
         ${evNavLink('tentang.html','Tentang Kami')}
         ${evNavLink('kontak.html','Kontak')}
@@ -1377,6 +1449,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   evRenderHomeNews();
   EraDB.syncPostsFromRemote().then(changed => { if(changed) evRenderHomeNews(); });
+
+  function evTickHoursPill(){
+    const hours = EraDB.getHours();
+    if(!hours){ document.getElementById('hero-hours-pill').style.display = 'none'; return; }
+    const status = evBusinessStatus(hours);
+    const now = evNowInEnde();
+    const min = now.getMinutes(), hr = now.getHours() % 12;
+    document.getElementById('hp-min').setAttribute('transform', `rotate(${min * 6} 75 75)`);
+    document.getElementById('hp-hour').setAttribute('transform', `rotate(${hr * 30 + min * 0.5} 75 75)`);
+
+    const textEl = document.getElementById('hero-hours-text');
+    if(status.open){
+      textEl.className = 'badge status-Selesai';
+      textEl.textContent = `🟢 Buka sekarang — tutup jam ${hours.close}`;
+    } else if(status.reason === 'libur'){
+      textEl.className = 'badge status-Dibatalkan';
+      textEl.textContent = `🔴 Tutup — hari ini libur`;
+    } else {
+      textEl.className = 'badge status-Dibatalkan';
+      textEl.textContent = `🔴 Tutup sekarang — buka jam ${hours.open}`;
+    }
+    document.getElementById('hero-hours-pill').style.display = 'flex';
+  }
+  EraDB.syncHoursFromRemote().then(() => evTickHoursPill());
+  evTickHoursPill();
+  setInterval(evTickHoursPill, 15000);
 });
 </script>
 <script>

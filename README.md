@@ -185,7 +185,31 @@ Setelah ini aktif: setiap order baru otomatis tersimpan sebagai baris baru di Go
 
 **Catatan:** perubahan status order dari dashboard juga otomatis mengubah data di Google Sheet, jadi semua admin yang buka dashboard akan lihat status yang sama.
 
-## 15. Deploy ke GitHub Pages
+## 15. Karyawan Terpusat dengan Google Sheets (SheetDB Kedua)
+
+Sama seperti Order, data **Karyawan** juga bisa disambungkan ke Google Sheets terpisah supaya tambah/edit/hapus karyawan dari HP manapun langsung sama di semua HP. **Foto karyawan sengaja TIDAK ikut disinkron** — tetap tersimpan per HP masing-masing (supaya ukurannya gak membengkak).
+
+**Langkah setup:**
+
+1. Buka **sheets.google.com**, buat spreadsheet baru, beri nama misal "Era Visual - Employees".
+2. Di **baris 1**, isi nama kolom berikut, satu per sel, urut dari kolom A:
+   ```
+   id | name | role | branchId | serviceIds | whatsapp | description | active
+   ```
+   (`serviceIds` diisi berupa teks dipisah koma, misal `electrical,editor` — ini otomatis dari sistem, tidak perlu diisi manual di sini.)
+3. Buka **sheetdb.io**, login dengan akun yang sama (kalau sudah pernah daftar sebelumnya).
+4. Tap **"Create new API"** → tab **"Existing"** → tempel URL spreadsheet "Era Visual - Employees" tadi → **"Create API"**.
+5. Salin **API endpoint url** yang muncul (formatnya `https://sheetdb.io/api/v1/xxxxxxxxxxxxx`).
+6. Buka file `pesan.html`, `cabang.html`, dan `admin.html` — di masing-masing, cari (Ctrl+F) tulisan:
+   ```
+   GANTI_DENGAN_URL_SHEETDB_KARYAWAN_ANDA
+   ```
+   Ganti dengan URL SheetDB Karyawan tadi (diapit tanda kutip seperti aslinya).
+7. Upload ulang ketiga file itu ke GitHub.
+
+Setelah aktif, Dashboard Admin → menu Karyawan akan menampilkan catatan **"Karyawan terpusat dari Google Sheets..."**, dan daftar karyawan di halaman Cabang serta wizard Pesan Layanan akan selalu memakai data terbaru dari Sheet itu.
+
+## 16. Deploy ke GitHub Pages
 
 ```bash
 # di dalam folder era-visual/
@@ -200,3 +224,51 @@ git push -u origin main
 Lalu di GitHub: **Settings → Pages → Source: Deploy from branch → Branch: main / (root)**. Situs akan aktif di `https://<username>.github.io/<nama-repo>/` dalam beberapa menit.
 
 Karena situs ini murni statis (tanpa build step), tidak perlu GitHub Actions — cukup branch `main` di root.
+
+## Foto Berita Beresolusi Tinggi (ImgBB)
+
+Secara bawaan, foto berita dikecilkan otomatis (maks. ±40.000 karakter) supaya muat di satu sel Google Sheets, sehingga poster penuh tulisan bisa kurang jelas. Untuk foto yang tetap tajam, foto bisa disimpan di **ImgBB** dan yang masuk ke Sheets hanya link-nya.
+
+API key ImgBB sudah dipasang di `admin.html`. Kalau perlu diganti: cari (Ctrl+F) `const ERA_IMGBB_KEY` di file itu.
+
+Setelah aktif, saat mempublikasikan berita di Admin → Berita/Info, foto otomatis dikecilkan ke sisi terpanjang 1600 px lalu diunggah ke ImgBB. Kalau upload gagal, sistem otomatis memakai foto yang dikecilkan seperti sebelumnya, jadi berita tetap terbit.
+
+## Membatasi Pemakaian Jatah Google Sheets (SheetDB)
+
+Paket gratis SheetDB cuma 500 permintaan/bulan untuk seluruh akun (dibagi ke semua API/spreadsheet). Setiap halaman situs ini (Cabang, Layanan, Karyawan, Rating, Berita) tadinya menghubungi Sheets sendiri-sendiri setiap kali dibuka — satu orang buka beberapa halaman bisa memakai belasan permintaan sekaligus, jatah bulanan jadi cepat habis.
+
+Sekarang ditambahkan jeda otomatis: dalam 10 menit setelah situs terakhir menanyakan satu jenis data (Cabang/Layanan, Karyawan, Rating, atau Berita) ke Sheets, kunjungan berikutnya memakai data yang sudah tersimpan di HP itu saja, tidak bertanya ke Sheets lagi. Jenis data yang berbeda tetap punya jeda masing-masing, dan aksi menyimpan/mengubah data (order, karyawan, berita, dll) tidak terpengaruh — itu selalu langsung terkirim.
+
+Kalau jatah bulanan tetap habis karena situs sudah ramai, pilihannya:
+- Tunggu sampai tanggal 1 bulan berikutnya (jatah otomatis reset), atau
+- Upgrade paket SheetDB (mulai ±Rp400 ribu/bulan untuk 10.000 permintaan) di sheetdb.io/pricing.
+
+Selama jatah habis, situs tidak rusak — otomatis kembali memakai data yang tersimpan terakhir di HP itu saja.
+
+## Catatan Update Terbaru (belum tercatat di bagian atas)
+
+- **Halaman Lacak Order** (`lacak.html`) — pelanggan bisa cek status pesanannya sendiri dengan memasukkan nomor order, lengkap dengan Nama Pelanggan, WhatsApp, Lokasi, dan Catatan (dua terakhir cuma muncul kalau diisi).
+- **Dashboard Admin jadi PWA (bisa di-install sebagai aplikasi)** — ada tombol "📲 Install sebagai Aplikasi" di sidebar admin. File pendukungnya: `admin-manifest.webmanifest`, `admin-sw.js`, `icon-192.png`, `icon-512.png`, `icon-512-maskable.png`. Service worker-nya sengaja HANYA menangani `admin.html`, halaman publik lain tidak terpengaruh sama sekali.
+- **Jeda sinkronisasi 10 menit** untuk Cabang, Layanan, Karyawan, Rating, dan Berita — supaya jatah bulanan SheetDB (500 request/bulan gratis) lebih awet. Order dan aksi menyimpan/mengubah data TIDAK kena jeda ini, selalu langsung terkirim.
+- **Foto Berita lewat ImgBB** (opsional) — kalau `ERA_IMGBB_KEY` di `admin.html` sudah diisi, foto berita di-upload ke ImgBB dalam resolusi tinggi; kalau belum, foto otomatis dikecilkan supaya muat di satu sel Google Sheets.
+
+## Status Layanan Baru: Istirahat & Sibuk
+
+Di Admin → Layanan, sekarang ada 2 status tambahan selain Aktif/Tahap Pengembangan/Segera Hadir:
+- **Istirahat** — layanan sedang diistirahatkan sementara (badge abu-abu).
+- **Sibuk** — layanan lagi penuh/padat, tidak menerima order dulu (badge merah).
+
+Sama seperti status non-Aktif lainnya, dua status ini otomatis membuat layanan **tidak bisa dipesan** lewat wizard sampai diganti balik ke Aktif.
+
+## Jam Operasional Otomatis (Buka/Tutup + Jam Analog)
+
+Admin → menu baru **"🕒 Jam Operasional"**: atur jam buka, jam tutup, dan hari libur (kalau ada), lengkap dengan jam analog hidup yang menunjukkan waktu Ende (WITA) saat ini.
+
+**Cara kerja:**
+- Waktu dihitung dari **WITA (UTC+8) tetap**, bukan jam HP pengunjung — jadi status Buka/Tutup selalu benar walau situsnya dibuka dari HP yang zona waktunya diset beda.
+- Setelah diatur dan disimpan, jam operasional ini **otomatis sinkron lewat Google Sheets** (tab baru "Jam", di spreadsheet yang sama dengan Karyawan/Cabang/Layanan/Berita/Rating) — berlaku sama persis di semua HP/pengunjung.
+- Selama **belum pernah diatur sama sekali**, situs dianggap **selalu buka** — jadi update ini tidak tiba-tiba menutup situs sebelum kamu sempat mengatur jamnya sendiri.
+- Begitu sudah diatur: Home menampilkan jam analog kecil + status "🟢 Buka sekarang" / "🔴 Tutup sekarang" di bagian hero. Halaman Pesan Layanan otomatis menonaktifkan wizard order (diganti layar "Sedang Tutup" + tombol WhatsApp) kalau diakses di luar jam operasional.
+- Order yang sudah ada tetap bisa dicek lewat Lacak Order kapan saja — yang ditutup cuma **pemesanan baru**.
+
+**Catatan:** tab "Jam" di Google Sheets akan terbuat otomatis begitu kamu menyimpan jam operasional pertama kali dari Admin — tidak perlu dibuat manual seperti tab lain sebelumnya.
