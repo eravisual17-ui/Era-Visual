@@ -241,6 +241,8 @@ button{font-family:inherit;}
 .badge.status-Diproses{background:#EDEAFB;color:#5B4BB8;}
 .badge.status-Selesai{background:#E4F6EC;color:var(--green);}
 .badge.status-Dibatalkan{background:#FBEAE7;color:var(--red);}
+.badge.istirahat{background:#F1F3F6;color:var(--slate-light);}
+.badge.sibuk{background:#FBEAE7;color:var(--red);}
 
 .branch-card{position:relative;}
 .branch-card .badge{position:absolute; top:20px; right:20px;}
@@ -1089,6 +1091,8 @@ const EV_STATUS_LABEL = {
 function evServiceStatusBadge(status){
   if(status === 'dev') return '<span class="badge dev">Tahap Pengembangan</span>';
   if(status === 'coming_soon') return '<span class="badge soon">Segera Hadir</span>';
+  if(status === 'istirahat') return '<span class="badge istirahat">Istirahat</span>';
+  if(status === 'sibuk') return '<span class="badge sibuk">Sibuk</span>';
   return '<span class="badge">Tersedia</span>';
 }
 

@@ -251,3 +251,11 @@ Selama jatah habis, situs tidak rusak — otomatis kembali memakai data yang ter
 - **Dashboard Admin jadi PWA (bisa di-install sebagai aplikasi)** — ada tombol "📲 Install sebagai Aplikasi" di sidebar admin. File pendukungnya: `admin-manifest.webmanifest`, `admin-sw.js`, `icon-192.png`, `icon-512.png`, `icon-512-maskable.png`. Service worker-nya sengaja HANYA menangani `admin.html`, halaman publik lain tidak terpengaruh sama sekali.
 - **Jeda sinkronisasi 10 menit** untuk Cabang, Layanan, Karyawan, Rating, dan Berita — supaya jatah bulanan SheetDB (500 request/bulan gratis) lebih awet. Order dan aksi menyimpan/mengubah data TIDAK kena jeda ini, selalu langsung terkirim.
 - **Foto Berita lewat ImgBB** (opsional) — kalau `ERA_IMGBB_KEY` di `admin.html` sudah diisi, foto berita di-upload ke ImgBB dalam resolusi tinggi; kalau belum, foto otomatis dikecilkan supaya muat di satu sel Google Sheets.
+
+## Status Layanan Baru: Istirahat & Sibuk
+
+Di Admin → Layanan, sekarang ada 2 status tambahan selain Aktif/Tahap Pengembangan/Segera Hadir:
+- **Istirahat** — layanan sedang diistirahatkan sementara (badge abu-abu).
+- **Sibuk** — layanan lagi penuh/padat, tidak menerima order dulu (badge merah).
+
+Sama seperti status non-Aktif lainnya, dua status ini otomatis membuat layanan **tidak bisa dipesan** lewat wizard sampai diganti balik ke Aktif.
