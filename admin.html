@@ -931,20 +931,28 @@ const EraDB = {
     const db = evLoadDB();
     db.hours = hours;
     evSaveDB(db);
-    return evTabUpsert(EV_HOURS_TAB, evHoursToRow(hours)).then(() => true);
+    // Mengembalikan true hanya jika benar-benar tersimpan di Google Sheets.
+    return evTabUpsert(EV_HOURS_TAB, evHoursToRow(hours)).then(res => {
+      if(!res) return false;
+      if(typeof res.ok === 'boolean') return res.ok;
+      if(res.error) return false;
+      return true;
+    }).catch(() => false);
   },
+  // Resolve ke: 'changed' | 'same' | 'empty' | 'error' | 'skipped'
   syncHoursFromRemote(){
     return evThrottledSync('hours', () => {
       return evTabList(EV_HOURS_TAB).then(remote => {
-        if(!remote || remote.length === 0) return false; // belum diatur -> jangan timpa lokal
+        if(remote === null) return 'error';          // tab "Jam" tidak ada / SheetDB gagal / batas request
+        if(remote.length === 0) return 'empty';      // tab ada tapi belum ada baris
         const row = remote.find(r => r.id === 'default') || remote[0];
         const db = evLoadDB();
         const before = JSON.stringify(db.hours || null);
         db.hours = { open: row.open || '08:00', close: row.close || '17:00', closedDays: row.closedDays || '' };
         evSaveDB(db);
-        return before !== JSON.stringify(db.hours);
+        return before !== JSON.stringify(db.hours) ? 'changed' : 'same';
       });
-    });
+    }).then(r => (r === false ? 'skipped' : r));
   },
 
   // ---------- Branches ----------
@@ -2087,19 +2095,34 @@ function evRenderHoursPanel(){
     const open = document.getElementById('hc-open').value || '08:00';
     const close = document.getElementById('hc-close').value || '17:00';
     const closedDays = Array.from(document.querySelectorAll('.hc-day:checked')).map(c => c.value).join(',');
-    EraDB.saveHours({ open, close, closedDays }).then(() => {
-      evShowToastAdmin('Jam operasional disimpan.');
+    const btn = document.getElementById('hc-save');
+    btn.disabled = true;
+    EraDB.saveHours({ open, close, closedDays }).then(okRemote => {
+      btn.disabled = false;
+      if(okRemote){
+        evShowToastAdmin('Jam operasional disimpan ke Google Sheets.');
+      } else {
+        evShowToastAdmin('Tersimpan di HP ini saja — GAGAL ke Google Sheets. Cek tab "Jam" & jatah SheetDB.');
+        const n = document.getElementById('hours-source-note');
+        if(n) n.textContent = 'Gagal menyimpan ke Google Sheets. Pastikan tab "Jam" sudah dibuat (kolom: id, open, close, closedDays) dan jatah request SheetDB belum habis.';
+      }
       tick();
     });
   });
 
   const noteEl = document.getElementById('hours-source-note');
   noteEl.textContent = 'Memuat jam operasional dari Google Sheets...';
-  EraDB.syncHoursFromRemote().then(ok => {
-    noteEl.textContent = ok
-      ? 'Jam operasional terpusat dari Google Sheets — berlaku sama di semua HP.'
-      : 'Belum ada data di Google Sheets, atau gagal memuat — simpan sekali untuk membuatnya.';
-    if(ok) evRenderHoursPanel();
+  // Admin selalu cek langsung (lewati jeda 10 menit) supaya status yang tampil akurat.
+  try{ localStorage.removeItem('ev_sync_hours'); }catch(e){}
+  EraDB.syncHoursFromRemote().then(state => {
+    if(state === 'changed' || state === 'same'){
+      noteEl.textContent = 'Jam operasional terpusat dari Google Sheets — berlaku sama di semua HP.';
+      if(state === 'changed') evRenderHoursPanel();
+    } else if(state === 'empty'){
+      noteEl.textContent = 'Tab "Jam" sudah ada tetapi masih kosong — klik Simpan Jam Operasional sekali untuk mengisinya.';
+    } else {
+      noteEl.textContent = 'Gagal membaca tab "Jam" di Google Sheets. Buat tab bernama persis "Jam" dengan baris 1: id, open, close, closedDays — atau jatah request SheetDB habis.';
+    }
   });
 }
 
