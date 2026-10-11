@@ -866,6 +866,43 @@ const EraDB = {
     const sum = rs.reduce((a, r) => a + r.stars, 0);
     return { avg: sum / rs.length, count: rs.length };
   },
+
+  // ---------- Testimoni (gabungan Rating + nama pelanggan dari Order) ----------
+  getTestimonials(){ return evLoadDB().testimonials || []; },
+  syncTestimonialsFromRemote(){
+    return evThrottledSync('testimonials', () => {
+      if(!evEmployeesBackendConfigured() || !evBackendConfigured()) return Promise.resolve(false);
+      return Promise.all([evTabList('Rating'), evBackendList()]).then(([ratings, orders]) => {
+        if(!ratings || !orders) return false; // gagal ambil salah satu -> jangan timpa data lama
+        const orderByNumber = {};
+        orders.forEach(o => { orderByNumber[o.orderNumber] = o; });
+        const employees = evLoadDB().employees || [];
+        const empById = {};
+        employees.forEach(e => { empById[e.id] = e; });
+
+        const list = ratings.map(r => {
+          const n = parseInt(r.stars, 10);
+          const o = orderByNumber[r.orderNumber];
+          const emp = empById[r.employeeId];
+          return {
+            id: r.id || '',
+            stars: n,
+            comment: (r.comment || '').trim(),
+            customerName: o ? (o.customerName || '').trim() : '',
+            employeeName: emp ? emp.name : '',
+            createdAt: r.createdAt || ''
+          };
+        }).filter(t => t.stars >= 4 && t.comment && t.customerName)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        const db = evLoadDB();
+        const before = JSON.stringify(db.testimonials || []);
+        db.testimonials = list;
+        evSaveDB(db);
+        return before !== JSON.stringify(db.testimonials);
+      });
+    });
+  },
   syncRatingsFromRemote(){
     return evThrottledSync('ratings', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);

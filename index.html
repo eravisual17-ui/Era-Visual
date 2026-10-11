@@ -510,6 +510,16 @@ button{font-family:inherit;}
   </div>
 </section>
 
+<section class="section" id="home-testimoni-section" style="display:none; background:var(--blue-50); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="container">
+    <div class="section-head center">
+      <h2>Kata Pelanggan Kami</h2>
+      <p>Ulasan asli dari pelanggan yang order-nya sudah selesai.</p>
+    </div>
+    <div class="grid grid-3" id="home-testimoni"></div>
+  </div>
+</section>
+
 <section class="section" id="home-news-section" style="display:none;">
   <div class="container">
     <div class="section-head center">
@@ -948,6 +958,43 @@ const EraDB = {
     const sum = rs.reduce((a, r) => a + r.stars, 0);
     return { avg: sum / rs.length, count: rs.length };
   },
+
+  // ---------- Testimoni (gabungan Rating + nama pelanggan dari Order) ----------
+  getTestimonials(){ return evLoadDB().testimonials || []; },
+  syncTestimonialsFromRemote(){
+    return evThrottledSync('testimonials', () => {
+      if(!evEmployeesBackendConfigured() || !evBackendConfigured()) return Promise.resolve(false);
+      return Promise.all([evTabList('Rating'), evBackendList()]).then(([ratings, orders]) => {
+        if(!ratings || !orders) return false; // gagal ambil salah satu -> jangan timpa data lama
+        const orderByNumber = {};
+        orders.forEach(o => { orderByNumber[o.orderNumber] = o; });
+        const employees = evLoadDB().employees || [];
+        const empById = {};
+        employees.forEach(e => { empById[e.id] = e; });
+
+        const list = ratings.map(r => {
+          const n = parseInt(r.stars, 10);
+          const o = orderByNumber[r.orderNumber];
+          const emp = empById[r.employeeId];
+          return {
+            id: r.id || '',
+            stars: n,
+            comment: (r.comment || '').trim(),
+            customerName: o ? (o.customerName || '').trim() : '',
+            employeeName: emp ? emp.name : '',
+            createdAt: r.createdAt || ''
+          };
+        }).filter(t => t.stars >= 4 && t.comment && t.customerName)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        const db = evLoadDB();
+        const before = JSON.stringify(db.testimonials || []);
+        db.testimonials = list;
+        evSaveDB(db);
+        return before !== JSON.stringify(db.testimonials);
+      });
+    });
+  },
   syncRatingsFromRemote(){
     return evThrottledSync('ratings', () => {
     if(!evEmployeesBackendConfigured()) return Promise.resolve(false);
@@ -1380,6 +1427,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   evRenderHomeNews();
   EraDB.syncPostsFromRemote().then(changed => { if(changed) evRenderHomeNews(); });
+
+  function evRenderHomeTestimoni(){
+  const list = EraDB.getTestimonials().slice(0, 6);
+  if(list.length > 0){
+    document.getElementById('home-testimoni-section').style.display = '';
+    document.getElementById('home-testimoni').innerHTML = list.map(t => {
+      const stars = '⭐'.repeat(t.stars) + '☆'.repeat(5 - t.stars);
+      return `
+        <div class="card">
+          <div style="font-size:1rem; margin-bottom:10px;">${stars}</div>
+          <p style="font-style:italic; margin-bottom:14px;">&ldquo;${evEscape(t.comment)}&rdquo;</p>
+          <p style="font-weight:600; margin-bottom:0;">${evEscape(t.customerName)}</p>
+          ${t.employeeName ? `<p style="font-size:.85rem; color:var(--slate-light); margin-bottom:0;">Dilayani oleh ${evEscape(t.employeeName)}</p>` : ''}
+        </div>
+      `;
+    }).join('');
+  } else { document.getElementById('home-testimoni-section').style.display = 'none'; }
+  }
+  evRenderHomeTestimoni();
+  EraDB.syncTestimonialsFromRemote().then(changed => { if(changed) evRenderHomeTestimoni(); });
 
 });
 </script>
