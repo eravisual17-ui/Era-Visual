@@ -87,52 +87,63 @@ function switchTab(tab){
 
 async function loadData(){
   const status = document.getElementById('statusBox');
-  status.innerText = 'Memuat data dari Google Sheets (sheet='+currentTab+'&db=utama)...';
+  const sheetName = currentTab; // orders, karyawan, cabang, dll
+  status.innerText = 'Memuat '+sheetName+' dari Google Sheets...';
   try{
-    const url = `${ERA_API}?sheet=${encodeURIComponent(currentTab)}&db=utama&t=${Date.now()}`;
+    // JANGAN pakai &db=utama dulu, pakai sheet aja
+    const url = `${ERA_API}?sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
     const res = await fetch(url);
     const json = await res.json();
-    // Apps Script kadang balikin {data:[...]} atau langsung [...]
-    allData = Array.isArray(json) ? json : (json.data || json.rows || []);
+    
+    let data = Array.isArray(json) ? json : (json.data || json.rows || []);
+    
+    console.log('Data diterima:', data);
+    allData = data;
+    
     if(allData.length === 0){
-      status.innerText = 'Data kosong di sheet '+currentTab+'. Cek Google Sheet tab '+currentTab;
-    } else {
-      status.innerText = `Berhasil memuat ${allData.length} data dari Google Sheets - Dual-Sheet Aktif (Utama + Backup) ✓`;
+      // coba nama lain kalau kosong
+      const url2 = `${ERA_API}?sheet=${encodeURIComponent(sheetName.toLowerCase())}&t=${Date.now()}`;
+      const res2 = await fetch(url2);
+      const json2 = await res2.json();
+      allData = Array.isArray(json2) ? json2 : (json2.data || []);
     }
+    
+    status.innerHTML = `Berhasil! ${allData.length} data ditemukan di <b>${sheetName}</b> ✓<br>EWALDUS SANGGA dan semua order Ende aman`;
     renderTable(allData);
   }catch(e){
-    console.error(e);
-    status.innerHTML = `<span class="text-red-600">Gagal memuat dari Google Sheets: ${e.message}. Menampilkan data di HP ini saja.</span><br> Cek apakah Apps Script sudah di-Deploy ulang dengan akses Anyone`;
-    // fallback localStorage
-    const local = localStorage.getItem('eravisual_'+currentTab);
-    if(local){
-      allData = JSON.parse(local);
-      renderTable(allData);
-    }
+    status.innerText = 'Gagal: '+e.message;
   }
 }
 
 function renderTable(data){
   if(!data || data.length===0){
-    document.getElementById('tableWrap').innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada data</p>';
+    document.getElementById('tableWrap').innerHTML = '<p class="text-center py-10 text-gray-400">Tidak ada data di sheet '+currentTab+'</p>';
     return;
   }
-  const keys = Object.keys(data[0]).slice(0,8); // ambil 8 kolom pertama biar gak kepanjangan di HP
+  // Untuk orders tampilkan yang penting aja
   let html = '<table class="w-full text-sm"><thead><tr class="bg-gray-50">';
-  keys.forEach(k=> html+=`<th class="p-2 text-left whitespace-nowrap border-b">${k}</th>`);
-  html+='<th class="p-2 border-b">Aksi</th></tr></thead><tbody>';
-  data.forEach((row,i)=>{
-    html+='<tr class="border-b">';
-    keys.forEach(k=>{
-      let v = row[k] ?? '';
-      if(String(v).length>40) v = String(v).substring(0,40)+'...';
-      html+=`<td class="p-2 whitespace-nowrap">${v}</td>`;
+  if(currentTab==='orders' || currentTab==='Orders'){
+    html += '<th class="p-2 text-left border-b">No Order</th><th class="p-2 text-left border-b">Pelanggan</th><th class="p-2 text-left border-b">Deskripsi</th><th class="p-2 text-left border-b">Status</th><th class="p-2 border-b">Aksi</th>';
+    html += '</tr></thead><tbody>';
+    data.forEach(row=>{
+      html += `<tr class="border-b">
+        <td class="p-2 font-mono text-xs">${row.orderNumber||row.id}</td>
+        <td class="p-2"><div class="font-bold">${row.customerName||''}</div><div class="text-xs text-gray-500">${row.customerWhatsapp||''}</div></td>
+        <td class="p-2">${row.description||''}</td>
+        <td class="p-2"><span class="px-2 py-1 rounded-full text-xs ${row.status==='Selesai'?'bg-green-100 text-green-700': row.status==='Menunggu'?'bg-yellow-100':'bg-blue-100'}">${row.status||''}</span></td>
+        <td class="p-2"><button onclick="hapusData('${row.id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td>
+      </tr>`;
     });
-    html+=`<td class="p-2 flex gap-1"><button onclick="hapusData('${row.id||row.ID||i}')" class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td></tr>`;
-  });
-  html+='</tbody></table>';
+  } else {
+    const keys = Object.keys(data[0]).slice(0,5);
+    html += keys.map(k=>`<th class="p-2 text-left border-b">${k}</th>`).join('') + '<th class="p-2 border-b">Aksi</th></tr></thead><tbody>';
+    data.forEach(row=>{
+      html += '<tr class="border-b">' + keys.map(k=>`<td class="p-2">${row[k]||''}</td>`).join('') + `<td class="p-2"><button onclick="hapusData('${row.id||row.ID||''}')" class="text-red-600 text-xs">Hapus</button></td></tr>`;
+    });
+  }
+  html += '</tbody></table>';
   document.getElementById('tableWrap').innerHTML = html;
-}
+    }
 
 function doSearch(){
   const q = document.getElementById('searchInput').value.toLowerCase();
