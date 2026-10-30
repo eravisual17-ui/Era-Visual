@@ -127,34 +127,36 @@ async function loadData(){
 }
 
 function renderTable(data){
-  if(!data || data.length===0){
-    document.getElementById('tableWrap').innerHTML = '<p class="text-center py-10 text-gray-400">Tidak ada data di sheet '+currentTab+'</p>';
-    return;
+ if(!data || data.length===0){
+  document.getElementById('tableWrap').innerHTML = '<p class="text-center py-10 text-gray-400">Kosong</p>';
+  return;
+ }
+ // Untuk orders tampilkan yang penting aja
+ let html = '<table class="w-full text-sm"><thead><tr class="bg-gray-50">';
+ if(currentTab==='orders' || currentTab==='Orders'){
+  html += '<th class="p-2 text-left border-b">No Order</th><th class="p-2 text-left border-b">Customer</th><th class="p-2 text-left border-b">Desc</th><th class="p-2 text-left border-b">Status</th><th class="p-2 text-left border-b">Aksi</th></tr></thead><tbody>';
+  data.forEach(row=>{
+   html += '<tr class="border-b"><td class="p-2 font-mono text-xs">'+(row.orderNumber||row.id)+'</td><td class="p-2"><div class="font-bold">'+(row.customerName||'')+'</div><div class="text-xs text-gray-500">'+(row.whatsapp||'')+'</div></td><td class="p-2">'+(row.description||'')+'</td><td class="p-2"><span class="px-2 py-1 rounded-full text-xs '+(row.status==='Selesai'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700')+'">'+(row.status||'')+'</span></td><td class="p-2"><button onclick="hapusData(\''+row.id+'\')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td></tr>';
+  });
+ } else if(currentTab==='karyawan' || currentTab==='Karyawan'){
+  // KARYAWAN - 8 kolom kamu
+  html += '<th class="p-2 text-left border-b">Nama</th><th class="p-2 text-left border-b">Role</th><th class="p-2 text-left border-b">Cabang</th><th class="p-2 text-left border-b">Service</th><th class="p-2 text-left border-b">WA</th><th class="p-2 text-left border-b">Desc</th><th class="p-2 text-left border-b">Active</th><th class="p-2 text-left border-b">Aksi</th></tr></thead><tbody>';
+  data.forEach(row=>{
+   let act = String(row.active||row.Active||'').toLowerCase();
+   let isOn = (act==='true'||act==='1'||act==='aktif'||act==='yes');
+   let badge = isOn ? '<span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:99px;font-size:11px">AKTIF</span>' : '<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:99px;font-size:11px">NONAKTIF</span>';
+   html += '<tr class="border-b"><td class="p-2"><b>'+(row.name||'')+'</b><br><small class="text-[10px] text-gray-400">'+(row.id||'')+'</small></td><td class="p-2">'+(row.role||'')+'</td><td class="p-2">'+(row.branchId||'')+'</td><td class="p-2 text-xs">'+(row.serviceIds||'')+'</td><td class="p-2"><a href="https://wa.me/'+(row.whatsapp||'')+'" target="_blank" class="text-blue-600 text-xs">'+(row.whatsapp||'')+'</a></td><td class="p-2 text-xs">'+(row.description||'')+'</td><td class="p-2">'+badge+'</td><td class="p-2"><button onclick="hapusData(\''+row.id+'\')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td></tr>';
+  });
+ } else {
+  const keys = Object.keys(data[0]).slice(0,5);
+  html += keys.map(k=>'<th class="p-2 text-left border-b">'+k+'</th>').join('') + '<th class="p-2 text-left border-b">Aksi</th></tr></thead><tbody>';
+  data.forEach(row=>{
+   html += '<tr class="border-b">' + keys.map(k=>'<td class="p-2">'+(row[k]||'')+'</td>').join('') + '<td class="p-2"><button onclick="hapusData(\''+row.id+'\')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td></tr>';
+  });
+ }
+ html += '</tbody></table>';
+ document.getElementById('tableWrap').innerHTML = html;
   }
-  // Untuk orders tampilkan yang penting aja
-  let html = '<table class="w-full text-sm"><thead><tr class="bg-gray-50">';
-  if(currentTab==='orders' || currentTab==='Orders'){
-    html += '<th class="p-2 text-left border-b">No Order</th><th class="p-2 text-left border-b">Pelanggan</th><th class="p-2 text-left border-b">Deskripsi</th><th class="p-2 text-left border-b">Status</th><th class="p-2 border-b">Aksi</th>';
-    html += '</tr></thead><tbody>';
-    data.forEach(row=>{
-      html += `<tr class="border-b">
-        <td class="p-2 font-mono text-xs">${row.orderNumber||row.id}</td>
-        <td class="p-2"><div class="font-bold">${row.customerName||''}</div><div class="text-xs text-gray-500">${row.customerWhatsapp||''}</div></td>
-        <td class="p-2">${row.description||''}</td>
-        <td class="p-2"><span class="px-2 py-1 rounded-full text-xs ${row.status==='Selesai'?'bg-green-100 text-green-700': row.status==='Menunggu'?'bg-yellow-100':'bg-blue-100'}">${row.status||''}</span></td>
-        <td class="p-2"><button onclick="hapusData('${row.id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td>
-      </tr>`;
-    });
-  } else {
-    const keys = Object.keys(data[0]).slice(0,5);
-    html += keys.map(k=>`<th class="p-2 text-left border-b">${k}</th>`).join('') + '<th class="p-2 border-b">Aksi</th></tr></thead><tbody>';
-    data.forEach(row=>{
-      html += '<tr class="border-b">' + keys.map(k=>`<td class="p-2">${row[k]||''}</td>`).join('') + `<td class="p-2"><button onclick="hapusData('${row.id||row.ID||''}')" class="text-red-600 text-xs">Hapus</button></td></tr>`;
-    });
-  }
-  html += '</tbody></table>';
-  document.getElementById('tableWrap').innerHTML = html;
-    }
 
 function doSearch(){
   const q = document.getElementById('searchInput').value.toLowerCase();
