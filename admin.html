@@ -87,31 +87,42 @@ function switchTab(tab){
 
 async function loadData(){
   const status = document.getElementById('statusBox');
-  const sheetName = currentTab; // orders, karyawan, cabang, dll
-  status.innerText = 'Memuat '+sheetName+' dari Google Sheets...';
+  const wrap = document.getElementById('tableWrap');
+  status.innerText = 'Menghubungkan ke Google Sheets...';
+  
   try{
-    // JANGAN pakai &db=utama dulu, pakai sheet aja
-    const url = `${ERA_API}?sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
-    const res = await fetch(url);
-    const json = await res.json();
+    const url = `${ERA_API}?sheet=${currentTab}`;
+    console.log('FETCH:', url);
+    const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+    const txt = await res.text();
+    console.log('RAW TEXT:', txt.substring(0, 500));
     
-    let data = Array.isArray(json) ? json : (json.data || json.rows || []);
-    
-    console.log('Data diterima:', data);
-    allData = data;
-    
-    if(allData.length === 0){
-      // coba nama lain kalau kosong
-      const url2 = `${ERA_API}?sheet=${encodeURIComponent(sheetName.toLowerCase())}&t=${Date.now()}`;
-      const res2 = await fetch(url2);
-      const json2 = await res2.json();
-      allData = Array.isArray(json2) ? json2 : (json2.data || []);
+    let data = [];
+    try {
+      const j = JSON.parse(txt);
+      data = Array.isArray(j) ? j : (j.data || j.rows || j.result || []);
+    } catch(e){
+      console.log('Bukan JSON:', txt);
+      throw new Error('Response bukan JSON: ' + txt.substring(0,100));
     }
     
-    status.innerHTML = `Berhasil! ${allData.length} data ditemukan di <b>${sheetName}</b> ✓<br>EWALDUS SANGGA dan semua order Ende aman`;
+    allData = data;
+    status.innerHTML = `Total data di <b>${currentTab}</b>: ${allData.length} order ✓<br>Kalau masih 0, coba buka manual: <a href="${url}" target="_blank" style="color:blue;text-decoration:underline">buka ${currentTab}</a>`;
     renderTable(allData);
+    
+    // Simpan ke local biar tidak hilang
+    if(allData.length > 0){
+      localStorage.setItem('eravisual_'+currentTab, JSON.stringify(allData));
+    }
+    
   }catch(e){
-    status.innerText = 'Gagal: '+e.message;
+    status.innerText = 'Error fetch: ' + e.message + '. Coba data lokal...';
+    const local = localStorage.getItem('eravisual_'+currentTab);
+    if(local){
+      allData = JSON.parse(local);
+      renderTable(allData);
+      status.innerText += ` (Menampilkan ${allData.length} data lokal)`;
+    }
   }
 }
 
