@@ -517,7 +517,7 @@ const EV_DB_KEY = 'era_visual_db_v1';
 // supaya ORDER tersimpan terpusat (bisa dilihat dari HP mana saja), bukan
 // cuma di localStorage perangkat masing-masing. Biarkan seperti ini
 // (placeholder) untuk tetap pakai mode localStorage biasa.
-const ERA_BACKEND_URL = 'https://sheetdb.io/api/v1/a03ovjkr3edll';
+const ERA_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyvHf0yK5PTk0qsLcCH_FeYh20IB-HHxmuNN9JBxdGZoU1XZLhW6UlxKu08-qnwcoAHhw/exec?sheet=orders&db=utama';
 
 function evBackendConfigured(){
   return typeof ERA_BACKEND_URL === 'string' && !ERA_BACKEND_URL.startsWith('GANTI_') && ERA_BACKEND_URL.length > 0;
@@ -558,8 +558,7 @@ function evBackendList(){
 // ---- Karyawan terpusat (SheetDB terpisah, sheet berbeda dari Order) ----
 // Ganti dengan URL API SheetDB khusus untuk data Karyawan.
 // Foto TIDAK ikut disinkron (tetap tersimpan lokal per HP saja).
-const ERA_EMPLOYEES_BACKEND_URL = 'https://sheetdb.io/api/v1/y6x046dtx26y9';
-
+const ERA_EMPLOYEES_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyvHf0yK5PTk0qsLcCH_FeYh20IB-HHxmuNN9JBxdGZoU1XZLhW6UlxKu08-qnwcoAHhw/exec';
 // Google Sheets bisa mengubah teks "true" menjadi boolean TRUE (dikembalikan "TRUE").
 // Fungsi ini menerima semua bentuknya supaya status aktif tidak salah baca.
 function evIsTrue(v){
