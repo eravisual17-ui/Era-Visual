@@ -941,9 +941,31 @@ const EraDB = {
   getEmployees(){ return evLoadDB().employees; },
   getEmployee(id){ return evLoadDB().employees.find(e => e.id === id); },
   getEmployeesFor(branchId, serviceId){
-    return evLoadDB().employees.filter(e =>
-      e.active && e.branchId === branchId && e.serviceIds.includes(serviceId)
-    );
+    const db = evLoadDB();
+    const norm = v => String(v == null ? '' : v).trim().toLowerCase();
+    const svc = db.services.find(s => s.id === serviceId);
+    const svcKeys = [serviceId, svc && svc.name].map(norm).filter(Boolean);
+    const branchKey = norm(branchId);
+
+    return db.employees.filter(e => {
+      // 1. aktif: terima true / "TRUE" / 1 / yes / ya / aktif
+      if(!evIsTrue(e.active)) return false;
+
+      // 2. cabang: case-insensitive + trim
+      if(norm(e.branchId) !== branchKey) return false;
+
+      // 3. layanan
+      const ids = (Array.isArray(e.serviceIds) ? e.serviceIds : String(e.serviceIds || '').split(','))
+        .map(norm).filter(Boolean);
+      if(ids.length > 0){
+        // serviceIds terisi -> cocokkan id (atau nama) layanan
+        return svcKeys.some(k => ids.includes(k));
+      }
+      // serviceIds kosong -> fallback ke role (mis. role "Editor" cocok layanan "Editor")
+      const role = norm(e.role);
+      if(!role) return false;
+      return svcKeys.some(k => role.includes(k) || (role.length >= 3 && k.includes(role)));
+    });
   },
   saveEmployee(emp){
     const db = evLoadDB();
@@ -988,8 +1010,8 @@ const EraDB = {
         id: r.id,
         name: r.name || '',
         role: r.role || '',
-        branchId: r.branchId || '',
-        serviceIds: (r.serviceIds || '').split(',').map(s => s.trim()).filter(Boolean),
+        branchId: String(r.branchId || '').trim().toLowerCase(),
+        serviceIds: String(r.serviceIds || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
         whatsapp: r.whatsapp || '',
         photo: localPhotoById[r.id] || '',
         description: r.description || '',
