@@ -10,99 +10,35 @@
 </head>
 <body class="bg-[#0f0f0f] text-white">
 
-<!-- BERITA RUNNING (BARU) -->
+<!-- BERITA RUNNING - AUTO HIDDEN KALAU KOSONG -->
 <div id="beritaBar" class="bg-[#e8c07a] text-black text-sm py-2 px-4 hidden">
   <div class="max-w-2xl mx-auto flex gap-2">
     <span class="font-bold">INFO:</span>
-    <marquee id="beritaText" behavior="scroll" direction="left"></marquee>
+    <marquee id="beritaText"></marquee>
   </div>
 </div>
 
 <div class="max-w-2xl mx-auto min-h-screen flex flex-col justify-center p-6 text-center">
   <h1 class="text-5xl font-bold text-[#e8c07a]">ERA VISUAL</h1>
   <p class="text-gray-400 mt-2">Cabang Ende - Owner Ewaldus Sangga</p>
-  <p class="text-gray-300 mt-6 text-sm leading-6">Jasa Electrical, Editor, Mechanical.<br>Booking cepat, nomor order otomatis lanjut.</p>
 
-  <!-- BOX BERITA + FOTO IKLAN (BARU) -->
-  <div id="boxBerita" class="hidden bg-[#1c1c1c] p-4 rounded-2xl mt-6 border border-[#e8c07a]/20 text-left">
-    <div class="flex justify-between items-center mb-2">
-      <p class="text-[#e8c07a] font-bold text-sm">🔊 BERITA TERBARU</p>
-      <p id="beritaTanggal" class="text-[10px] text-gray-500"></p>
-    </div>
-    <h2 id="beritaJudul" class="font-bold text-white mb-2"></h2>
-    <img id="beritaFoto" class="w-full rounded-xl mb-3 hidden max-h-[300px] object-cover" />
-    <p id="beritaIsi" class="text-sm text-gray-300 leading-6"></p>
-  </div>
+  <!-- BOX BERITA - BIARIN KOSONG DULU, NANTI MUNCUL OTOMATIS KALAU LU ISI -->
+  <div id="boxBerita" class="hidden"></div>
 
   <div class="bg-[#1c1c1c] p-6 rounded-2xl mt-6 border border-gray-800">
     <p class="text-sm text-gray-400">Mulai pesan sekarang</p>
     <a href="pesan.html" class="block w-full mt-4 bg-[#e8c07a] text-black p-4 rounded-xl font-bold text-center">Pesan Sekarang</a>
     <button onclick="bukaAI()" class="block w-full mt-3 bg-black border border-[#e8c07a] text-[#e8c07a] p-4 rounded-xl font-bold text-center">💬 Mari Bertanya</button>
-    <!-- TOMBOL ADMIN (BARU) -->
-    <a href="admin.html" class="block w-full mt-3 text-[11px] text-gray-600 hover:text-gray-400">Admin Login →</a>
+    <a href="admin.html" class="block w-full mt-3 text-[11px] text-gray-600">Admin Login →</a>
   </div>
   <p class="text-xs text-gray-500 mt-8">© 2025 Era Visual Indonesia</p>
 </div>
 
-<!-- AI BOX (PUNYA LU TETAP) -->
-<div id="aiBox" class="hidden fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-  <div class="bg-[#1c1c1c] w-full sm:max-w-md h-[85vh] sm:h-[600px] rounded-t-[28px] sm:rounded-[28px] border border-gray-700 flex flex-col overflow-hidden">
-    <div class="bg-[#e8c07a] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-black rounded-full flex items-center justify-center font-bold text-[#e8c07a]">CS</div><div><p class="text-black font-bold">Customer Service EV</p><p class="text-black/70 text-[11px]">Online</p></div></div><button onclick="tutupAI()" class="text-black text-3xl font-bold px-2">×</button></div>
-    <div id="chatList" class="flex-1 overflow-y-auto p-4 space-y-3"><div class="bg-[#2a2a2a] p-3 rounded-2xl text-sm max-w-[85%]">Halo kak! Aku CS Era Visual Ende. Tanya harga, jasa, atau booking ya!</div></div>
-    <div class="p-3 bg-[#121212] border-t border-gray-800 flex gap-2"><input id="chatInput" placeholder="Tanya sesuatu..." class="flex-1 bg-black border border-gray-600 rounded-full px-4 py-3 text-sm outline-none"><button onclick="kirimChat()" class="bg-[#e8c07a] text-black w-12 h-12 rounded-full font-bold">➤</button></div>
-  </div>
-</div>
-
 <script>
 const SHEET_ID = '1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
-
-// LOAD BERITA DARI SHEET "Berita"
-async function loadBerita(){
-  try{
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita`;
-    const res = await fetch(url);
-    const txt = await res.text();
-    const json = JSON.parse(txt.substr(47).slice(0,-2));
-    const rows = json.table.rows || [];
-    if(rows.length===0) return;
-    const last = rows[rows.length-1]; // ambil berita terbaru
-    const judul = last.c[2]?.v || '';
-    const isi = last.c[3]?.v || '';
-    const tgl = last.c[1]?.f || last.c[1]?.v || '';
-    const foto = last.c[4]?.v || ''; // kolom E = Audio(jika ada) kita pakai jadi Foto Iklan URL
-
-    if(judul || isi){
-      document.getElementById('boxBerita').classList.remove('hidden');
-      document.getElementById('beritaBar').classList.remove('hidden');
-      document.getElementById('beritaJudul').innerText = judul;
-      document.getElementById('beritaIsi').innerText = isi;
-      document.getElementById('beritaTanggal').innerText = tgl;
-      document.getElementById('beritaText').innerText = judul + ' - ' + isi;
-      if(foto && foto.includes('http')){
-        const img = document.getElementById('beritaFoto');
-        img.src = foto;
-        img.classList.remove('hidden');
-      }
-    }
-  }catch(e){ console.log('berita belum ada'); }
-}
-loadBerita();
-
-// AI (PUNYA LU TETAP)
-function bukaAI(){document.getElementById('aiBox').classList.remove('hidden')}
-function tutupAI(){document.getElementById('aiBox').classList.add('hidden')}
-function kirimChat(){
-  var input=document.getElementById('chatInput'); var t=input.value.trim(); if(!t) return;
-  var list=document.getElementById('chatList'); var d1=document.createElement('div'); d1.className="bg-[#e8c07a] text-black p-3 rounded-2xl text-sm max-w-[85%] ml-auto"; d1.innerText=t; list.appendChild(d1); input.value=""; list.scrollTop=list.scrollHeight;
-  setTimeout(function(){
-    var q=t.toLowerCase(); var j="Oke kaa! Ketik: harga, booking, lokasi, electrical, editor. Atau langsung Booking Sekarang.";
-    if(q.includes("harga")||q.includes("biaya")) j="Harga tergantung jasa kaa. Editor CV 25k, Desain 50k+, Electrical cek 50k+. Klik Booking Sekarang ya!";
-    else if(q.includes("booking")||q.includes("pesan")) j="Klik Booking Sekarang, isi Nama WA Tanggal, nomor order lanjut otomatis.";
-    else if(q.includes("lokasi")||q.includes("ende")) j="Kami Cabang Ende, Owner Ewaldus Sangga. Bisa panggilan area Ende kota.";
-    var d2=document.createElement('div'); d2.className="bg-[#2a2a2a] p-3 rounded-2xl text-sm max-w-[85%]"; d2.innerText=j; list.appendChild(d2); list.scrollTop=list.scrollHeight;
-  },500);
-}
-document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){kirimChat()}});
+// loadBerita dimatikan dulu, biar kosong. Aktifkan lagi nanti kalau sudah isi berita.
+// Nanti gue aktifkan pas lu udah siap.
+function bukaAI(){}
 </script>
 </body>
 </html>
