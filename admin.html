@@ -5,152 +5,125 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - Era Visual</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:Inter,system-ui}</style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-<!-- LOGIN -->
-<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm">
-    <h1 class="text-2xl font-bold text-center mb-2">Era Visual Admin</h1>
-    <p class="text-center text-gray-500 mb-6 text-sm">Dual-Sheet System (Utama + Backup)</p>
-    <input id="passInput" type="password" placeholder="Masukkan sandi" class="w-full border-2 p-3 rounded-xl mb-4">
-    <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">Masuk</button>
-    <p id="loginError" class="text-red-500 text-sm mt-3 hidden text-center"></p>
+<body class="bg-[#0f0f0f] text-white">
+<div id="login" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
+  <div class="bg-[#1a1a1a] border border-yellow-600/30 p-8 rounded-2xl w-full max-w-sm text-center">
+    <h1 class="text-2xl font-bold mb-1"><span class="text-yellow-500">ERA</span> VISUAL</h1>
+    <p class="text-zinc-500 text-sm mb-6">Admin Dashboard</p>
+    <input id="keyInput" type="password" placeholder="Masukkan Key" class="w-full bg-zinc-800 border border-zinc-700 p-3 rounded-xl outline-none mb-4 text-center">
+    <button id="btnMasuk" class="w-full bg-yellow-500 text-black font-bold p-3 rounded-xl">Masuk</button>
+    <p id="err" class="text-red-500 text-sm mt-3 hidden">Key salah!</p>
   </div>
 </div>
 
-<!-- ADMIN -->
-<div id="adminPage" class="hidden">
-  <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-10">
-    <h1 class="font-bold text-lg">Era Visual Admin</h1>
+<div id="main" class="hidden">
+  <div class="p-4 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#0f0f0f]">
+    <h1 class="font-bold text-sm"><span class="text-yellow-500">ERA</span> VISUAL</h1>
     <div class="flex gap-2">
-      <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Dual-Sheet: Utama + Backup</span>
-      <button onclick="doLogout()" class="text-sm text-red-600">Keluar</button>
+      <button onclick="showTab('dashboard')" id="btnTabDash" class="bg-yellow-500 text-black px-4 py-1.5 rounded-full text-[11px] font-bold">DASHBOARD</button>
+      <button onclick="showTab('berita')" id="btnTabBerita" class="bg-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full text-[11px] font-bold">BERITA</button>
     </div>
-  </header>
+  </div>
 
-  <div class="p-3">
-    <div class="flex gap-2 overflow-x-auto pb-2">
-      <button onclick="switchTab('orders')" class="tab-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm whitespace-nowrap" data-tab="orders">Pesanan</button>
-      <button onclick="switchTab('karyawan')" class="tab-btn bg-white px-4 py-2 rounded-full text-sm whitespace-nowrap" data-tab="karyawan">Karyawan</button>
-      <button onclick="switchTab('cabang')" class="tab-btn bg-white px-4 py-2 rounded-full text-sm whitespace-nowrap" data-tab="cabang">Cabang</button>
-      <button onclick="switchTab('layanan')" class="tab-btn bg-white px-4 py-2 rounded-full text-sm whitespace-nowrap" data-tab="layanan">Layanan</button>
-      <button onclick="switchTab('Berita')" class="tab-btn bg-white px-4 py-2 rounded-full text-sm whitespace-nowrap" data-tab="Berita">Berita</button>
+  <div id="viewDashboard" class="p-4">
+    <h1 class="font-bold text-xl mb-6"><span class="text-yellow-500">ERA</span> VISUAL - DASHBOARD</h1>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="bg-zinc-900 p-5 rounded-2xl"><p class="text-xs text-zinc-500">Total Order</p><p id="totalOrder" class="text-2xl font-bold">0</p></div>
+      <div class="bg-zinc-900 p-5 rounded-2xl"><p class="text-xs text-zinc-500">Cabang Top</p><p id="topCabang" class="font-bold">-</p></div>
     </div>
+    <div class="bg-zinc-900 p-4 rounded-2xl">
+      <div class="flex justify-between mb-3"><h3>Order Terbaru</h3><button onclick="loadData()" class="text-xs bg-zinc-800 px-2 py-1 rounded">Refresh</button></div>
+      <div id="orderBody" class="text-sm space-y-2"></div>
+    </div>
+  </div>
 
-    <div class="bg-white rounded-2xl shadow p-4 mt-3">
-      <div class="flex justify-between items-center mb-4">
-        <h2 id="tabTitle" class="font-bold">Pesanan</h2>
-        <div class="flex gap-2">
-          <input id="searchInput" oninput="doSearch()" placeholder="Cari..." class="border p-2 rounded-xl text-sm w-32">
-          <button onclick="loadData()" class="bg-gray-100 px-3 py-2 rounded-xl text-sm">↻ Refresh</button>
-        </div>
-      </div>
-      <div id="statusBox" class="text-sm text-gray-500 mb-3">Memuat data dari Google Sheets...</div>
-      <div id="tableWrap" class="overflow-x-auto"></div>
+  <div id="viewBerita" class="hidden p-4">
+    <h1 class="font-bold text-xl mb-6">Upload Berita + Foto Iklan</h1>
+    <div class="bg-zinc-900 p-5 rounded-2xl border border-yellow-500/20">
+      <label class="text-xs text-zinc-400">Judul Berita</label>
+      <input id="bJudul" class="w-full bg-black border border-zinc-700 p-3 rounded-xl mt-1 mb-3 outline-none text-sm" placeholder="Promo Ende!">
+      <label class="text-xs text-zinc-400">Tesk Berita</label>
+      <textarea id="bIsi" rows="4" class="w-full bg-black border border-zinc-700 p-3 rounded-xl mt-1 mb-3 outline-none text-sm" placeholder="Tulis isi berita disini..."></textarea>
+      <label class="text-xs text-zinc-400">Foto Iklan (Link Foto https://...)</label>
+      <input id="bFoto" class="w-full bg-black border border-zinc-700 p-3 rounded-xl mt-1 mb-4 outline-none text-sm" placeholder="https://drive.google.com/...">
+      <button onclick="simpanBerita()" id="btnSimpan" class="w-full bg-yellow-500 text-black font-bold p-3 rounded-xl">Simpan Berita</button>
+      <p id="statusBerita" class="text-xs text-center mt-3 text-zinc-500"></p>
+    </div>
+    <div class="bg-zinc-900 p-4 rounded-2xl mt-6">
+      <h3 class="font-bold mb-3 text-sm">Berita Terakhir</h3>
+      <div id="listBerita" class="text-sm space-y-2 text-zinc-400">Loading...</div>
     </div>
   </div>
 </div>
 
 <script>
-const SANDI = 'eravisual2023';
-const ERA_API = 'https://script.google.com/macros/s/AKfycbyvHf0yK5PTk0qsLcCH_FeYh20IB-HHxmuNN9JBxdGZoU1XZLhW6UlxKu08-qnwcoAHhw/exec';
-let currentTab = 'orders';
-let allData = [];
+const ADMIN_KEY = 'eravisual2023';
+const SHEET_ID = '1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 
+const loginDiv = document.getElementById('login');
+const mainDiv = document.getElementById('main');
 function doLogin(){
-  const v = document.getElementById('passInput').value;
-  if(v === SANDI){
-    localStorage.setItem('eravisual_admin','ok');
-    showAdmin();
-  } else {
-    document.getElementById('loginError').innerText = 'Sandi salah! pakai eravisual2023';
-    document.getElementById('loginError').classList.remove('hidden');
-  }
+  const val = document.getElementById('keyInput').value;
+  if(val === ADMIN_KEY){ loginDiv.style.display='none'; mainDiv.classList.remove('hidden'); loadData(); }
+  else { document.getElementById('err').classList.remove('hidden'); }
 }
-function doLogout(){ localStorage.removeItem('eravisual_admin'); location.reload(); }
-function showAdmin(){
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('adminPage').classList.remove('hidden');
-  loadData();
-}
-if(localStorage.getItem('eravisual_admin')==='ok'){ showAdmin(); }
+document.getElementById('btnMasuk').addEventListener('click', doLogin);
+document.getElementById('keyInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') doLogin(); });
 
-function switchTab(tab){
-  currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b=>{
-    b.className = b.dataset.tab === tab ? 'tab-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm whitespace-nowrap' : 'tab-btn bg-white px-4 py-2 rounded-full text-sm whitespace-nowrap';
-  });
-  document.getElementById('tabTitle').innerText = tab;
-  document.getElementById('searchInput').value = '';
-  loadData();
+function showTab(tab){
+  document.getElementById('viewDashboard').classList.toggle('hidden', tab!=='dashboard');
+  document.getElementById('viewBerita').classList.toggle('hidden', tab!=='berita');
+  document.getElementById('btnTabDash').className = tab==='dashboard' ? 'bg-yellow-500 text-black px-4 py-1.5 rounded-full text-[11px] font-bold' : 'bg-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full text-[11px] font-bold';
+  document.getElementById('btnTabBerita').className = tab==='berita' ? 'bg-yellow-500 text-black px-4 py-1.5 rounded-full text-[11px] font-bold' : 'bg-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full text-[11px] font-bold';
+  if(tab==='berita') loadBeritaList();
 }
-
 async function loadData(){
-  const status = document.getElementById('statusBox');
-  status.innerText = 'Memuat data dari Google Sheets (sheet='+currentTab+'&db=utama)...';
   try{
-    const url = `${ERA_API}?sheet=${encodeURIComponent(currentTab)}&db=utama&t=${Date.now()}`;
-    const res = await fetch(url);
-    const json = await res.json();
-    // Apps Script kadang balikin {data:[...]} atau langsung [...]
-    allData = Array.isArray(json) ? json : (json.data || json.rows || []);
-    if(allData.length === 0){
-      status.innerText = 'Data kosong di sheet '+currentTab+'. Cek Google Sheet tab '+currentTab;
-    } else {
-      status.innerText = `Berhasil memuat ${allData.length} data dari Google Sheets - Dual-Sheet Aktif (Utama + Backup) ✓`;
-    }
-    renderTable(allData);
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=order`;
+    const res = await fetch(url); const txt = await res.text();
+    const json = JSON.parse(txt.substr(47).slice(0,-2)); const rows = json.table.rows || [];
+    const data = rows.map(r=>({ no: r.c[1]?.v||'', nama: r.c[11]?.v||'', cabang: r.c[5]?.v||'', wa: r.c[12]?.v||'' })).filter(d=>d.no);
+    document.getElementById('totalOrder').innerText = data.length;
+    const cabangCount = {}; data.forEach(d=>cabangCount[d.cabang]=(cabangCount[d.cabang]||0)+1);
+    const top = Object.entries(cabangCount).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('topCabang').innerText = top ? top[0] : '-';
+    document.getElementById('orderBody').innerHTML = data.slice(-15).reverse().map(d=>`
+      <div class="flex justify-between bg-black/30 p-2 rounded"><span class="text-yellow-500">${d.no}</span><span>${d.nama}</span><span class="text-xs">${d.cabang}</span><a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-green-600 px-2 rounded text-xs">WA</a></div>
+    `).join('');
+  }catch(e){ document.getElementById('orderBody').innerText='Gagal load'; }
+}
+async function loadBeritaList(){
+  try{
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita`;
+    const res = await fetch(url); const txt = await res.text();
+    const json = JSON.parse(txt.substr(47).slice(0,-2)); const rows = json.table.rows || [];
+    if(rows.length==0){ document.getElementById('listBerita').innerText='Belum ada berita'; return; }
+    document.getElementById('listBerita').innerHTML = rows.slice(-10).reverse().map(r=>{
+      const j = r.c[2]?.v || ''; const tgl = r.c[1]?.f || r.c[1]?.v || '';
+      return `<div class="bg-black/40 p-2 rounded flex justify-between text-xs"><span>${j}</span><span class="text-[10px] text-zinc-500">${tgl}</span></div>`;
+    }).join('');
+  }catch(e){ document.getElementById('listBerita').innerText='Gagal load berita'; }
+}
+async function simpanBerita(){
+  const judul=document.getElementById('bJudul').value.trim();
+  const isi=document.getElementById('bIsi').value.trim();
+  const foto=document.getElementById('bFoto').value.trim();
+  if(!judul || !isi){ alert('Judul & Tesk wajib!'); return; }
+  document.getElementById('btnSimpan').innerText='Menyimpan...';
+  document.getElementById('statusBerita').innerText='Mengirim...';
+  try{
+    const payload={ action:'tambahBerita', id: 'B'+Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), judul: judul, isi: isi, foto: foto };
+    await fetch(WEB_APP_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+    document.getElementById('statusBerita').innerText='✅ Berhasil! Cek Sheet & index.html';
+    document.getElementById('bJudul').value=''; document.getElementById('bIsi').value=''; document.getElementById('bFoto').value='';
+    document.getElementById('btnSimpan').innerText='Simpan Berita';
+    setTimeout(loadBeritaList, 2500);
   }catch(e){
-    console.error(e);
-    status.innerHTML = `<span class="text-red-600">Gagal memuat dari Google Sheets: ${e.message}. Menampilkan data di HP ini saja.</span><br> Cek apakah Apps Script sudah di-Deploy ulang dengan akses Anyone`;
-    // fallback localStorage
-    const local = localStorage.getItem('eravisual_'+currentTab);
-    if(local){
-      allData = JSON.parse(local);
-      renderTable(allData);
-    }
+    document.getElementById('statusBerita').innerText='Gagal'; document.getElementById('btnSimpan').innerText='Simpan Berita';
   }
-}
-
-function renderTable(data){
-  if(!data || data.length===0){
-    document.getElementById('tableWrap').innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada data</p>';
-    return;
-  }
-  const keys = Object.keys(data[0]).slice(0,8); // ambil 8 kolom pertama biar gak kepanjangan di HP
-  let html = '<table class="w-full text-sm"><thead><tr class="bg-gray-50">';
-  keys.forEach(k=> html+=`<th class="p-2 text-left whitespace-nowrap border-b">${k}</th>`);
-  html+='<th class="p-2 border-b">Aksi</th></tr></thead><tbody>';
-  data.forEach((row,i)=>{
-    html+='<tr class="border-b">';
-    keys.forEach(k=>{
-      let v = row[k] ?? '';
-      if(String(v).length>40) v = String(v).substring(0,40)+'...';
-      html+=`<td class="p-2 whitespace-nowrap">${v}</td>`;
-    });
-    html+=`<td class="p-2 flex gap-1"><button onclick="hapusData('${row.id||row.ID||i}')" class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">Hapus</button></td></tr>`;
-  });
-  html+='</tbody></table>';
-  document.getElementById('tableWrap').innerHTML = html;
-}
-
-function doSearch(){
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  if(!q){ renderTable(allData); return; }
-  const filtered = allData.filter(r=> JSON.stringify(r).toLowerCase().includes(q));
-  renderTable(filtered);
-}
-
-async function hapusData(id){
-  if(!confirm('Hapus data ID '+id+'? Akan hapus di Utama & Backup')) return;
-  try{
-    await fetch(ERA_API,{
-      method:'POST',
-      body: JSON.stringify({sheet:currentTab, db:'utama', action:'delete', id:id})
-    });
-    alert('Berhasil hapus, akan terhapus di 2 sheet');
-    loadData();
-  }catch(e){ alert('Gagal hapus: '+e.message); }
 }
 </script>
 </body>
