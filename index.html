@@ -1,3 +1,81 @@
-<!DOCTYPE html> <html lang="id"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Era Visual - Ende</title> <script src="https://cdn.tailwindcss.com"></script> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> <style>body{font-family:Poppins}</style> </head> <body class="bg-[#eef6ff] text-[#0a192f]"> <!-- RUNNING TEXT BIRU --> <div id="beritaBar" class="bg-[#0a7bf2] text-white text-[12px] py-2 px-4 hidden"> <div class="max-w-2xl mx-auto flex gap-2 items-center"> <span class="font-bold bg-white text-[#0a7bf2] px-2 py-0.5 rounded text-[10px]">INFO</span> <marquee id="beritaText" behavior="scroll" direction="left" scrollamount="5"></marquee> </div> </div> <div class="max-w-2xl mx-auto min-h-screen flex flex-col justify-center p-6 text-center"> <!-- LOGO FIX - PAKAI NAMA FILE ASLI LU --> <div class="flex justify-center mb-4"> <div class="w-40 h-40 bg-white p-2 rounded-3xl shadow-[0_8px_30px_rgba(10,123,242,0.15)] border border-blue-100 flex items-center justify-center overflow-hidden">
-<img src="Desain tanpa judul_20261014_090638_0000.jpg" alt="Era Visual Logo" class="w-full h-full object-contain">
-</div> </div> <h1 class="text-4xl font-bold text-[#0a7bf2] tracking-widest">ERA VISUAL</h1> <p class="text-[#5b7aa5] mt-2 text-sm font-semibold">Cabang Ende - Owner Ewaldus Sangga</p> <p class="text-[#334b6e] mt-6 text-sm leading-6 bg-white/80 p-4 rounded-2xl border border-blue-100 shadow-sm"> Jasa <span class="font-bold text-[#0a7bf2]">Electrical, Editor, Mechanical</span><br>Booking cepat, nomor order otomatis lanjut.</p> <!-- BERITA LOBBY - TEMA BIRU --> <div id="boxBeritaWrap" class="hidden mt-6 text-left space-y-4"> <p class="text-[#0a7bf2] font-bold text-sm tracking-widest">🔊 BERITA TERBARU</p> <div id="listBeritaLobby" class="space-y-4"></div> </div> <div class="bg-white p-6 rounded-[24px] mt-6 border border-blue-100 shadow-[0_8px_30px_rgba(10,123,242,0.12)]"> <p class="text-sm text-[#5b7aa5]">Mulai pesan sekarang</p> <a href="pesan.html" class="block w-full mt-4 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold text-center shadow-lg shadow-blue-200 transition">Pesan Sekarang</a> <button onclick="bukaAI()" class="block w-full mt-3 bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] p-4 rounded-xl font-bold text-center">💬 Mari Bertanya</button> <a href="admin.html" class="block w-full mt-3 text-[11px] text-[#8aa4c8] hover:text-[#0a7bf2]">Admin Login →</a> </div> <p class="text-xs text-[#8aa4c8] mt-8">© 2025 Era Visual - 2023 - Indonesia</p> </div> <!-- AI BOX BIRU --> <div id="aiBox" class="hidden fixed inset-0 bg-[#0a192f]/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"> <div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-[600px] rounded-t-[28px] sm:rounded-[28px] border border-blue-100 flex flex-col overflow-hidden shadow-2xl"> <div class="bg-[#0a7bf2] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#0a7bf2]">EV</div><div><p class="text-white font-bold">Customer Service EV</p><p class="text-white/80 text-[11px]">Online</p></div></div><button onclick="tutupAI()" class="text-white text-3xl font-bold px-2">×</button></div> <div id="chatList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f6faff]"><div class="bg-white border border-blue-100 p-3 rounded-2xl text-sm max-w-[85%] shadow-sm">Halo kak! Aku CS Era Visual Ende. Tanya harga, jasa, atau booking ya!</div></div> <div class="p-3 bg-white border-t border-blue-100 flex gap-2"><input id="chatInput" placeholder="Tanya sesuatu..." class="flex-1 bg-[#f0f7ff] border border-blue-200 rounded-full px-4 py-3 text-sm outline-none focus:border-[#0a7bf2]"><button onclick="kirimChat()" class="bg-[#0a7bf2] text-white w-12 h-12 rounded-full font-bold">➤</button></div> </div> </div> <script> const SHEET_ID = '1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s'; async function loadBerita(){ try{ const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`; const res = await fetch(url); const txt = await res.text(); const json = JSON.parse(txt.substr(47).slice(0,-2)); const rows = json.table.rows || []; if(rows.length===0) return; document.getElementById('boxBeritaWrap').classList.remove('hidden'); document.getElementById('beritaBar').classList.remove('hidden'); const data = rows.map(r=>({ id: r.c[0]?.v || '', tgl: r.c[1]?.v || r.c[1]?.f || '', judul: r.c[2]?.v || '', teks: r.c[3]?.v || '', foto: r.c[4]?.v || '' })).filter(x=>x.judul).slice(-3).reverse(); document.getElementById('beritaText').innerText = data.map(d=>d.judul).join(' • '); document.getElementById('listBeritaLobby').innerHTML = data.map(d=>` <div class="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-[0_4px_20px_rgba(10,123,242,0.08)]"> ${d.foto && d.foto.includes('http') ? `<img src="${d.foto}" class="w-full h-48 object-cover" onerror="this.style.display='none'">` : ''} <div class="p-4"> <div class="flex justify-between items-center mb-2"> <span class="text-[10px] bg-[#e6f0ff] text-[#0a7bf2] px-2 py-0.5 rounded-full font-bold">${d.tgl}</span> <span class="text-[10px] text-[#8aa4c8]">${d.id}</span> </div> <h2 class="font-bold text-[#0a192f] text-[15px] leading-5 mb-2">${d.judul}</h2> <p class="text-[13px] text-[#334b6e] leading-6 whitespace-pre-wrap">${d.teks}</p> </div> </div> `).join(''); }catch(e){ console.log('berita error',e); } } loadBerita(); function bukaAI(){document.getElementById('aiBox').classList.remove('hidden')} function tutupAI(){document.getElementById('aiBox').classList.add('hidden')} function kirimChat(){ var input=document.getElementById('chatInput'); var t=input.value.trim(); if(!t) return; var list=document.getElementById('chatList'); var d1=document.createElement('div'); d1.className="bg-[#0a7bf2] text-white p-3 rounded-2xl text-sm max-w-[85%] ml-auto"; d1.innerText=t; list.appendChild(d1); input.value=""; list.scrollTop=list.scrollHeight; setTimeout(function(){ var q=t.toLowerCase(); var j="Oke kaa! Ketik: harga, booking, lokasi, electrical, editor. Atau langsung Booking Sekarang."; if(q.includes("harga")||q.includes("biaya")) j="Harga tergantung jasa kaa. Editor CV 25k, Desain 50k+, Electrical cek 50k+. Klik Booking Sekarang ya!"; else if(q.includes("booking")||q.includes("pesan")) j="Klik Booking Sekarang, isi Nama WA Tanggal, nomor order lanjut otomatis."; else if(q.includes("lokasi")||q.includes("ende")) j="Kami Cabang Ende, Owner Ewaldus Sangga. Bisa panggilan area Ende kota."; var d2=document.createElement('div'); d2.className="bg-white border border-blue-100 p-3 rounded-2xl text-sm max-w-[85%] shadow-sm"; d2.innerText=j; list.appendChild(d2); list.scrollTop=list.scrollHeight; },500); } document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){kirimChat()}}); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Era Visual - Ende</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins}</style>
+</head>
+<body class="bg-[#eef6ff] text-[#0a192f]">
+<div id="beritaBar" class="bg-[#0a7bf2] text-white text-[12px] py-2 px-4 hidden">
+<div class="max-w-2xl mx-auto flex gap-2 items-center">
+<span class="font-bold bg-white text-[#0a7bf2] px-2 py-0.5 rounded text-[10px]">INFO</span>
+<marquee id="beritaText" behavior="scroll" direction="left" scrollamount="5"></marquee>
+</div>
+</div>
+
+<div class="max-w-2xl mx-auto min-h-screen flex flex-col justify-center p-6 text-center">
+<div class="flex justify-center mb-4">
+<div class="w-40 h-40 bg-white p-2 rounded-3xl shadow-[0_8px_30px_rgba(10,123,242,0.15)] border border-blue-100 flex items-center justify-center overflow-hidden">
+<img src="logo.jpg" alt="Era Visual Logo" class="w-full h-full object-contain">
+</div>
+</div>
+
+<h1 class="text-4xl font-bold text-[#0a7bf2] tracking-widest">ERA VISUAL</h1>
+<p class="text-[#5b7aa5] mt-2 text-sm font-semibold">Cabang Ende - Owner Ewaldus Sangga</p>
+<p class="text-[#334b6e] mt-6 text-sm leading-6 bg-white/80 p-4 rounded-2xl border border-blue-100 shadow-sm">
+Jasa <span class="font-bold text-[#0a7bf2]">Electrical, Editor, Mechanical</span><br>Booking cepat, nomor order otomatis lanjut.</p>
+
+<div id="boxBeritaWrap" class="hidden mt-6 text-left space-y-4">
+<p class="text-[#0a7bf2] font-bold text-sm tracking-widest">🔊 BERITA TERBARU</p>
+<div id="listBeritaLobby" class="space-y-4"></div>
+</div>
+
+<div class="bg-white p-6 rounded-[24px] mt-6 border border-blue-100 shadow-[0_8px_30px_rgba(10,123,242,0.12)]">
+<p class="text-sm text-[#5b7aa5]">Mulai pesan sekarang</p>
+<a href="pesan.html" class="block w-full mt-4 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold text-center shadow-lg shadow-blue-200 transition">Pesan Sekarang</a>
+<button onclick="bukaAI()" class="block w-full mt-3 bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] p-4 rounded-xl font-bold text-center">💬 Mari Bertanya</button>
+<a href="admin.html" class="block w-full mt-3 text-[11px] text-[#8aa4c8] hover:text-[#0a7bf2]">Admin Login →</a>
+</div>
+<p class="text-xs text-[#8aa4c8] mt-8">© 2025 Era Visual Indonesia</p>
+</div>
+
+<div id="aiBox" class="hidden fixed inset-0 bg-[#0a192f]/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+<div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-[600px] rounded-t-[28px] sm:rounded-[28px] border border-blue-100 flex flex-col overflow-hidden shadow-2xl">
+<div class="bg-[#0a7bf2] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#0a7bf2]">EV</div><div><p class="text-white font-bold">Customer Service EV</p><p class="text-white/80 text-[11px]">Online</p></div></div><button onclick="tutupAI()" class="text-white text-3xl font-bold px-2">×</button></div>
+<div id="chatList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f6faff]"><div class="bg-white border border-blue-100 p-3 rounded-2xl text-sm max-w-[85%] shadow-sm">Halo kak! Aku CS Era Visual Ende. Tanya harga, jasa, atau booking ya!</div></div>
+<div class="p-3 bg-white border-t border-blue-100 flex gap-2"><input id="chatInput" placeholder="Tanya sesuatu..." class="flex-1 bg-[#f0f7ff] border border-blue-200 rounded-full px-4 py-3 text-sm outline-none focus:border-[#0a7bf2]"><button onclick="kirimChat()" class="bg-[#0a7bf2] text-white w-12 h-12 rounded-full font-bold">➤</button></div>
+</div>
+</div>
+
+<script>
+const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
+async function loadBerita(){
+try{
+const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`;
+const res=await fetch(url);const txt=await res.text();
+const json=JSON.parse(txt.substr(47).slice(0,-2));
+const rows=json.table.rows||[];if(rows.length===0)return;
+document.getElementById('boxBeritaWrap').classList.remove('hidden');
+document.getElementById('beritaBar').classList.remove('hidden');
+const data=rows.map(r=>({id:r.c[0]?.v||'',tgl:r.c[1]?.v||r.c[1]?.f||'',judul:r.c[2]?.v||'',teks:r.c[3]?.v||'',foto:r.c[4]?.v||''})).filter(x=>x.judul).slice(-3).reverse();
+document.getElementById('beritaText').innerText=data.map(d=>d.judul).join(' • ');
+document.getElementById('listBeritaLobby').innerHTML=data.map(d=>`
+<div class="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-[0_4px_20px_rgba(10,123,242,0.08)]">
+${d.foto&&d.foto.includes('http')?`<img src="${d.foto}" class="w-full h-48 object-cover" onerror="this.style.display='none'">`:''}
+<div class="p-4">
+<div class="flex justify-between items-center mb-2"><span class="text-[10px] bg-[#e6f0ff] text-[#0a7bf2] px-2 py-0.5 rounded-full font-bold">${d.tgl}</span><span class="text-[10px] text-[#8aa4c8]">${d.id}</span></div>
+<h2 class="font-bold text-[#0a192f] text-[15px] leading-5 mb-2">${d.judul}</h2>
+<p class="text-[13px] text-[#334b6e] leading-6 whitespace-pre-wrap">${d.teks}</p>
+</div></div>`).join('');
+}catch(e){console.log('berita error',e);}}
+loadBerita();
+function bukaAI(){document.getElementById('aiBox').classList.remove('hidden')}
+function tutupAI(){document.getElementById('aiBox').classList.add('hidden')}
+function kirimChat(){var input=document.getElementById('chatInput');var t=input.value.trim();if(!t)return;var list=document.getElementById('chatList');var d1=document.createElement('div');d1.className="bg-[#0a7bf2] text-white p-3 rounded-2xl text-sm max-w-[85%] ml-auto";d1.innerText=t;list.appendChild(d1);input.value="";list.scrollTop=list.scrollHeight;setTimeout(function(){var q=t.toLowerCase();var j="Oke kaa! Ketik: harga, booking, lokasi, electrical, editor. Atau langsung Booking Sekarang.";if(q.includes("harga")||q.includes("biaya"))j="Harga tergantung jasa kaa. Editor CV 25k, Desain 50k+, Electrical cek 50k+. Klik Booking Sekarang ya!";else if(q.includes("booking")||q.includes("pesan"))j="Klik Booking Sekarang, isi Nama WA Tanggal, nomor order lanjut otomatis.";else if(q.includes("lokasi")||q.includes("ende"))j="Kami Cabang Ende, Owner Ewaldus Sangga. Bisa panggilan area Ende kota.";var d2=document.createElement('div');d2.className="bg-white border border-blue-100 p-3 rounded-2xl text-sm max-w-[85%] shadow-sm";d2.innerText=j;list.appendChild(d2);list.scrollTop=list.scrollHeight;},500);}
+document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){kirimChat()}});
+</script>
+</body>
+                                                        </html>
