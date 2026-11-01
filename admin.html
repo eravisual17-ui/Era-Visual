@@ -1,96 +1,173 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin - Era Visual</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Poppins}</style></head><body class="bg-[#eef6ff]">
-<div id="login" class="fixed inset-0 bg-[#0a192f]/80 backdrop-blur z-50 flex items-center justify-center p-4"><div class="bg-white p-8 rounded-[24px] w-full max-w-sm text-center shadow-2xl"><div class="w-16 h-16 border rounded-2xl p-1 mx-auto"><img src="logo.jpg" class="w-full h-full object-contain"></div><h1 class="text-xl font-bold mt-3 text-[#0a7bf2]">ERA VISUAL ADMIN</h1><input id="keyInput" type="password" placeholder="Key: eravisual2023" class="w-full bg-[#f6faff] border p-3.5 rounded-xl mt-6 text-center text-sm"><button id="btnMasuk" class="w-full bg-[#0a7bf2] text-white font-bold p-3.5 rounded-xl mt-3">Masuk</button></div></div>
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Era Visual - Final</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins} .line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}</style>
+</head><body class="bg-[#eef6ff] text-[#0a192f]">
 
-<div id="main" class="hidden">
-<div class="bg-white border-b sticky top-0 z-20"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center"><p class="font-bold text-sm">Era Visual • Admin Omzet</p><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">🔄 Refresh</button></div></div>
+<!-- LOGIN -->
+<div id="login" class="fixed inset-0 bg-[#0a192f]/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+<div class="bg-white p-8 rounded-[24px] w-full max-w-sm text-center shadow-2xl border">
+<div class="w-16 h-16 border rounded-2xl p-1 mx-auto overflow-hidden"><img src="logo.jpg" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/64'"></div>
+<h1 class="text-xl font-bold mt-4 text-[#0a7bf2] tracking-widest">ERA VISUAL</h1>
+<p class="text-[11px] text-gray-400">Admin Panel Final - Omzet & Berita</p>
+<input id="keyInput" type="password" placeholder="Key Admin" class="w-full bg-[#f6faff] border border-blue-100 p-3.5 rounded-xl mt-6 text-center text-sm outline-none focus:border-[#0a7bf2]">
+<button id="btnMasuk" class="w-full bg-[#0a7bf2] text-white font-bold p-3.5 rounded-xl mt-3 shadow">Masuk Dashboard →</button>
+</div>
+</div>
+
+<!-- MAIN -->
+<div id="main" class="hidden min-h-screen">
+<div class="bg-white border-b sticky top-0 z-20"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2"><div class="w-8 h-8 border rounded-lg p-1"><img src="logo.jpg" class="w-full h-full object-contain"></div><p class="font-bold text-sm">Admin Final</p></div>
+<div class="flex gap-2"><button onclick="showTab('dashboard')" id="btnTabDash" class="bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold">ORDER & OMZET</button><button onclick="showTab('berita')" id="btnTabBerita" class="bg-[#eef6ff] text-[#5b7aa5] px-5 py-2 rounded-full text-[11px] font-bold">BERITA</button></div>
+</div></div>
 
 <div class="max-w-6xl mx-auto p-4">
+<!-- STATS -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-<div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL ORDER</p><p id="totalOrder" class="text-xl font-bold">0</p></div>
-<div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">MENUNGGU</p><p id="countMenunggu" class="text-xl font-bold text-yellow-600">0</p></div>
-<div class="bg-[#0a7bf2] p-4 rounded-2xl text-white"><p class="text-[10px] text-blue-100 font-bold">OMZET SELESAI</p><p id="omzetTotal" class="text-xl font-bold">Rp 0</p><p id="omzetCount" class="text-[10px]">0 order</p></div>
-<div class="bg-[#12223d] p-4 rounded-2xl text-white"><p class="text-[10px] text-blue-200 font-bold">TOTAL TIP</p><p id="tipTotal" class="text-xl font-bold">Rp 0</p></div>
+<div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-[10px] text-gray-400 font-bold">TOTAL ORDER</p><p id="totalOrder" class="text-2xl font-bold">0</p></div>
+<div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-[10px] text-gray-400 font-bold">MENUNGGU</p><p id="countMenunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
+<div class="bg-[#0a7bf2] p-4 rounded-2xl shadow text-white"><p class="text-[10px] text-blue-100 font-bold">OMZET SELESAI</p><p id="omzetTotal" class="text-xl font-bold">Rp 0</p><p id="omzetCount" class="text-[10px] text-blue-100">0 order</p></div>
+<div class="bg-[#12223d] p-4 rounded-2xl shadow text-white"><p class="text-[10px] text-blue-200 font-bold">TOTAL TIP</p><p id="tipTotal" class="text-xl font-bold">Rp 0</p></div>
 </div>
 
+<!-- DASHBOARD VIEW -->
+<div id="viewDashboard">
 <div class="flex gap-2 overflow-x-auto pb-2 mb-3">
 <button onclick="filterStatus('semua')" id="fSemua" class="bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[10px] font-bold">SEMUA</button>
-<button onclick="filterStatus('Menunggu')" id="fMenunggu" class="bg-white border px-4 py-2 rounded-full text-[10px] font-bold">MENUNGGU</button>
-<button onclick="filterStatus('Selesai')" id="fSelesai" class="bg-white border px-4 py-2 rounded-full text-[10px] font-bold">SELESAI</button>
+<button onclick="filterStatus('menunggu')" id="fMenunggu" class="bg-white border px-4 py-2 rounded-full text-[10px] font-bold">MENUNGGU</button>
+<button onclick="filterStatus('selesai')" id="fSelesai" class="bg-white border px-4 py-2 rounded-full text-[10px] font-bold">SELESAI</button>
+<button onclick="filterStatus('dikonfirmasi')" id="fKonfirmasi" class="bg-white border px-4 py-2 rounded-full text-[10px] font-bold">KONFIRMASI</button>
+</div>
+<div id="orderBody" class="space-y-3">Loading data order...</div>
+<p id="debug" class="text-[9px] text-gray-400 mt-4 text-center"></p>
 </div>
 
-<div id="orderBody" class="space-y-3">Loading...</div>
+<!-- BERITA VIEW -->
+<div id="viewBerita" class="hidden">
+<div class="bg-white p-6 rounded-[20px] border shadow-sm">
+<p id="editInfo" class="hidden bg-blue-50 text-[#0a7bf2] p-2 rounded-lg text-[11px] mb-3">✏️ Mode Edit: <span id="editIdText" class="font-bold"></span> <button onclick="batalEdit()" class="underline ml-2">Batal</button></p>
+<label class="text-[10px] font-bold text-gray-500">JUDUL *</label>
+<input id="bJudul" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-1 mb-3 text-sm outline-none" placeholder="Judul berita">
+<label class="text-[10px] font-bold text-gray-500">KATEGORI</label>
+<select id="bKategori" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-1 mb-3 text-sm"><option value="Info">Info</option><option value="Promo">Promo</option><option value="Layanan Baru">Layanan Baru</option><option value="Tips">Tips</option></select>
+<label class="text-[10px] font-bold text-gray-500">ISI BERITA *</label>
+<textarea id="bIsi" rows="5" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-1 mb-3 text-sm outline-none" placeholder="Tulis isi..."></textarea>
+<label class="text-[10px] font-bold text-gray-500">LINK FOTO</label>
+<input id="bFoto" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-1 mb-3 text-sm outline-none" placeholder="https://...">
+<div id="previewFoto" class="hidden w-full h-40 bg-[#f6faff] border rounded-xl overflow-hidden mb-4"><img id="imgPreview" class="w-full h-full object-cover"></div>
+<button onclick="simpanBerita()" id="btnSimpan" class="w-full bg-[#0a7bf2] text-white font-bold p-4 rounded-xl shadow">Simpan Berita</button>
+</div>
+<div class="bg-white p-5 rounded-[20px] border shadow-sm mt-6"><h3 class="font-bold text-sm mb-3">Berita Terpublish</h3><div id="listBerita" class="space-y-2">Loading...</div></div>
+</div>
+
 </div>
 </div>
 
 <script>
 const ADMIN_KEY='eravisual2023';
 const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
-// GANTI NAMA SHEET JIKA BEDA, lihat di bawah sheet di Google Sheet lu
-const SHEET_NAME=''; // kosong = sheet pertama (yang di screenshot)
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
-let allOrders=[];let currentFilter='semua';
-function doLogin(){if(document.getElementById('keyInput').value===ADMIN_KEY){document.getElementById('login').style.display='none';document.getElementById('main').classList.remove('hidden');loadData();}else alert('Key salah');}
+
+let allOrders=[]; let currentFilter='semua'; let editModeId=null; let beritaCache=[];
+
+function doLogin(){if(document.getElementById('keyInput').value===ADMIN_KEY){document.getElementById('login').style.display='none';document.getElementById('main').classList.remove('hidden');loadData();loadBeritaList();}else alert('Key salah');}
 document.getElementById('btnMasuk').addEventListener('click',doLogin);
+document.getElementById('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function showTab(t){
+  document.getElementById('viewDashboard').classList.toggle('hidden',t!=='dashboard');
+  document.getElementById('viewBerita').classList.toggle('hidden',t!=='berita');
+  document.getElementById('btnTabDash').className=t==='dashboard'?'bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold':'bg-[#eef6ff] text-[#5b7aa5] px-5 py-2 rounded-full text-[11px] font-bold';
+  document.getElementById('btnTabBerita').className=t==='berita'?'bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold':'bg-[#eef6ff] text-[#5b7aa5] px-5 py-2 rounded-full text-[11px] font-bold';
+  if(t==='berita') loadBeritaList();
+}
+function filterStatus(s){currentFilter=s; const map={semua:'fSemua',menunggu:'fMenunggu',selesai:'fSelesai',dikonfirmasi:'fKonfirmasi'}; ['fSemua','fMenunggu','fSelesai','fKonfirmasi'].forEach(id=>{let el=document.getElementById(id); if(el) el.className='bg-white border px-4 py-2 rounded-full text-[10px] font-bold';}); let active=document.getElementById(map[s]||'fSemua'); if(active) active.className='bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[10px] font-bold'; renderOrders();}
 function formatRp(n){return 'Rp '+(Number(n||0)).toLocaleString('id-ID');}
-function filterStatus(s){currentFilter=s;renderOrders();}
+
+function getColIndex(cols, names){
+  for(let i=0;i<cols.length;i++){
+    let label=(cols[i].label||'').toLowerCase();
+    let id=(cols[i].id||'').toLowerCase();
+    for(let n of names){ if(label.includes(n) || id.includes(n)) return i; }
+  }
+  return -1;
+}
 
 async function loadData(){
-let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
-if(SHEET_NAME) url+=`&sheet=${SHEET_NAME}`;
-const res=await fetch(url);const txt=await res.text();const json=JSON.parse(txt.substr(47).slice(0,-2));const rows=json.table.rows||[];
-// Sesuai screenshot: C=2 Nama, D=3 Layanan, E=4 Cabang, F=5 Detail, G=6 WA, H=7 Timestamp, I=8 Status, J=9 harga, K=10 tip, L=11 omzet
-allOrders=rows.slice(1).map((r,idx)=>({
-  rowNumber: idx+3, // baris asli di sheet (karena ada 2 header)
-  nama: r.c[2]?.v||'',
-  layanan: r.c[3]?.v||'',
-  cabang: r.c[4]?.v||'',
-  detail: r.c[5]?.v||'',
-  wa: r.c[6]?.v||'',
-  timestamp: r.c[7]?.v||'',
-  status: r.c[8]?.v||'Menunggu',
-  harga: Number(r.c[9]?.v||0),
-  tip: Number(r.c[10]?.v||0),
-  omzet: Number(r.c[11]?.v||0),
-})).filter(d=>d.nama);
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
+    const res=await fetch(url); const txt=await res.text(); const json=JSON.parse(txt.substr(47).slice(0,-2));
+    const cols=json.table.cols; const rows=json.table.rows;
+    
+    const idxNama = getColIndex(cols, ['nama','customer','name','customername']);
+    const idxLayanan = getColIndex(cols, ['layanan','service','servicename']);
+    const idxCabang = getColIndex(cols, ['cabang','branch','branchname']);
+    const idxDetail = getColIndex(cols, ['detail','description','laporan','cv']);
+    const idxWA = getColIndex(cols, ['wa','phone','hp','wauser']);
+    const idxStatus = getColIndex(cols, ['status']);
+    const idxHarga = getColIndex(cols, ['harga','price']);
+    const idxTip = getColIndex(cols, ['tip']);
+    const idxOmzet = getColIndex(cols, ['omzet','omset','total']);
 
-document.getElementById('totalOrder').innerText=allOrders.length;
-document.getElementById('countMenunggu').innerText=allOrders.filter(o=>String(o.status).toLowerCase().includes('menunggu')).length;
-let selesai=allOrders.filter(o=>String(o.status).toLowerCase().includes('selesai'));
-let sumOmzet=selesai.reduce((a,b)=>a+(b.omzet||b.harga+b.tip),0);
-let sumTip=selesai.reduce((a,b)=>a+(b.tip||0),0);
-document.getElementById('omzetTotal').innerText=formatRp(sumOmzet);
-document.getElementById('omzetCount').innerText=selesai.length+' order selesai';
-document.getElementById('tipTotal').innerText=formatRp(sumTip);
-renderOrders();
+    document.getElementById('debug').innerText=`Kolom terdeteksi => Nama:${idxNama} Layanan:${idxLayanan} Cabang:${idxCabang} WA:${idxWA} Status:${idxStatus} Harga:${idxHarga} Tip:${idxTip} Omzet:${idxOmzet}`;
+
+    allOrders=rows.map((r,i)=>{
+      const c=r.c;
+      return {
+        rowNumber: i+2,
+        nama: c[idxNama]?.v||c[2]?.v||'',
+        layanan: c[idxLayanan]?.v||c[3]?.v||'',
+        cabang: c[idxCabang]?.v||c[4]?.v||'',
+        detail: c[idxDetail]?.v||c[5]?.v||'',
+        wa: c[idxWA]?.v||c[6]?.v||'',
+        status: c[idxStatus]?.v||c[8]?.v||'Menunggu',
+        harga: Number(c[idxHarga]?.v||c[9]?.v||0),
+        tip: Number(c[idxTip]?.v||c[10]?.v||0),
+        omzet: Number(c[idxOmzet]?.v||c[11]?.v||0),
+      };
+    }).filter(d=>d.nama || d.wa);
+
+    document.getElementById('totalOrder').innerText=allOrders.length;
+    document.getElementById('countMenunggu').innerText=allOrders.filter(o=>String(o.status).toLowerCase().includes('menunggu')).length;
+    let selesai=allOrders.filter(o=>String(o.status).toLowerCase().includes('selesai'));
+    document.getElementById('omzetTotal').innerText=formatRp(selesai.reduce((a,b)=>a+(b.omzet||b.harga+b.tip),0));
+    document.getElementById('omzetCount').innerText=selesai.length+' order selesai';
+    document.getElementById('tipTotal').innerText=formatRp(selesai.reduce((a,b)=>a+(b.tip||0),0));
+    renderOrders();
+  }catch(e){document.getElementById('orderBody').innerHTML='<p class="text-center text-red-500 text-sm py-10">Gagal load: '+e.message+'</p>';}
 }
 
 function renderOrders(){
-let f=allOrders;if(currentFilter!=='semua')f=allOrders.filter(o=>String(o.status).toLowerCase().includes(currentFilter.toLowerCase()));
-document.getElementById('orderBody').innerHTML=f.slice(-50).reverse().map(d=>`
-<div class="bg-white p-4 rounded-2xl border">
-<div class="flex justify-between"><p class="font-bold text-[13px]">${d.nama} <span class="text-[11px] text-gray-400 font-normal">• ${d.layanan}</span></p><span class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">${d.status||'-'}</span></div>
-<p class="text-[11px] text-gray-500 mt-1">${d.cabang} • ${d.detail} • WA: ${d.wa}</p>
-<div class="grid grid-cols-3 gap-2 mt-3 bg-[#f6faff] p-3 rounded-xl border">
-<div><label class="text-[9px] font-bold text-gray-400">J HARGA</label><input id="harga-${d.rowNumber}" type="number" value="${d.harga||''}" placeholder="0" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
-<div><label class="text-[9px] font-bold text-gray-400">K TIP</label><input id="tip-${d.rowNumber}" type="number" value="${d.tip||''}" placeholder="0" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
-<div><label class="text-[9px] font-bold text-gray-400">L OMZET</label><div class="bg-[#0a7bf2] text-white rounded-lg p-2 text-[12px] mt-1 font-bold text-center">${formatRp(d.omzet||d.harga+d.tip)}</div></div>
-</div>
-<div class="flex gap-2 mt-3">
-<select onchange="updateStatus(${d.rowNumber},this.value)" class="flex-1 bg-white border text-[11px] p-2.5 rounded-full font-bold"><option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Selesai">Selesai</option><option value="Batal">Batal</option></select>
-<button onclick="simpanOmzet(${d.rowNumber})" class="flex-1 bg-[#12223d] text-white text-[11px] p-2.5 rounded-full font-bold">💾 Simpan JKL</button>
-<a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-4 py-2.5 rounded-full text-[11px] font-bold">WA</a>
-</div>
-</div>`).join('');
+  let f=allOrders; if(currentFilter!=='semua') f=allOrders.filter(o=>String(o.status).toLowerCase().includes(currentFilter.toLowerCase()));
+  if(f.length===0){document.getElementById('orderBody').innerHTML='<p class="text-center text-gray-400 text-sm py-10">Tidak ada data '+currentFilter+'</p>'; return;}
+  document.getElementById('orderBody').innerHTML=f.slice(-100).reverse().map(d=>`
+  <div class="bg-white p-4 rounded-2xl border shadow-sm">
+    <div class="flex justify-between items-start"><div><p class="font-bold text-[13px]">${d.nama||'Tanpa Nama'} <span class="text-[11px] text-gray-400 font-normal">• ${d.layanan}</span></p><p class="text-[11px] text-gray-500 mt-1">${d.cabang} • ${d.detail}</p><p class="text-[11px] text-[#0a7bf2] mt-1">WA: ${d.wa}</p></div><span class="text-[10px] bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-bold">${d.status}</span></div>
+    <div class="grid grid-cols-3 gap-2 mt-3 bg-[#f6faff] p-3 rounded-xl border">
+      <div><label class="text-[9px] font-bold text-gray-400">J HARGA</label><input id="harga-${d.rowNumber}" type="number" value="${d.harga||''}" placeholder="0" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
+      <div><label class="text-[9px] font-bold text-gray-400">K TIP</label><input id="tip-${d.rowNumber}" type="number" value="${d.tip||''}" placeholder="0" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
+      <div><label class="text-[9px] font-bold text-gray-400">L OMZET</label><div class="bg-[#0a7bf2] text-white rounded-lg p-2.5 text-[12px] mt-1 font-bold text-center">${formatRp(d.omzet||d.harga+d.tip)}</div></div>
+    </div>
+    <div class="flex gap-2 mt-3">
+      <select onchange="updateStatus(${d.rowNumber},this.value)" class="flex-1 bg-white border text-[11px] p-2.5 rounded-full font-bold"><option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Dikonfirmasi">Dikonfirmasi</option><option value="Selesai">Selesai</option><option value="Batal">Batal</option></select>
+      <button onclick="simpanOmzet(${d.rowNumber})" class="flex-1 bg-[#12223d] text-white text-[11px] p-2.5 rounded-full font-bold">💾 Simpan JKL</button>
+      <a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-4 py-2.5 rounded-full text-[11px] font-bold">WA</a>
+    </div>
+  </div>`).join('');
 }
 
-function updateStatus(row,status){if(status.includes('Ubah'))return;fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',row:row,status:status})}); setTimeout(loadData,1000);}
-function simpanOmzet(row){
-let h=Number(document.getElementById('harga-'+row).value||0);
-let t=Number(document.getElementById('tip-'+row).value||0);
-let tot=h+t;
-if(h==0){alert('Isi harga J dulu ka!');return;}
-fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateOmzet',row:row,harga:h,tip:t,omzet:tot})});
-alert('Disimpan: Harga '+formatRp(h)+' + Tip '+formatRp(t)+' = '+formatRp(tot));
-setTimeout(loadData,1000);
-}
+function updateStatus(row,status){if(status.includes('Ubah'))return; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',row:row,status:status})}); setTimeout(loadData,1200);}
+function simpanOmzet(row){let h=Number(document.getElementById('harga-'+row).value||0); let t=Number(document.getElementById('tip-'+row).value||0); let tot=h+t; if(h==0){alert('Isi harga J dulu ka!');return;} fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateOmzet',row:row,harga:h,tip:t,omzet:tot})}); alert('Disimpan: '+formatRp(tot)); setTimeout(loadData,1200);}
+
+// BERITA
+document.getElementById('bFoto').addEventListener('input', e=>{let url=e.target.value.trim(); if(url){document.getElementById('previewFoto').classList.remove('hidden'); document.getElementById('imgPreview').src=url;} else document.getElementById('previewFoto').classList.add('hidden');});
+async function loadBeritaList(){try{const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`; const res=await fetch(url); const txt=await res.text(); const json=JSON.parse(txt.substr(47).slice(0,-2)); const rows=json.table.rows||[]; beritaCache=rows.map(r=>({id:String(r.c[0]?.v||''), tgl:String(r.c[1]?.f||r.c[1]?.v||''), judul:String(r.c[2]?.v||''), kategori:String(r.c[3]?.v||'Info'), teks:String(r.c[4]?.v||''), foto:String(r.c[5]?.v||'')})).filter(b=>b.id); document.getElementById('listBerita').innerHTML=beritaCache.slice(-20).reverse().map(b=>`<div class="bg-[#f6faff] border p-3 rounded-xl flex gap-3 items-center"><div class="w-14 h-14 bg-white border rounded-xl overflow-hidden flex-shrink-0"><img src="${b.foto||'logo.jpg'}" class="w-full h-full object-cover"></div><div class="flex-1"><p class="font-bold text-[12px]">${b.judul} <span class="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${b.kategori}</span></p><p class="text-[10px] text-gray-500 line-clamp-1">${b.teks}</p><p class="text-[9px] text-gray-400">${b.tgl}</p></div><div class="flex flex-col gap-1"><button onclick="mulaiEdit('${b.id}')" class="bg-[#0a7bf2] text-white text-[10px] px-3 py-1.5 rounded-full font-bold">EDIT</button><button onclick="hapusBerita('${b.id}')" class="bg-red-50 text-red-600 border border-red-200 text-[10px] px-3 py-1.5 rounded-full font-bold">HAPUS</button></div></div>`).join('')||'Belum ada berita';}catch(e){document.getElementById('listBerita').innerText='Gagal load berita';}}
+function mulaiEdit(id){const b=beritaCache.find(x=>x.id===id); if(!b)return; editModeId=id; document.getElementById('bJudul').value=b.judul; document.getElementById('bKategori').value=b.kategori; document.getElementById('bIsi').value=b.teks; document.getElementById('bFoto').value=b.foto; document.getElementById('editInfo').classList.remove('hidden'); document.getElementById('editIdText').innerText=id; document.getElementById('btnSimpan').innerText='💾 Update Berita'; document.getElementById('previewFoto').classList.remove('hidden'); document.getElementById('imgPreview').src=b.foto||'logo.jpg'; showTab('berita'); window.scrollTo({top:0,behavior:'smooth'});}
+function batalEdit(){editModeId=null; document.getElementById('editInfo').classList.add('hidden'); document.getElementById('bJudul').value=''; document.getElementById('bIsi').value=''; document.getElementById('bFoto').value=''; document.getElementById('previewFoto').classList.add('hidden'); document.getElementById('btnSimpan').innerText='Simpan Berita';}
+async function simpanBerita(){const j=document.getElementById('bJudul').value.trim(), kat=document.getElementById('bKategori').value, isi=document.getElementById('bIsi').value.trim(), foto=document.getElementById('bFoto').value.trim(); if(!j||!isi) return alert('Judul & isi wajib!'); document.getElementById('btnSimpan').innerText='Menyimpan...'; let payload=editModeId?{action:'editBerita',id:editModeId,judul:j,kategori:kat,teks:isi,foto:foto}:{action:'tambahBerita',id:'B'+Date.now(),tanggal:new Date().toLocaleDateString('id-ID'),judul:j,kategori:kat,teks:isi,foto:foto}; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}); setTimeout(()=>{batalEdit(); loadBeritaList();},1200);}
+async function hapusBerita(id){if(!confirm('Hapus berita '+id+'?'))return; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'hapusBerita',id:id})}); setTimeout(loadBeritaList,1000);}
 </script></body></html>
