@@ -1,43 +1,91 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Era Visual - Fix Final</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Poppins;background:#eef6ff}</style></head><body>
-<div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center"><div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div><h1 class="font-bold mt-3">FIX FINAL</h1><p class="text-[11px] text-gray-400">ord- & EV- support</p><input id="keyInput" type="password" placeholder="eravisual2023 / admin" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center"><button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button></div></div>
-<div id="app" class="hidden"><div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between"><p class="font-bold text-sm">Era Visual - Fix Final</p><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">🔄 Refresh</button></div></div>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Era Visual Admin</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins,sans-serif;background:#eef6ff}</style></head><body>
+<div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center">
+<div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div>
+<h1 class="font-bold mt-3">Era Visual Admin</h1>
+<input id="keyInput" type="password" placeholder="Kunci admin" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center">
+<button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button></div></div>
+
+<div id="app" class="hidden">
+<div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+<div><p class="font-bold text-sm">Era Visual Admin</p><p id="info" class="text-[11px] text-gray-400"></p></div>
+<button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div>
 <div class="max-w-6xl mx-auto p-4">
-<div class="grid grid-cols-3 gap-3 mb-4"><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL</p><p id="total" class="text-2xl font-bold">0</p></div><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">MENUNGGU</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">SELESAI</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div></div>
-<div id="list" class="space-y-3">Loading...</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+<div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Total order</p><p id="total" class="text-2xl font-bold">0</p></div>
+<div class="bg-yellow-50 p-4 rounded-2xl border"><p class="text-[11px] text-yellow-700 font-bold">Menunggu</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
+<div class="bg-blue-50 p-4 rounded-2xl border"><p class="text-[11px] text-blue-700 font-bold">Dikonfirmasi</p><p id="konf" class="text-2xl font-bold text-blue-600">0</p></div>
+<div class="bg-green-50 p-4 rounded-2xl border"><p class="text-[11px] text-green-700 font-bold">Selesai</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div></div>
+<input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
+<div id="chips" class="flex gap-2 mb-4 overflow-x-auto"></div>
+<div id="list" class="space-y-3"></div>
 </div></div>
+
 <script>
-const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
-const WEB_APP_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
-let allData=[];
-function doLogin(){let v=document.getElementById('keyInput').value.trim().toLowerCase(); if(v==='eravisual2023'||v==='admin'||v==='123'){document.getElementById('login').style.display='none';document.getElementById('app').classList.remove('hidden');loadData();}}
-document.getElementById('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-async function loadData(){
-  document.getElementById('list').innerHTML='Loading...';
-  let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0&t=${Date.now()}`;
-  let res=await fetch(url); let txt=await res.text(); let json=JSON.parse(txt.substr(47).slice(0,-2));
-  let rows=json.table.rows;
-  // FORMAT BARU: cek header
-  // Row foto kamu: c0=ord-id, c1=2026-10-..., c2=Selesai/Dikonfirmasi, c3=ende, c4=Cabang Ende, c5=editor, c6=detail?, c7=wa?
-  allData=rows.map((r,i)=>{let c=r.c; if(!c) return null;
-    let no=c[0]?.v||''; if(String(no).toLowerCase().includes('ordernumber')) return null;
-    // Deteksi format baru ord-
-    if(String(no).startsWith('ord-')){
-      return {row:i+2, no:no, tgl:c[1]?.v||'', status:c[2]?.v||'Menunggu', nama:c[3]?.v||'', cabang:c[4]?.v||'', layanan:c[5]?.v||'', detail:c[6]?.v||'', wa:c[7]?.v||''};
-    } else if(String(no).startsWith('EV-')){
-      return {row:i+2, no:no, tgl:c[1]?.v||'', status:c[8]?.v||'Menunggu', nama:c[2]?.v||'', cabang:c[4]?.v||'', layanan:c[3]?.v||'', detail:c[5]?.v||'', wa:c[6]?.v||''};
-    } else return null;
-  }).filter(x=>x);
+const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
+const KEYS=['eravisual2023','admin','123'];
+const FILTERS=['Semua','Menunggu','Dikonfirmasi','Selesai'];
+let all=[],filter='Semua';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const is=(x,s)=>String(x.status).trim().toLowerCase()===s.toLowerCase();
+const fmt=t=>{const d=new Date(t);return isNaN(d)?t:d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})};
+const wa=n=>{n=String(n).replace(/\D/g,'');return !n?'':n.startsWith('0')?'62'+n.slice(1):n.startsWith('62')?n:'62'+n};
 
-  document.getElementById('total').innerText=allData.length;
-  document.getElementById('menunggu').innerText=allData.filter(x=>x.status.toLowerCase().includes('menunggu')).length;
-  document.getElementById('selesai').innerText=allData.filter(x=>x.status.toLowerCase().includes('selesai')).length;
-
-  document.getElementById('list').innerHTML=allData.reverse().map(d=>`
-    <div class="bg-white p-4 rounded-[20px] border shadow-sm">
-      <div class="flex justify-between"><div><p class="font-bold text-[13px]">${d.no}</p><p class="text-[11px] text-gray-400 mt-1">${d.tgl? new Date(d.tgl).toLocaleDateString('id-ID') : d.tgl} • ${d.status}</p><p class="font-bold text-[14px] mt-2">${d.nama} <span class="text-[11px] font-normal text-gray-500">• ${d.cabang}</span></p><p class="text-[11px] text-gray-500 mt-1">${d.layanan} ${d.detail? '• '+d.detail : ''}</p><p class="text-[11px] text-[#0a7bf2] font-bold mt-2">📱 ${d.wa || 'WA kosong di sheet'}</p></div><span class="text-[10px] font-bold px-3 py-1 rounded-full h-fit ${d.status.toLowerCase().includes('selesai')?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${d.status}</span></div>
-      <div class="flex gap-2 mt-4"><select onchange="ubahStatus(${d.row}, this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold"><option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Dikonfirmasi">Dikonfirmasi</option><option value="Selesai">Selesai</option></select><a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a></div>
-    </div>
-  `).join('');
+function doLogin(){
+  if(KEYS.includes($('keyInput').value.trim().toLowerCase())){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
 }
-function ubahStatus(row, status){if(status.includes('Ubah')) return; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',row:row,status:status})}); setTimeout(loadData,1000);}
+$('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+async function loadData(){
+  $('list').textContent='Memuat...';
+  try{
+    const r=await fetch(API+'?t='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(!Array.isArray(j)) throw new Error(j.error||'Format data tidak sesuai');
+    all=j.reverse(); render();
+  }catch(e){
+    $('list').innerHTML=`<div class="bg-red-50 text-red-700 p-4 rounded-2xl text-xs">Gagal memuat data: ${esc(e.message)}. Cek deploy Apps Script (akses: Siapa saja) dan SHEET_ID.</div>`;
+  }
+}
+
+function render(){
+  const q=$('q').value.toLowerCase();
+  $('total').textContent=all.length;
+  $('menunggu').textContent=all.filter(x=>is(x,'Menunggu')).length;
+  $('konf').textContent=all.filter(x=>is(x,'Dikonfirmasi')).length;
+  $('selesai').textContent=all.filter(x=>is(x,'Selesai')).length;
+  $('info').textContent='Terbaca '+all.length+' order dari sheet';
+  $('chips').innerHTML=FILTERS.map(f=>`<button onclick="setFilter('${f}')" class="px-4 py-2 rounded-full text-[12px] font-bold border ${f===filter?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white'}">${f}</button>`).join('');
+  const rows=all.filter(x=>(filter==='Semua'||is(x,filter))&&Object.values(x).join(' ').toLowerCase().includes(q));
+  $('list').innerHTML=rows.length?rows.map(d=>{
+    const done=is(d,'Selesai'),conf=is(d,'Dikonfirmasi');
+    const badge=done?'bg-green-100 text-green-700':conf?'bg-blue-100 text-blue-700':'bg-yellow-100 text-yellow-700';
+    return `<div class="bg-white p-4 rounded-[20px] border shadow-sm">
+      <div class="flex justify-between gap-2"><div>
+        <p class="font-bold text-[13px]">${esc(d.no)}</p>
+        <p class="text-[11px] text-gray-400 mt-1">${esc(fmt(d.tgl))}</p>
+        <p class="font-bold text-[14px] mt-2">${esc(d.nama)} <span class="text-[11px] font-normal text-gray-500">${esc(d.cabang)}</span></p>
+        <p class="text-[11px] text-gray-500 mt-1">${esc(d.layanan)}${d.detail?' - '+esc(d.detail):''}</p>
+        <p class="text-[11px] text-[#0a7bf2] font-bold mt-2">${d.wa?esc(d.wa):'Nomor WA kosong'}</p></div>
+        <span class="text-[10px] font-bold px-3 py-1 rounded-full h-fit ${badge}">${esc(d.status)}</span></div>
+      <div class="flex gap-2 mt-4">
+        <select onchange="ubah('${esc(d.no)}',this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold">
+          <option value="">Ubah status</option><option>Menunggu</option><option>Dikonfirmasi</option><option>Selesai</option></select>
+        ${wa(d.wa)?`<a href="https://wa.me/${wa(d.wa)}" target="_blank" rel="noopener" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a>`:''}
+      </div></div>`;}).join(''):'<p class="text-sm text-gray-400 text-center py-8">Tidak ada order yang cocok.</p>';
+}
+
+function setFilter(f){filter=f;render()}
+
+function ubah(no,status){
+  if(!status) return;
+  const d=all.find(x=>x.no===no); if(d){d.status=status;render();}
+  fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',no,status})})
+    .finally(()=>setTimeout(loadData,1500));
+}
 </script></body></html>
+                                                  
