@@ -1,66 +1,168 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Era Visual Final</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Poppins}</style></head><body class="bg-[#eef6ff]">
-<div id="login" class="fixed inset-0 bg-[#0a192f]/90 z-50 flex items-center justify-center p-4"><div class="bg-white p-8 rounded-[24px] w-full max-w-sm text-center border shadow-2xl"><h1 class="font-bold text-[#0a7bf2]">ADMIN FINAL FIX A-L</h1><p class="text-[11px] text-gray-400">A=NoOrder B=Tgl C=Nama G=WA J=K=L=Keuangan</p><input id="keyInput" type="password" placeholder="eravisual2023" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center outline-none focus:border-[#0a7bf2]"><button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3 active:scale-95">Masuk</button><p class="text-[10px] text-gray-400 mt-3">Key: eravisual2023</p><p id="loginError" class="text-[11px] text-red-500 mt-2 hidden"></p></div></div>
-<div id="main" class="hidden"><div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center"><p class="font-bold text-sm">Era Visual - Fix A-L</p><div class="flex gap-2"><button onclick="showTab('order')" id="tabOrder" class="bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">ORDER</button><button onclick="showTab('berita')" id="tabBerita" class="bg-[#eef6ff] text-[#5b7aa5] px-4 py-2 rounded-full text-[11px] font-bold">BERITA</button><button onclick="loadData()" class="bg-white border px-3 py-2 rounded-full text-[11px]">🔄</button></div></div></div><div class="max-w-6xl mx-auto p-4"><div id="viewOrder"><div class="grid grid-cols-2 gap-3 mb-4"><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL</p><p id="totalOrder" class="text-2xl font-bold">0</p></div><div class="bg-[#0a7bf2] p-4 rounded-2xl text-white"><p class="text-[10px] font-bold">OMZET SELESAI</p><p id="omzetTotal" class="text-xl font-bold">Rp 0</p></div></div><div id="orderBody" class="space-y-3">Loading...</div></div><div id="viewBerita" class="hidden"><div class="bg-white p-5 rounded-2xl border"><input id="bJudul" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Judul"><select id="bKategori" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm"><option>Info</option><option>Promo</option><option>Layanan Baru</option></select><textarea id="bIsi" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Isi"></textarea><input id="bFoto" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Link foto"><button onclick="simpanBerita()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl">Simpan Berita</button></div><div id="listBerita" class="mt-4 space-y-2"></div></div></div></div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Era Visual - New Model</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins; background:#eef6ff}</style>
+</head>
+<body>
+
+<!-- LOGIN SIMPLE -->
+<div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center shadow-2xl">
+    <div class="w-14 h-14 bg-[#eef6ff] rounded-2xl mx-auto flex items-center justify-center font-bold text-[#0a7bf2]">EV</div>
+    <h1 class="font-bold text-lg mt-4">ERA VISUAL</h1>
+    <p class="text-[11px] text-gray-400">Admin New Model - Clean</p>
+    <input id="keyInput" type="password" placeholder="Password admin" class="w-full bg-[#f6faff] border border-blue-100 p-4 rounded-2xl mt-6 text-center outline-none focus:border-[#0a7bf2]">
+    <button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-4 rounded-2xl mt-3">Masuk Dashboard</button>
+    <p class="text-[10px] text-gray-400 mt-3">pass: eravisual2023 / admin</p>
+    <p id="err" class="text-[11px] text-red-500 mt-2 hidden">Password salah</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <div class="bg-white sticky top-0 z-10 border-b">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-[#0a7bf2] rounded-xl flex items-center justify-center text-white font-bold">EV</div>
+        <div><p class="font-bold text-sm">Era Visual Admin</p><p class="text-[10px] text-gray-400">Model Baru 2026</p></div>
+      </div>
+      <button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto p-4">
+    <!-- STATS SIMPLE -->
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL ORDER</p><p id="total" class="text-2xl font-bold">0</p></div>
+      <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">MENUNGGU</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
+      <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">SELESAI</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="flex gap-2 mb-4 overflow-x-auto">
+      <button onclick="filterData('semua')" class="filter-btn bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold">Semua</button>
+      <button onclick="filterData('menunggu')" class="filter-btn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Menunggu</button>
+      <button onclick="filterData('selesai')" class="filter-btn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Selesai</button>
+      <button onclick="filterData('dikonfirmasi')" class="filter-btn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Konfirmasi</button>
+    </div>
+
+    <div id="list" class="space-y-3">Loading data...</div>
+  </div>
+</div>
+
 <script>
-const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
-const WEB_APP_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
-const ADMIN_KEY='eravisual2023';
+const SHEET_ID = '1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
+
+let allData = [];
+let currentFilter = 'semua';
+
 function doLogin(){
-  let val=document.getElementById('keyInput').value.trim();
-  if(val===ADMIN_KEY || val==='admin' || val==='123'){
+  let v = document.getElementById('keyInput').value.trim().toLowerCase();
+  if(v === 'eravisual2023' || v === 'admin' || v === '123'){
     document.getElementById('login').style.display='none';
-    document.getElementById('main').classList.remove('hidden');
-    loadData(); loadBerita();
+    document.getElementById('app').classList.remove('hidden');
+    loadData();
   } else {
-    let e=document.getElementById('loginError');
-    e.classList.remove('hidden');
-    e.innerText='Key salah! yang benar: eravisual2023 (coba pakai: admin)';
+    document.getElementById('err').classList.remove('hidden');
   }
 }
-document.getElementById('keyInput').addEventListener('keydown',function(e){ if(e.key==='Enter'){ doLogin(); }});
-function showTab(t){document.getElementById('viewOrder').classList.toggle('hidden',t!=='order');document.getElementById('viewBerita').classList.toggle('hidden',t!=='berita'); document.getElementById('tabOrder').className=t==='order'?'bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold':'bg-[#eef6ff] text-[#5b7aa5] px-4 py-2 rounded-full text-[11px] font-bold'; document.getElementById('tabBerita').className=t==='berita'?'bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold':'bg-[#eef6ff] text-[#5b7aa5] px-4 py-2 rounded-full text-[11px] font-bold';}
-function formatRp(n){return 'Rp '+(Number(n||0)).toLocaleString('id-ID');}
-async function loadData(){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
-  const res=await fetch(url); const txt=await res.text(); const json=JSON.parse(txt.substr(47).slice(0,-2));
-  const rows=json.table.rows;
-  let all=rows.map((r,i)=>({c:r.c, idx:i})).filter(o=>{
-    if(!o.c) return false;
-    let noOrder=o.c[0]?.v||''; let nama=o.c[2]?.v||'';
-    if(String(noOrder).toLowerCase().includes('ordernumber')) return false;
-    if(String(nama).toLowerCase().includes('customername')) return false;
-    return noOrder||nama;
-  }).map(o=>{
-    let c=o.c;
-    return {
-      rowNumber: o.idx+2,
-      noOrder: c[0]?.v||'',
-      nama: c[2]?.v||'',
-      layanan: c[3]?.v||'',
-      cabang: c[4]?.v||'',
-      detail: c[5]?.v||'',
-      wa: c[6]?.v||'',
-      status: c[8]?.v||'Menunggu',
-      harga: Number(c[9]?.v||0),
-      tip: Number(c[10]?.v||0),
-      omzet: Number(c[11]?.v||0),
-    };
+document.getElementById('keyInput').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function filterData(f){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>{
+    b.className = 'filter-btn bg-white border px-5 py-2 rounded-full text-[11px] font-bold';
   });
-  document.getElementById('totalOrder').innerText=all.length;
-  document.getElementById('omzetTotal').innerText=formatRp(all.filter(x=>String(x.status).toLowerCase().includes('selesai')).reduce((a,b)=>a+(b.omzet||b.harga+b.tip),0));
-  document.getElementById('orderBody').innerHTML=all.reverse().map(d=>`
-  <div class="bg-white p-4 rounded-2xl border shadow-sm">
-    <p class="font-bold text-[13px]">${d.noOrder} - ${d.nama}</p><p class="text-[11px] text-gray-500">${d.layanan} • ${d.cabang} • ${d.detail}</p><p class="text-[11px] text-[#0a7bf2] font-bold">WA: ${d.wa} | ${d.status}</p>
-    <div class="grid grid-cols-3 gap-2 mt-3 bg-[#f6faff] p-3 rounded-xl border">
-      <div><label class="text-[9px] font-bold text-gray-400">J HARGA</label><input id="harga-${d.rowNumber}" type="number" value="${d.harga||''}" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
-      <div><label class="text-[9px] font-bold text-gray-400">K TIP</label><input id="tip-${d.rowNumber}" type="number" value="${d.tip||''}" class="w-full bg-white border rounded-lg p-2 text-[12px] mt-1"></div>
-      <div><label class="text-[9px] font-bold text-gray-400">L OMZET</label><div class="bg-[#0a7bf2] text-white rounded-lg p-2.5 text-[12px] mt-1 font-bold text-center">${formatRp(d.omzet||d.harga+d.tip)}</div></div>
-    </div>
-    <div class="flex gap-2 mt-3"><select onchange="updateStatus(${d.rowNumber},this.value)" class="flex-1 bg-white border text-[11px] p-2.5 rounded-full font-bold"><option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Dikonfirmasi">Dikonfirmasi</option><option value="Selesai">Selesai</option></select><button onclick="simpanOmzet(${d.rowNumber})" class="flex-1 bg-[#12223d] text-white text-[11px] p-2.5 rounded-full font-bold">💾 Simpan</button><a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-5 py-2.5 rounded-full text-[11px] font-bold">WA</a></div>
-  </div>`).join('');
+  event.target.className = 'filter-btn bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold';
+  render();
 }
-function updateStatus(row,status){if(status.includes('Ubah'))return; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',row:row,status:status})}); setTimeout(loadData,1000);}
-function simpanOmzet(row){let h=Number(document.getElementById('harga-'+row).value||0); let t=Number(document.getElementById('tip-'+row).value||0); let tot=h+t; if(h==0){alert('Isi J HARGA');return;} fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateOmzet',row:row,harga:h,tip:t,omzet:tot})}); alert('Simpan: '+formatRp(tot)); setTimeout(loadData,1000);}
-async function loadBerita(){try{let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`; let res=await fetch(url); let txt=await res.text(); let json=JSON.parse(txt.substr(47).slice(0,-2)); let rows=json.table.rows||[]; document.getElementById('listBerita').innerHTML=rows.slice(-20).reverse().map(r=>`<div class="bg-white border p-3 rounded-xl"><p class="font-bold text-[12px]">${r.c[2]?.v||''}</p><p class="text-[10px] text-gray-500">${r.c[4]?.v||''}</p></div>`).join('');}catch(e){}}
-function simpanBerita(){let j=document.getElementById('bJudul').value, k=document.getElementById('bKategori').value, t=document.getElementById('bIsi').value, f=document.getElementById('bFoto').value; if(!j||!t) return alert('isi'); fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'tambahBerita',id:'B'+Date.now(),tanggal:new Date().toLocaleDateString('id-ID'),judul:j,kategori:k,teks:t,foto:f})}); alert('Berita disimpan');}
-</script></body></html>
+
+async function loadData(){
+  document.getElementById('list').innerHTML = 'Loading...';
+  try{
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
+    const res = await fetch(url);
+    const txt = await res.text();
+    const json = JSON.parse(txt.substr(47).slice(0,-2));
+    const rows = json.table.rows;
+
+    // Sesuai foto A-L kamu: A NoOrder, B Tgl, C Nama, D Layanan, E Cabang, F Detail, G WA, I Status
+    // Lewati 2 baris header
+    allData = rows.map((r,i)=>({c:r.c, i:i})).filter(o=>{
+      if(!o.c) return false;
+      let a = o.c[0]?.v||''; let c = o.c[2]?.v||'';
+      if(String(a).toLowerCase().includes('ordernumber')) return false;
+      if(String(c).toLowerCase().includes('customername')) return false;
+      return a||c;
+    }).map(o=>{
+      let c = o.c;
+      return {
+        row: o.i + 2,
+        no: c[0]?.v||'',
+        nama: c[2]?.v||'',
+        layanan: c[3]?.v||'',
+        cabang: c[4]?.v||'',
+        detail: c[5]?.v||'',
+        wa: c[6]?.v||'',
+        status: c[8]?.v||'Menunggu'
+      };
+    });
+
+    document.getElementById('total').innerText = allData.length;
+    document.getElementById('menunggu').innerText = allData.filter(x=>x.status.toLowerCase().includes('menunggu')).length;
+    document.getElementById('selesai').innerText = allData.filter(x=>x.status.toLowerCase().includes('selesai')).length;
+    render();
+  }catch(e){
+    document.getElementById('list').innerHTML = '<p class="text-center text-red-500">Gagal load: '+e.message+'</p>';
+  }
+}
+
+function render(){
+  let data = allData;
+  if(currentFilter !== 'semua'){
+    data = allData.filter(x=>String(x.status).toLowerCase().includes(currentFilter));
+  }
+  if(data.length===0){
+    document.getElementById('list').innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada data</p>';
+    return;
+  }
+  document.getElementById('list').innerHTML = data.reverse().map(d=>`
+    <div class="bg-white p-4 rounded-[20px] border shadow-sm">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="font-bold text-[13px]">${d.no} <span class="text-gray-300">|</span> ${d.nama}</p>
+          <p class="text-[11px] text-gray-500 mt-1">${d.layanan} • ${d.cabang}</p>
+          <p class="text-[11px] text-gray-400 mt-1 line-clamp-1">${d.detail}</p>
+          <p class="text-[11px] text-[#0a7bf2] font-bold mt-2">📱 ${d.wa}</p>
+        </div>
+        <span class="text-[10px] font-bold px-3 py-1 rounded-full ${d.status.toLowerCase().includes('selesai')?'bg-green-100 text-green-700':d.status.toLowerCase().includes('menunggu')?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700'}">${d.status}</span>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <select onchange="ubahStatus(${d.row}, this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold outline-none">
+          <option>Ubah Status</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Dikonfirmasi">Dikonfirmasi</option>
+          <option value="Selesai">Selesai</option>
+          <option value="Batal">Batal</option>
+        </select>
+        <a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function ubahStatus(row, status){
+  if(status.includes('Ubah')) return;
+  fetch(WEB_APP_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'updateStatus', row:row, status:status})});
+  alert('Status diubah jadi '+status);
+  setTimeout(loadData, 1000);
+}
+</script>
+</body>
+  </html>
