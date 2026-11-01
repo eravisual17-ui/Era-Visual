@@ -1,149 +1,43 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Era Visual - Optimal</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Poppins;background:#eef6ff} .line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}</style></head><body>
-<div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center"><div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div><h1 class="font-bold mt-3">ERA VISUAL OPTIMAL</h1><p class="text-[11px] text-gray-400">Baca semua sheet - Dashboard lengkap</p><input id="keyInput" type="password" placeholder="eravisual2023 / admin" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center outline-none"><button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button><p id="err" class="text-[11px] text-red-500 mt-2 hidden">Salah</p></div></div>
-
-<div id="app" class="hidden"><div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center"><div><p class="font-bold text-sm">Era Visual Admin</p><p class="text-[10px] text-gray-400" id="sheetInfo">Optimal - All Tabs</p></div><button onclick="loadAll()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">🔄 Refresh</button></div></div>
-
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Era Visual - Fix Final</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Poppins;background:#eef6ff}</style></head><body>
+<div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center"><div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div><h1 class="font-bold mt-3">FIX FINAL</h1><p class="text-[11px] text-gray-400">ord- & EV- support</p><input id="keyInput" type="password" placeholder="eravisual2023 / admin" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center"><button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button></div></div>
+<div id="app" class="hidden"><div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between"><p class="font-bold text-sm">Era Visual - Fix Final</p><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">🔄 Refresh</button></div></div>
 <div class="max-w-6xl mx-auto p-4">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-<div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL ORDER</p><p id="total" class="text-2xl font-bold">0</p></div>
-<div class="bg-yellow-50 border border-yellow-100 p-4 rounded-2xl"><p class="text-[10px] text-yellow-600 font-bold">MENUNGGU</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
-<div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl"><p class="text-[10px] text-blue-600 font-bold">DIKONFIRMASI</p><p id="konfirm" class="text-2xl font-bold text-blue-600">0</p></div>
-<div class="bg-green-50 border border-green-100 p-4 rounded-2xl"><p class="text-[10px] text-green-600 font-bold">SELESAI</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div>
-</div>
-
-<input id="search" oninput="render()" placeholder="Cari: nama, no order, cabang, layanan, WA..." class="w-full bg-white border p-3 rounded-2xl mb-3 text-[13px] outline-none">
-
-<div class="flex gap-2 mb-4 overflow-x-auto pb-1">
-<button onclick="setFilter('semua')" class="fbtn bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold">Semua</button>
-<button onclick="setFilter('menunggu')" class="fbtn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Menunggu</button>
-<button onclick="setFilter('dikonfirmasi')" class="fbtn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Dikonfirmasi</button>
-<button onclick="setFilter('selesai')" class="fbtn bg-white border px-5 py-2 rounded-full text-[11px] font-bold">Selesai</button>
-</div>
-
+<div class="grid grid-cols-3 gap-3 mb-4"><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">TOTAL</p><p id="total" class="text-2xl font-bold">0</p></div><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">MENUNGGU</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div><div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-gray-400 font-bold">SELESAI</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div></div>
 <div id="list" class="space-y-3">Loading...</div>
 </div></div>
-
 <script>
 const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3u3G3A/exec';
-let allData=[]; let filter='semua';
-
-function doLogin(){let v=document.getElementById('keyInput').value.trim().toLowerCase(); if(v==='eravisual2023'||v==='admin'||v==='123'){document.getElementById('login').style.display='none';document.getElementById('app').classList.remove('hidden');loadAll();} else document.getElementById('err').classList.remove('hidden');}
+let allData=[];
+function doLogin(){let v=document.getElementById('keyInput').value.trim().toLowerCase(); if(v==='eravisual2023'||v==='admin'||v==='123'){document.getElementById('login').style.display='none';document.getElementById('app').classList.remove('hidden');loadData();}}
 document.getElementById('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function setFilter(f){filter=f; document.querySelectorAll('.fbtn').forEach(b=>b.className='fbtn bg-white border px-5 py-2 rounded-full text-[11px] font-bold'); event.target.className='fbtn bg-[#0a7bf2] text-white px-5 py-2 rounded-full text-[11px] font-bold'; render();}
-
-async function fetchGid(gid){
-  try{
-    let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}&t=${Date.now()}`;
-    let r=await fetch(url); let t=await r.text(); let j=JSON.parse(t.substr(47).slice(0,-2));
-    return j;
-  }catch(e){return null;}
-}
-
-function parseSheet(json, gid){
-  if(!json || !json.table || !json.table.rows) return [];
-  let cols=json.table.cols.map(c=>(c.label||'').toLowerCase());
+async function loadData(){
+  document.getElementById('list').innerHTML='Loading...';
+  let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0&t=${Date.now()}`;
+  let res=await fetch(url); let txt=await res.text(); let json=JSON.parse(txt.substr(47).slice(0,-2));
   let rows=json.table.rows;
-  let isNewFormat = cols.join(' ').includes('ordernumber') || cols.join(' ').includes('no order') || rows.some(r=>String(r.c?.[0]?.v||'').startsWith('ord-')) || rows.some(r=>String(r.c?.[0]?.v||'').startsWith('EV-'));
-  
-  let out=[];
-  rows.forEach((r, idx)=>{
-    let c=r.c; if(!c) return;
-    let no = c[0]?.v||''; let tgl = c[1]?.v||''; let nama='', layanan='', cabang='', detail='', wa='', status='';
-    // Deteksi format
-    if(String(no).toLowerCase().includes('ordernumber') || String(c[2]?.v||'').toLowerCase().includes('customername')) return; // skip header EN
-    
-    if(gid===0 || String(no).startsWith('ord-')){ // Format baru: ord-xxx | timestamp | ende | Cabang Ende | editor ? | ...
-      // Berdasarkan screenshot kamu sekarang: 
-      // c0=ord-id, c1=timestamp ISO, c2=ende? c3=Cabang Ende? c4=editor?
-      // Coba baca 2 kemungkinan:
-      if(c[2] && c[3] && String(c[2].v).toLowerCase()!=='ende' && String(c[3].v).toLowerCase().includes('cabang')){ // ende di c2, cabang di c3
-        nama = c[2]?.v||''; cabang = c[3]?.v||''; layanan = c[4]?.v||''; detail = c[5]?.v||''; wa = c[6]?.v||''; status = c[8]?.v||c[1]?.v||'';
-      } else {
-        // fallback lama: A=NoOrder B=Tgl C=Nama D=Layanan E=Cabang F=Detail G=WA I=Status
-        nama = c[2]?.v||''; layanan = c[3]?.v||''; cabang = c[4]?.v||''; detail = c[5]?.v||''; wa = c[6]?.v||''; status = c[8]?.v||'';
-      }
-      // Untuk sheet ord-xxx, struktur foto: ord-xxx | 2026-10-... | Selesai? ende? Jadi status ada di c2?
-      if(!status || status.length>30){ // kalau status masih ISO date
-        status = c[2]?.v||c[8]?.v||'Menunggu';
-        if(String(status).includes('T') && String(status).includes('Z')) status = c[3]?.v||'Menunggu';
-      }
-      // Khusus format ord- yang di foto kamu: baris = ord-id | timestamp | Selesai•ende? Jadi kita parse ulang
-      // Foto menunjukkan: ord-... | 2026-... | Selesai | ende | Cabang Ende | editor
-      // Jadi coba ambil nama dari c3 jika c2 adalah status
-      let possibleStatus = ['menunggu','selesai','dikonfirmasi','batal'];
-      if(possibleStatus.some(s=>String(c[2]?.v||'').toLowerCase().includes(s))){
-        status = c[2]?.v||''; nama = c[3]?.v||''; cabang = c[4]?.v||''; layanan = c[5]?.v||''; detail = c[6]?.v||''; wa = c[7]?.v||'';
-      }
-    } else { // Format EV-... A-L
-      nama = c[2]?.v||''; layanan = c[3]?.v||''; cabang = c[4]?.v||''; detail = c[5]?.v||''; wa = c[6]?.v||''; status = c[8]?.v||'Menunggu';
-    }
+  // FORMAT BARU: cek header
+  // Row foto kamu: c0=ord-id, c1=2026-10-..., c2=Selesai/Dikonfirmasi, c3=ende, c4=Cabang Ende, c5=editor, c6=detail?, c7=wa?
+  allData=rows.map((r,i)=>{let c=r.c; if(!c) return null;
+    let no=c[0]?.v||''; if(String(no).toLowerCase().includes('ordernumber')) return null;
+    // Deteksi format baru ord-
+    if(String(no).startsWith('ord-')){
+      return {row:i+2, no:no, tgl:c[1]?.v||'', status:c[2]?.v||'Menunggu', nama:c[3]?.v||'', cabang:c[4]?.v||'', layanan:c[5]?.v||'', detail:c[6]?.v||'', wa:c[7]?.v||''};
+    } else if(String(no).startsWith('EV-')){
+      return {row:i+2, no:no, tgl:c[1]?.v||'', status:c[8]?.v||'Menunggu', nama:c[2]?.v||'', cabang:c[4]?.v||'', layanan:c[3]?.v||'', detail:c[5]?.v||'', wa:c[6]?.v||''};
+    } else return null;
+  }).filter(x=>x);
 
-    if(!no && !nama) return;
-    if(String(nama).toLowerCase().includes('customername')) return;
-    
-    out.push({
-      row: idx+2, gid: gid,
-      no: no || 'ord-'+gid+'-'+idx,
-      tgl: tgl, nama: nama || 'Tanpa Nama', layanan: layanan || '-', cabang: cabang || '-', detail: detail || '-', wa: wa || '', status: status || 'Menunggu'
-    });
-  });
-  return out;
-}
-
-async function loadAll(){
-  document.getElementById('list').innerHTML='Membaca semua sheet...';
-  let datas=[];
-  for(let gid=0; gid<4; gid++){
-    let j=await fetchGid(gid);
-    let p=parseSheet(j, gid);
-    if(p.length>0) datas = datas.concat(p);
-  }
-  // Hapus duplikat berdasarkan no order
-  let map={}; datas.forEach(d=>{ if(!map[d.no]) map[d.no]=d; });
-  allData = Object.values(map);
-  document.getElementById('sheetInfo').innerText=`Terbaca ${allData.length} order dari ${Object.keys(map).length} sheet`;
   document.getElementById('total').innerText=allData.length;
   document.getElementById('menunggu').innerText=allData.filter(x=>x.status.toLowerCase().includes('menunggu')).length;
-  document.getElementById('konfirm').innerText=allData.filter(x=>x.status.toLowerCase().includes('dikonfirmasi')||x.status.toLowerCase().includes('konfirmasi')).length;
   document.getElementById('selesai').innerText=allData.filter(x=>x.status.toLowerCase().includes('selesai')).length;
-  render();
-}
 
-function render(){
-  let q=(document.getElementById('search').value||'').toLowerCase();
-  let data=[...allData];
-  if(filter!=='semua') data=data.filter(x=>x.status.toLowerCase().includes(filter));
-  if(q) data=data.filter(x=>`${x.no} ${x.nama} ${x.layanan} ${x.cabang} ${x.detail} ${x.wa}`.toLowerCase().includes(q));
-  if(data.length===0){document.getElementById('list').innerHTML='<p class="text-center text-gray-400 py-10">Tidak ada order</p>'; return;}
-  document.getElementById('list').innerHTML=data.reverse().map(d=>`
+  document.getElementById('list').innerHTML=allData.reverse().map(d=>`
     <div class="bg-white p-4 rounded-[20px] border shadow-sm">
-      <div class="flex justify-between items-start gap-3">
-        <div class="flex-1 min-w-0">
-          <p class="font-bold text-[13px] truncate">${d.no}</p>
-          <p class="font-bold text-[14px] mt-1">${d.nama} <span class="text-[11px] font-normal text-gray-500">• ${d.layanan}</span></p>
-          <p class="text-[11px] text-gray-500 mt-1">${d.cabang} ${d.detail? '• '+d.detail : ''}</p>
-          <p class="text-[11px] text-gray-400 mt-1 truncate">${d.tgl? new Date(d.tgl).toLocaleDateString('id-ID') : ''} ${d.tgl? '•' : ''} GID:${d.gid} Row:${d.row}</p>
-          <p class="text-[12px] text-[#0a7bf2] font-bold mt-2">📱 ${d.wa || 'WA kosong'}</p>
-        </div>
-        <span class="shrink-0 text-[10px] font-bold px-3 py-1 rounded-full ${d.status.toLowerCase().includes('selesai')?'bg-green-100 text-green-700':d.status.toLowerCase().includes('menunggu')?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700'}">${d.status}</span>
-      </div>
-      <div class="flex gap-2 mt-4">
-        <select onchange="ubahStatus(${d.row}, ${d.gid}, this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold outline-none">
-          <option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Dikonfirmasi">Dikonfirmasi</option><option value="Selesai">Selesai</option><option value="Batal">Batal</option>
-        </select>
-        <a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold ${!d.wa?'opacity-30 pointer-events-none':''}">WA</a>
-      </div>
+      <div class="flex justify-between"><div><p class="font-bold text-[13px]">${d.no}</p><p class="text-[11px] text-gray-400 mt-1">${d.tgl? new Date(d.tgl).toLocaleDateString('id-ID') : d.tgl} • ${d.status}</p><p class="font-bold text-[14px] mt-2">${d.nama} <span class="text-[11px] font-normal text-gray-500">• ${d.cabang}</span></p><p class="text-[11px] text-gray-500 mt-1">${d.layanan} ${d.detail? '• '+d.detail : ''}</p><p class="text-[11px] text-[#0a7bf2] font-bold mt-2">📱 ${d.wa || 'WA kosong di sheet'}</p></div><span class="text-[10px] font-bold px-3 py-1 rounded-full h-fit ${d.status.toLowerCase().includes('selesai')?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${d.status}</span></div>
+      <div class="flex gap-2 mt-4"><select onchange="ubahStatus(${d.row}, this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold"><option>Ubah Status</option><option value="Menunggu">Menunggu</option><option value="Dikonfirmasi">Dikonfirmasi</option><option value="Selesai">Selesai</option></select><a href="https://wa.me/${String(d.wa).replace(/[^0-9]/g,'')}" target="_blank" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a></div>
     </div>
   `).join('');
 }
-
-function ubahStatus(row, gid, status){
-  if(status.includes('Ubah')) return;
-  fetch(WEB_APP_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'updateStatus', row:row, gid:gid, status:status})});
-  alert('Status diubah: '+status+' (GID '+gid+' Row '+row+')');
-  setTimeout(loadAll, 1000);
-}
-</script>
-</body>
-  </html>
+function ubahStatus(row, status){if(status.includes('Ubah')) return; fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',row:row,status:status})}); setTimeout(loadData,1000);}
+</script></body></html>
