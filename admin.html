@@ -21,7 +21,8 @@
 <div class="bg-blue-50 p-4 rounded-2xl border"><p class="text-[11px] text-blue-700 font-bold">Dikonfirmasi</p><p id="konf" class="text-2xl font-bold text-blue-600">0</p></div>
 <div class="bg-green-50 p-4 rounded-2xl border"><p class="text-[11px] text-green-700 font-bold">Selesai</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div>
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet hari ini</p><p id="omHari" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
-<div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet bulan ini</p><p id="omBulan" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div></div>
+<div class="bg-white p-4 rounded-2xl border"><select id="bulan" onchange="render()" class="text-[11px] text-gray-400 font-bold bg-transparent -ml-1 max-w-full"></select><p id="omBulan" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
+<div class="col-span-2 md:col-span-1 bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet total</p><p id="omTotal" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div></div>
 <input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
 <div id="chips" class="flex gap-2 mb-4 overflow-x-auto"></div>
 <div id="list" class="space-y-3"></div></div>
@@ -51,7 +52,7 @@ function hitung(no){$('o-'+no).value=num($('h-'+no).value)+num($('t-'+no).value)
 function simpanOmzet(no){
   const harga=num($('h-'+no).value),tip=num($('t-'+no).value),omzet=num($('o-'+no).value);
   const d=all.find(x=>x.no===no);if(d){d.harga=harga;d.tip=tip;d.omzet=omzet;render();}
-  kirim({action:'updateOmzet',no,harga,tip,omzet}).finally(()=>setTimeout(loadData,1500));
+  kirim({action:'updateOmzet',no,harga,tip,omzet}).then(done);
 }
 function doLogin(){
   if(KEYS.includes($('keyInput').value.trim().toLowerCase())){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
@@ -80,7 +81,13 @@ function render(){
   $('info').textContent='Terbaca '+all.length+' order dari sheet';
   const now=new Date(),sum=f=>all.filter(x=>!is(x,'Dibatalkan')).filter(x=>{const d=new Date(x.tgl);return !isNaN(d)&&f(d)}).reduce((a,x)=>a+num(x.omzet),0);
   $('omHari').textContent=rp(sum(d=>d.toDateString()===now.toDateString()));
-  $('omBulan').textContent=rp(sum(d=>d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()));
+  const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  const months=[...new Set(all.map(x=>new Date(x.tgl)).filter(d=>!isNaN(d)).map(ym).concat(ym(now)))].sort().reverse();
+  const sel=$('bulan'),cur=sel.value||ym(now);
+  sel.innerHTML=months.map(m=>`<option value="${m}">Omzet ${new Date(+m.slice(0,4),+m.slice(5)-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</option>`).join('');
+  sel.value=months.includes(cur)?cur:ym(now);
+  $('omBulan').textContent=rp(sum(d=>ym(d)===sel.value));
+  $('omTotal').textContent=rp(sum(()=>true));
   $('chips').innerHTML=FILTERS.map(f=>`<button onclick="setFilter('${f}')" class="px-4 py-2 rounded-full text-[12px] font-bold border ${f===filter?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white'}">${f}</button>`).join('');
   const rows=all.filter(x=>(filter==='Semua'||is(x,filter))&&Object.values(x).join(' ').toLowerCase().includes(q));
   $('list').innerHTML=rows.length?rows.map(d=>{
@@ -142,7 +149,8 @@ function updB(){
   const f=$('bFoto').value.trim(),im=$('bPrev');
   if(/^https?:\/\//.test(f)){im.src=f;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}
 }
-const kirim=p=>fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify(p)}).catch(()=>{});
+const kirim=p=>fetch(API,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).catch(()=>({ok:null}));
+const done=r=>{if(r.ok===false)alert('Gagal menyimpan: '+(r.error||'tidak diketahui'));setTimeout(loadData,r.ok?200:3000)};
 async function simpanBerita(){
   const judul=$('bJudul').value.trim(),teks=$('bIsi').value.trim(),foto=$('bFoto').value.trim();
   if(!judul||!teks) return alert('Judul dan isi berita wajib diisi.');
@@ -160,7 +168,6 @@ async function hapusBerita(id){
 function ubah(no,status){
   if(!status) return;
   const d=all.find(x=>x.no===no); if(d){d.status=status;render();}
-  fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'updateStatus',no,status})})
-    .finally(()=>setTimeout(loadData,1500));
+  kirim({action:'updateStatus',no,status}).then(done);
 }
 </script></body></html>
