@@ -15,19 +15,21 @@
 <div class="max-w-6xl mx-auto p-4">
 <div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button></div>
 <div id="viewOrder">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Total order</p><p id="total" class="text-2xl font-bold">0</p></div>
 <div class="bg-yellow-50 p-4 rounded-2xl border"><p class="text-[11px] text-yellow-700 font-bold">Menunggu</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
 <div class="bg-blue-50 p-4 rounded-2xl border"><p class="text-[11px] text-blue-700 font-bold">Dikonfirmasi</p><p id="konf" class="text-2xl font-bold text-blue-600">0</p></div>
-<div class="bg-green-50 p-4 rounded-2xl border"><p class="text-[11px] text-green-700 font-bold">Selesai</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div></div>
+<div class="bg-green-50 p-4 rounded-2xl border"><p class="text-[11px] text-green-700 font-bold">Selesai</p><p id="selesai" class="text-2xl font-bold text-green-600">0</p></div>
+<div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet hari ini</p><p id="omHari" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
+<div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet bulan ini</p><p id="omBulan" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div></div>
 <input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
 <div id="chips" class="flex gap-2 mb-4 overflow-x-auto"></div>
 <div id="list" class="space-y-3"></div></div>
 <div id="viewBerita" class="hidden"><div class="bg-white p-5 rounded-2xl border">
 <p id="editInfo" class="hidden text-[12px] text-yellow-700 mb-3">Sedang mengedit berita. <button onclick="batalEdit()" class="underline ml-1">Batal</button></p>
 <input id="bJudul" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Judul berita">
-<textarea id="bIsi" rows="6" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Isi berita"></textarea>
-<input id="bFoto" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-4 text-sm" placeholder="Link foto (https://...)">
+<textarea id="bIsi" rows="6" oninput="updB()" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-1 text-sm" placeholder="Isi berita"></textarea><p id="cnt" class="text-[11px] text-gray-400 text-right mb-3"></p>
+<input id="bFoto" oninput="updB()" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-2 text-sm" placeholder="Link foto (https://...)"><img id="bPrev" alt="Pratinjau foto" onerror="this.classList.add('hidden')" class="hidden w-full h-40 object-cover rounded-xl mb-4">
 <button id="btnSimpan" onclick="simpanBerita()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl">Terbitkan berita</button></div>
 <div class="bg-white p-4 rounded-2xl border mt-4"><p class="font-bold text-sm mb-3">Berita terbaru</p><div id="listBerita" class="space-y-2"></div></div></div>
 </div></div>
@@ -35,7 +37,7 @@
 <script>
 const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 const KEYS=['eravisual2023','admin','123'];
-const FILTERS=['Semua','Menunggu','Dikonfirmasi','Selesai'];
+const FILTERS=['Semua','Menunggu','Dikonfirmasi','Selesai','Dibatalkan'];
 let all=[],filter='Semua';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -43,6 +45,14 @@ const is=(x,s)=>String(x.status).trim().toLowerCase()===s.toLowerCase();
 const fmt=t=>{const d=new Date(t);return isNaN(d)?t:d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})};
 const wa=n=>{n=String(n).replace(/\D/g,'');return !n?'':n.startsWith('0')?'62'+n.slice(1):n.startsWith('62')?n:'62'+n};
 
+const num=v=>Number(String(v??'').replace(/\D/g,''))||0;
+const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
+function hitung(no){$('o-'+no).value=num($('h-'+no).value)+num($('t-'+no).value)}
+function simpanOmzet(no){
+  const harga=num($('h-'+no).value),tip=num($('t-'+no).value),omzet=num($('o-'+no).value);
+  const d=all.find(x=>x.no===no);if(d){d.harga=harga;d.tip=tip;d.omzet=omzet;render();}
+  kirim({action:'updateOmzet',no,harga,tip,omzet}).finally(()=>setTimeout(loadData,1500));
+}
 function doLogin(){
   if(KEYS.includes($('keyInput').value.trim().toLowerCase())){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
 }
@@ -68,11 +78,14 @@ function render(){
   $('konf').textContent=all.filter(x=>is(x,'Dikonfirmasi')).length;
   $('selesai').textContent=all.filter(x=>is(x,'Selesai')).length;
   $('info').textContent='Terbaca '+all.length+' order dari sheet';
+  const now=new Date(),sum=f=>all.filter(x=>!is(x,'Dibatalkan')).filter(x=>{const d=new Date(x.tgl);return !isNaN(d)&&f(d)}).reduce((a,x)=>a+num(x.omzet),0);
+  $('omHari').textContent=rp(sum(d=>d.toDateString()===now.toDateString()));
+  $('omBulan').textContent=rp(sum(d=>d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()));
   $('chips').innerHTML=FILTERS.map(f=>`<button onclick="setFilter('${f}')" class="px-4 py-2 rounded-full text-[12px] font-bold border ${f===filter?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white'}">${f}</button>`).join('');
   const rows=all.filter(x=>(filter==='Semua'||is(x,filter))&&Object.values(x).join(' ').toLowerCase().includes(q));
   $('list').innerHTML=rows.length?rows.map(d=>{
     const done=is(d,'Selesai'),conf=is(d,'Dikonfirmasi');
-    const badge=done?'bg-green-100 text-green-700':conf?'bg-blue-100 text-blue-700':'bg-yellow-100 text-yellow-700';
+    const badge=is(d,'Dibatalkan')?'bg-red-100 text-red-700':done?'bg-green-100 text-green-700':conf?'bg-blue-100 text-blue-700':'bg-yellow-100 text-yellow-700';
     return `<div class="bg-white p-4 rounded-[20px] border shadow-sm">
       <div class="flex justify-between gap-2"><div>
         <p class="font-bold text-[13px]">${esc(d.no)}</p>
@@ -83,9 +96,15 @@ function render(){
         <span class="text-[10px] font-bold px-3 py-1 rounded-full h-fit ${badge}">${esc(d.status)}</span></div>
       <div class="flex gap-2 mt-4">
         <select onchange="ubah('${esc(d.no)}',this.value)" class="flex-1 bg-[#f6faff] border text-[11px] p-3 rounded-full font-bold">
-          <option value="">Ubah status</option><option>Menunggu</option><option>Dikonfirmasi</option><option>Selesai</option></select>
+          <option value="">Ubah status</option><option>Menunggu</option><option>Dikonfirmasi</option><option>Selesai</option><option>Dibatalkan</option></select>
         ${wa(d.wa)?`<a href="https://wa.me/${wa(d.wa)}" target="_blank" rel="noopener" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a>`:''}
-      </div></div>`;}).join(''):'<p class="text-sm text-gray-400 text-center py-8">Tidak ada order yang cocok.</p>';
+      </div>
+      <details class="mt-3"><summary class="text-[12px] font-bold text-[#0a7bf2] cursor-pointer">Harga, tip, omzet${num(d.omzet)?' - '+rp(num(d.omzet)):''}</summary>
+        <div class="grid grid-cols-3 gap-2 mt-2">
+          <label class="text-[10px] text-gray-400">Harga<input id="h-${esc(d.no)}" value="${num(d.harga)||''}" inputmode="numeric" oninput="hitung('${esc(d.no)}')" class="w-full bg-[#f6faff] border p-2 rounded-xl text-sm text-black"></label>
+          <label class="text-[10px] text-gray-400">Tip<input id="t-${esc(d.no)}" value="${num(d.tip)||''}" inputmode="numeric" oninput="hitung('${esc(d.no)}')" class="w-full bg-[#f6faff] border p-2 rounded-xl text-sm text-black"></label>
+          <label class="text-[10px] text-gray-400">Omzet<input id="o-${esc(d.no)}" value="${num(d.omzet)||''}" inputmode="numeric" class="w-full bg-[#f6faff] border p-2 rounded-xl text-sm text-black"></label></div>
+        <button onclick="simpanOmzet('${esc(d.no)}')" class="w-full mt-2 bg-[#0a7bf2] text-white text-[12px] font-bold p-2 rounded-xl">Simpan</button></details></div>`;}).join(''):'<p class="text-sm text-gray-400 text-center py-8">Tidak ada order yang cocok.</p>';
 }
 
 function setFilter(f){filter=f;render()}
@@ -105,18 +124,24 @@ async function loadBerita(){
     const r=await fetch(API+'?tab=berita&t='+Date.now());
     const j=await r.json();
     if(!Array.isArray(j)) throw new Error(j.error||'Format data tidak sesuai');
+    if(j.length&&!('judul' in j[0])) throw new Error('skrip Apps Script belum diperbarui, deploy "Versi baru" dulu');
     berita=j.reverse();renderBerita();
   }catch(e){$('listBerita').innerHTML=`<p class="text-xs text-red-600">Gagal memuat berita: ${esc(e.message)}</p>`}
 }
 function renderBerita(){
-  $('listBerita').innerHTML=berita.length?berita.slice(0,10).map(b=>`<div class="bg-[#f6faff] p-3 rounded-2xl border flex justify-between items-center gap-2"><div class="min-w-0"><p class="font-bold text-[13px] truncate">${esc(b.judul)}</p><p class="text-[11px] text-gray-400 truncate">${esc(b.tgl)} - ${esc(b.teks.slice(0,50))}</p></div><div class="flex gap-1"><button onclick="editBerita('${esc(b.id)}')" class="bg-yellow-100 text-yellow-800 text-[11px] px-3 py-2 rounded-full font-bold">Edit</button><button onclick="hapusBerita('${esc(b.id)}')" class="bg-red-100 text-red-700 text-[11px] px-3 py-2 rounded-full font-bold">Hapus</button></div></div>`).join(''):'<p class="text-sm text-gray-400">Belum ada berita.</p>';
+  $('listBerita').innerHTML=berita.length?berita.slice(0,10).map(b=>`<div class="bg-[#f6faff] p-3 rounded-2xl border flex justify-between items-center gap-2"><div class="min-w-0"><p class="font-bold text-[13px] truncate">${esc(b.judul)}</p><p class="text-[11px] text-gray-400 truncate">${esc(b.tgl)} - ${esc(String(b.teks||'').slice(0,50))}</p></div><div class="flex gap-1"><button onclick="editBerita('${esc(b.id)}')" class="bg-yellow-100 text-yellow-800 text-[11px] px-3 py-2 rounded-full font-bold">Edit</button><button onclick="hapusBerita('${esc(b.id)}')" class="bg-red-100 text-red-700 text-[11px] px-3 py-2 rounded-full font-bold">Hapus</button></div></div>`).join(''):'<p class="text-sm text-gray-400">Belum ada berita.</p>';
 }
 function editBerita(id){
   const b=berita.find(x=>x.id===id);if(!b)return;
   editId=id;$('bJudul').value=b.judul;$('bIsi').value=b.teks;$('bFoto').value=b.foto;
-  $('btnSimpan').textContent='Simpan perubahan';$('editInfo').classList.remove('hidden');scrollTo(0,0);
+  $('btnSimpan').textContent='Simpan perubahan';$('editInfo').classList.remove('hidden');scrollTo(0,0);updB();
 }
-function batalEdit(){editId=null;['bJudul','bIsi','bFoto'].forEach(i=>$(i).value='');$('btnSimpan').textContent='Terbitkan berita';$('editInfo').classList.add('hidden')}
+function batalEdit(){editId=null;['bJudul','bIsi','bFoto'].forEach(i=>$(i).value='');$('btnSimpan').textContent='Terbitkan berita';$('editInfo').classList.add('hidden');updB()}
+function updB(){
+  $('cnt').textContent=$('bIsi').value.length+' karakter';
+  const f=$('bFoto').value.trim(),im=$('bPrev');
+  if(/^https?:\/\//.test(f)){im.src=f;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}
+}
 const kirim=p=>fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify(p)}).catch(()=>{});
 async function simpanBerita(){
   const judul=$('bJudul').value.trim(),teks=$('bIsi').value.trim(),foto=$('bFoto').value.trim();
