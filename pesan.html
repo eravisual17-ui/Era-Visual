@@ -40,11 +40,11 @@
       <p class="text-[11px] mt-2"><span id="countdown-buka">-</span></p>
     </div>
 
-    <!-- Sukses -->
-    <div id="box-sukses" class="hidden bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-4 text-center">
-      <p class="font-bold text-sm">✅ Pesanan dibuat</p>
+    <!-- Hasil -->
+    <div id="box-sukses" class="hidden border p-4 rounded-xl mb-4 text-center bg-green-50 border-green-200 text-green-800">
+      <p id="judul-sukses" class="font-bold text-sm">✅ Pesanan tercatat</p>
       <p class="text-[12px] mt-1">No Order: <b id="no-sukses">-</b></p>
-      <p class="text-[11px] mt-2 leading-5">Tinggal kirim pesan yang sudah terisi di WhatsApp, supaya admin langsung memproses. Simpan nomor order ini.</p>
+      <p id="ket-sukses" class="text-[11px] mt-2 leading-5">-</p>
       <a id="link-wa-ulang" href="#" target="_blank" rel="noopener noreferrer" class="inline-block mt-3 bg-green-600 text-white text-[12px] font-bold rounded-xl px-4 py-2">Buka WhatsApp lagi</a>
     </div>
 
@@ -88,6 +88,7 @@
 
 <script>
 const WA_ADMIN='6285348650816';
+// GANTI dengan URL web app dari Kode-form.gs setelah di-deploy (kalau URL-nya berubah)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxqglZutr9i3H_DuPbgeb9tlPsE8UTciGWbA8dENzDdCPXYS6aJy_g_Hmmny8QPseNp/exec';
 const LABEL={electrical:'Electrical',editor:'Editor',mechanical:'Mechanical'};
 const INFO={
@@ -152,35 +153,57 @@ function kirimWA(){
   const waLokal='0'+waNorm.slice(2);
 
   sedangKirim=true;
+  document.getElementById('box-sukses').classList.add('hidden');
   const btn=document.getElementById('btnPesan');btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent='Membuat nomor order...';
   // buka tab WA sekarang (saat klik) supaya tidak diblokir browser, isinya diisi setelah nomor siap
   const win=window.open('','_blank');
 
-  ambilUrut().then(urut=>{
-    // 4 digit dulu (0001-9999); setelah penuh otomatis jadi 5 digit (10000, dst)
-    const no='EV-'+kodeTgl+'-'+String(urut).padStart(4,'0');
+  ambilUrut(kodeTgl).then(async urut=>{
+    // Nomor dari server: EV-ddmmyy-0001 dst. Kalau server gagal: EV-ddmmyy-Xabcde (unik dari waktu, tidak mungkin kembar)
+    const no=urut?'EV-'+kodeTgl+'-'+String(urut).padStart(4,'0'):'EV-'+kodeTgl+'-X'+Date.now().toString(36).slice(-5).toUpperCase();
     const teks='Halo Era Visual! BOOKING BARU\n\nNo Order: '+no+'\nNama: '+nama+'\nLayanan: '+LABEL[layanan]+'\nCabang: '+cabang+'\nTgl: '+tgl+'\nDetail: '+(detail||'-')+'\nWA: '+waLokal+'\n\nMohon diproses ya kak!';
     const urlWA='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent(teks);
-    try{fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({noOrder:no,tgl:tgl,nama:aman(nama),layanan:layanan,cabang:cabang,detail:aman(detail),wa:waLokal})}).catch(()=>{});}catch(e){}
-    if(win&&!win.closed)win.location.href=urlWA;else location.href=urlWA;
-    document.getElementById('no-sukses').textContent=no;
-    document.getElementById('link-wa-ulang').href=urlWA;
-    document.getElementById('box-sukses').classList.remove('hidden');
-    window.scrollTo({top:0,behavior:'smooth'});
+    btn.textContent='Menyimpan pesanan...';
+    const simpan=simpanKeSheet({noOrder:no,tgl:tgl,nama:aman(nama),layanan:layanan,cabang:cabang,detail:aman(detail),wa:waLokal});
+    if(win&&!win.closed){win.location.href=urlWA;}
+    else{await simpan;location.href=urlWA;return;}
+    tampilHasil(await simpan,no,urlWA);
     setTimeout(()=>{sedangKirim=false;cekJamBuka();},8000);
   });
 }
 
-// Nomor urut dari Google Apps Script (berurutan, dikunci agar tidak kembar).
-// Kalau script belum diperbarui / gagal, otomatis pakai angka acak 4 digit seperti sebelumnya.
-async function ambilUrut(){
+function tampilHasil(h,no,urlWA){
+  const ok=h==='ok';
+  document.getElementById('judul-sukses').textContent=ok?'✅ Pesanan tercatat':'⚠️ Pesanan dikirim lewat WhatsApp';
+  document.getElementById('ket-sukses').textContent=ok
+    ?'Tinggal kirim pesan yang sudah terisi di WhatsApp, supaya admin langsung memproses. Simpan nomor order ini.'
+    :'Pesanan belum bisa dipastikan tercatat otomatis di sistem. Kirim pesan di WhatsApp dan simpan nomor order ini, admin akan mencatat manual bila perlu.';
+  document.getElementById('box-sukses').className='border p-4 rounded-xl mb-4 text-center '+(ok?'bg-green-50 border-green-200 text-green-800':'bg-orange-50 border-orange-200 text-orange-700');
+  document.getElementById('no-sukses').textContent=no;
+  document.getElementById('link-wa-ulang').href=urlWA;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Simpan ke Google Sheet dan baca hasilnya. 'ok' = tercatat, 'gagal' = ditolak server, 'tak-pasti' = hasil tidak terbaca.
+async function simpanKeSheet(data){
+  try{
+    const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+    const r=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify(data),signal:c.signal});clearTimeout(t);
+    const tx=await r.text();
+    try{const j=JSON.parse(tx);return j&&j.ok===true?'ok':'gagal';}
+    catch(_){return /error|gagal/i.test(tx)?'gagal':'ok';}
+  }catch(e){return 'tak-pasti';}
+}
+
+// Nomor urut dari Google Apps Script (berurutan per hari, dikunci agar tidak kembar). 0 = gagal.
+async function ambilUrut(kodeTgl){
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
-    const r=await fetch(SHEET_URL+'?aksi=nomor',{signal:c.signal});clearTimeout(t);
+    const r=await fetch(SHEET_URL+'?aksi=nomor&t='+kodeTgl,{signal:c.signal});clearTimeout(t);
     const j=await r.json();
     if(j&&Number.isInteger(j.urut)&&j.urut>0)return j.urut;
   }catch(e){}
-  return Math.floor(1000+Math.random()*9000);
+  return 0;
 }
 document.getElementById('year').textContent=new Date().getFullYear();
 </script>
