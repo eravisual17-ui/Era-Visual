@@ -42,7 +42,8 @@
 </div>
 </div>
 
-<div id="aiBox" class="hidden fixed inset-0 bg-[#0a192f]/60 backdrop-blur-sm z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4"><div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-[600px] rounded-t-[28px] sm:rounded-[28px] border flex flex-col overflow-hidden shadow-2xl"><div class="bg-[#0a7bf2] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#0a7bf2]">EV</div><div><p class="text-white font-bold">Customer Service EV</p><p class="text-white/80 text-[11px]">Online</p></div></div><button onclick="tutupAI()" class="text-white text-3xl px-2">×</button></div><div id="chatList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f6faff]"><div class="bg-white border p-3 rounded-2xl text-sm max-w-[85%] shadow-sm">Halo kak! Aku CS Era Visual Ende.</div></div><div class="p-3 bg-white border-t flex gap-2"><input id="chatInput" placeholder="Tanya sesuatu..." class="flex-1 bg-[#f0f7ff] border rounded-full px-4 py-3 text-sm outline-none"><button onclick="kirimChat()" class="bg-[#0a7bf2] text-white w-12 h-12 rounded-full font-bold">➤</button></div></div></div>
+<div id="aiBox" class="hidden fixed inset-0 bg-[#0a192f]/60 backdrop-blur-sm z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4"><div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-[600px] rounded-t-[28px] sm:rounded-[28px] border flex flex-col overflow-hidden shadow-2xl"><div class="bg-[#0a7bf2] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#0a7bf2]">EV</div><div><p class="text-white font-bold">Customer Service EV</p><p class="text-white/80 text-[11px]">Online</p></div></div><button onclick="tutupAI()" class="text-white text-3xl px-2">×</button></div><div id="chatList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f6faff]"><div class="bg-white border p-3 rounded-2xl text-sm max-w-[85%] shadow-sm">Halo kak! Aku CS Era Visual Ende 👋<br>Mau tanya soal layanan, jam buka, atau cara pesan? Ketik saja atau tap pilihan di bawah.</div></div><div id="chatChips" class="px-3 py-2 bg-[#f6faff] border-t flex gap-2 overflow-x-auto whitespace-nowrap"><button type="button" onclick="tanyaCepat('Layanan')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Layanan</button><button type="button" onclick="tanyaCepat('Editor')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Editor</button><button type="button" onclick="tanyaCepat('Electrical')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Electrical</button><button type="button" onclick="tanyaCepat('Mechanical')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Mechanical</button><button type="button" onclick="tanyaCepat('Jam buka')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Jam buka</button><button type="button" onclick="tanyaCepat('Cara pesan')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Cara pesan</button><button type="button" onclick="tanyaCepat('Harga')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Harga</button><button type="button" onclick="tanyaCepat('Lokasi dan area')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Lokasi & area</button><button type="button" onclick="tanyaCepat('Hubungi admin')" class="shrink-0 text-[12px] font-semibold text-[#0a7bf2] bg-white border border-[#0a7bf2] rounded-full px-3 py-1.5">Hubungi admin</button></div>
+<div class="p-3 bg-white border-t flex gap-2"><input id="chatInput" autocomplete="off" placeholder="Tanya sesuatu..." class="flex-1 bg-[#f0f7ff] border rounded-full px-4 py-3 text-sm outline-none"><button onclick="kirimChat()" class="bg-[#0a7bf2] text-white w-12 h-12 rounded-full font-bold">➤</button></div></div></div>
 
 <script>
 let collapsed=false;
@@ -52,7 +53,82 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 async function loadBerita(){try{const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`;const res=await fetch(url);const txt=await res.text();const json=JSON.parse(txt.slice(txt.indexOf('{'),txt.lastIndexOf('}')+1));const rows=json.table.rows||[];if(rows.length===0)return;const data=rows.map(r=>{const c=r.c||[];return{judul:c[2]?.v||'',teks:c[3]?.v||'',foto:c[4]?.v||''}}).filter(x=>x.judul&&String(x.judul).toLowerCase()!=='judul').slice(-3).reverse();if(!data.length)return;document.getElementById('boxBeritaWrap').classList.remove('hidden');document.getElementById('beritaBar').classList.remove('hidden');document.getElementById('beritaText').innerText=data.map(d=>d.judul).join(' • ');document.getElementById('listBeritaLobby').innerHTML=data.map(d=>`<div class="bg-white rounded-2xl border overflow-hidden shadow">${/^https?:\/\//.test(d.foto)?`<img src="${esc(d.foto)}" alt="" loading="lazy" class="w-full h-44 object-cover">`:''}<div class="p-4"><h2 class="font-bold text-[15px] mb-2">${esc(d.judul)}</h2><p class="text-[13px] leading-6 whitespace-pre-wrap">${esc(d.teks)}</p></div></div>`).join('');}catch(e){}} loadBerita();
 function updateEraClock(){let now=new Date();function getTime(off){let utc=now.getTime()+(now.getTimezoneOffset()*60000);let nd=new Date(utc+(3600000*off));return{t:String(nd.getHours()).padStart(2,'0')+':'+String(nd.getMinutes()).padStart(2,'0')+':'+String(nd.getSeconds()).padStart(2,'0'),d:nd.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}),h:nd.getHours()};}let wib=getTime(7),wita=getTime(8),wit=getTime(9);document.getElementById('clock-wib').textContent=wib.t;document.getElementById('clock-wita').textContent=wita.t;document.getElementById('clock-wit').textContent=wit.t;document.getElementById('date-wib').textContent=wib.d;document.getElementById('date-wita').textContent=wita.d;document.getElementById('date-wit').textContent=wit.d;let st=document.getElementById('status-buka');if(wita.h>=8&&wita.h<18){st.textContent='BUKA ✅';st.className='font-bold text-green-600';}else{st.textContent='TUTUP';st.className='font-bold text-orange-500';}} setInterval(updateEraClock,1000);updateEraClock();
 document.getElementById('year').textContent=new Date().getFullYear();
-function bukaAI(){document.getElementById('aiBox').classList.remove('hidden')} function tutupAI(){document.getElementById('aiBox').classList.add('hidden')}
-function kirimChat(){const i=document.getElementById('chatInput');const v=i.value.trim();if(!v)return;const c=document.getElementById('chatList');const d=document.createElement('div');d.className='bg-[#0a7bf2] text-white p-3 rounded-2xl text-sm max-w-[85%] ml-auto';d.textContent=v;c.appendChild(d);i.value='';c.scrollTop=c.scrollHeight;}
+function bukaAI(){document.getElementById('aiBox').classList.remove('hidden');setTimeout(()=>document.getElementById('chatInput').focus(),50)} function tutupAI(){document.getElementById('aiBox').classList.add('hidden')}
+/* ===== CS Era Visual (otomatis, tanpa server) ===== */
+const CS={
+  wa:'6285348650816',
+  waTampil:'0853-4865-0816',
+  ig:'@eravisual1211',
+  email:'eravisual17@gmail.com',
+  alamat:'Desa Wolotopo, Kec. Ndona, Kab. Ende',
+  bayar:'DANA 085348650816, atau cash untuk layanan lokal'
+};
+const norm=t=>' '+String(t).toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim()+' ';
+const has=(t,w)=>w.some(x=>t.includes(' '+x+' ')||(x.length>3&&t.includes(x)));
+function statusBuka(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const h=new Date(u+8*3600000).getHours();return h>=8&&h<18;}
+function linkAdmin(pesan){return{label:'💬 Chat WhatsApp Admin',href:'https://wa.me/'+CS.wa+'?text='+encodeURIComponent(pesan||'Halo admin Era Visual Ende, saya mau bertanya.')};}
+const LINK_PESAN={label:'📝 Pesan Sekarang',href:'pesan.html'};
+const R={
+  electrical:{text:'⚡ ELECTRICAL\n• Pemeriksaan instalasi listrik (kabel, stop kontak, lampu, sakelar): harga menyesuaikan\n• Perawatan instalasi listrik: harga menyesuaikan\n• Pemasangan (titik lampu, sakelar, stop kontak, jalur kabel, instalasi rumah): harga survei\n\nBiaya material dan transportasi dihitung terpisah. Survei dilakukan dulu sebelum penawaran harga. Pekerjaan yang belum bisa ditangani dengan aman tidak diterima.',link:LINK_PESAN},
+  editor:{text:'📝 EDITOR\nCV & dokumen:\n• CV ATS Rp15.000\n• CV Modern Rp20.000\n• Surat Lamaran Kerja Rp10.000\n• Paket CV ATS + Surat Lamaran Rp25.000\n\nDesain grafis:\n• Logo sederhana Rp25.000\n• Kartu nama Rp15.000\n• Banner/Spanduk Rp25.000\n• Poster promosi Rp20.000\n\nLaporan PKL: harga menyesuaikan jumlah halaman, format sekolah, dan tingkat kesulitan. Hasil berupa PDF, belum termasuk biaya cetak.',link:LINK_PESAN},
+  mechanical:{text:'🔧 MECHANICAL\n• Pemeriksaan (kondisi peralatan, baut, sambungan, kerusakan ringan): harga menyesuaikan\n• Perawatan (pembersihan, pelumasan, pengencangan): harga menyesuaikan\n• Pekerjaan sederhana (perakitan, pembongkaran, penggantian komponen ringan, perbaikan ringan): harga menyesuaikan\n\nBiaya suku cadang, material, dan transportasi dihitung terpisah. Pemeriksaan dilakukan dulu sebelum penawaran harga. Pekerjaan berisiko tinggi tidak termasuk layanan awal.',link:LINK_PESAN}
+};
+function jawabInti(teks){
+  const t=norm(teks);
+  const svc=has(t,['listrik','electrical','elektrik','kabel','colokan','stop kontak','lampu','sakelar','mcb','korslet','instalasi'])?'electrical'
+    :has(t,['editor','edit','cv','surat lamaran','logo','poster','kartu nama','banner','spanduk','desain','design','laporan','pkl'])?'editor'
+    :has(t,['mekanik','mechanical','mesin','motor','servis','service','perbaikan','bengkel','baut'])?'mechanical':null;
+  if(has(t,['terima kasih','makasih','thanks','thx','trims']))return{text:'Sama-sama kak 😊 Kalau ada yang mau ditanyakan lagi, silakan.'};
+  if(has(t,['admin','kontak','hubungi','whatsapp','wa','telepon','telp','instagram','ig','email','owner','pemilik','ewaldus','manusia']))
+    return{text:'Hubungi Era Visual Ende:\n• WhatsApp: '+CS.waTampil+'\n• Instagram: '+CS.ig+'\n• Email: '+CS.email+'\nOwner: Ewaldus Sangga.',link:linkAdmin()};
+  if(has(t,['bayar','pembayaran','transfer','qris','tunai','cash','dana','gopay','ovo']))
+    return{text:'Pembayaran lewat '+CS.bayar+'.\nDetail dan nominal dikonfirmasi admin setelah pesanan masuk.',link:LINK_PESAN};
+  if(has(t,['lama','estimasi','durasi','selesai','berapa hari','cepat']))
+    return{text:'Lama pengerjaan tergantung jenis pekerjaan dan antrean saat itu. Setelah pesanan masuk, admin akan kasih kabar perkiraan waktunya ya kak.',link:LINK_PESAN};
+  if(has(t,['lokasi','alamat','dimana','di mana','maps','map','datang','kantor','area','jangkau','layani','luar kota','antar','jemput','ke rumah','wolotopo','ndona']))
+    return{text:'📍 '+CS.alamat+'.\n\nArea layanan: kota Ende dan Wolotopo. Warga Wolotopo boleh datang langsung ke rumah, tapi sebaiknya kabari dulu lewat WhatsApp supaya pasti ada di tempat. Di luar area itu belum kami layani.',link:linkAdmin('Halo admin, saya mau tanya soal lokasi dan area layanan.')};
+  if(has(t,['harga','biaya','tarif','berapa','murah','budget','daftar harga'])){
+    if(svc)return R[svc];
+    return{text:'Ringkasan harga Era Visual 2026:\n📝 Editor: CV ATS Rp15.000, CV Modern Rp20.000, Surat Lamaran Rp10.000, Logo Rp25.000, Kartu Nama Rp15.000, Banner Rp25.000, Poster Rp20.000.\n⚡ Electrical & 🔧 Mechanical: harga menyesuaikan jenis pekerjaan, pemasangan listrik lewat survei dulu.\n\nKetik "Editor", "Electrical", atau "Mechanical" untuk daftar lengkap.',link:LINK_PESAN};}
+  if(has(t,['jam','buka','tutup','operasional']))
+    return{text:'Jam operasional: 08.00-18.00 WITA.\nSaat ini kami '+(statusBuka()?'BUKA ✅':'TUTUP 🌙. Form pesan dibuka lagi mulai 08.00 WITA, atau kakak bisa chat WhatsApp dulu.'),link:LINK_PESAN};
+  if(has(t,['pesan','order','booking','book','pemesanan','daftar','cara']))
+    return{text:'Cara pesan:\n1. Buka halaman Pesan\n2. Pilih layanan (Electrical / Editor / Mechanical)\n3. Isi data dan detail kebutuhan\n4. Kirim. Nomor order lanjut otomatis, lalu pesan terisi otomatis di WhatsApp.\n(Form pesan dibuka jam 08.00-18.00 WITA.)\n\nBisa juga langsung lewat WhatsApp '+CS.waTampil+'.',link:LINK_PESAN};
+  if(svc)return R[svc];
+  if(has(t,['layanan','jasa','apa saja','bisa apa','menu','era visual']))
+    return{text:'Layanan Era Visual Ende:\n⚡ Electrical (pemeriksaan, perawatan, pemasangan listrik rumah)\n📝 Editor (CV, logo, poster, banner, laporan PKL)\n🔧 Mechanical (mekanik sederhana)\n\nMau lihat detail dan harga yang mana, kak?',link:LINK_PESAN};
+  if(has(t,['halo','hai','hi','hallo','hello','pagi','siang','sore','malam','assalamualaikum','permisi','p']))
+    return{text:'Halo kak 👋 Ada yang bisa kami bantu? Coba tanya soal layanan, harga, jam buka, atau cara pesan.'};
+  return{text:'Maaf kak, aku belum paham pertanyaannya 🙏 Coba tap salah satu pilihan di bawah, atau kirim langsung ke admin supaya dijawab orangnya.',link:linkAdmin()};
+}
+let lastTopic='';
+const AFF=['boleh','ya','iya','yaa','yap','y','mau','oke','ok','okey','silakan','silahkan','lanjut','siap','yuk','gas','baik','sip','tentu'];
+function jawabCS(teks){
+  const w=norm(teks).trim().split(' ');
+  let r;
+  if(w.length&&w.every(x=>AFF.includes(x))){
+    r=lastTopic==='layanan'?jawabInti('harga')
+      :{text:'Siap kak 👍 Mau lanjut pesan, atau ada yang mau ditanyakan dulu? Pilih saja di bawah.',link:LINK_PESAN};
+  }else r=jawabInti(teks);
+  lastTopic=r.text.startsWith('Layanan Era Visual')?'layanan':'';
+  return r;
+}
+function bubbleBot(res){
+  const c=document.getElementById('chatList');
+  const d=document.createElement('div');
+  d.className='bg-white border p-3 rounded-2xl text-sm max-w-[85%] shadow-sm whitespace-pre-line';
+  d.textContent=res.text;
+  if(res.link){const a=document.createElement('a');a.href=res.link.href;a.textContent=res.link.label;a.className='block mt-2 bg-[#0a7bf2] text-white text-center text-[12px] font-bold rounded-xl px-3 py-2 whitespace-normal';if(/^https?:/.test(res.link.href)){a.target='_blank';a.rel='noopener noreferrer';}d.appendChild(a);}
+  c.appendChild(d);c.scrollTop=c.scrollHeight;return d;
+}
+function kirimChat(){
+  const i=document.getElementById('chatInput');const v=i.value.trim();if(!v)return;
+  const c=document.getElementById('chatList');
+  const u=document.createElement('div');u.className='bg-[#0a7bf2] text-white p-3 rounded-2xl text-sm max-w-[85%] ml-auto break-words';u.textContent=v;c.appendChild(u);
+  i.value='';
+  const w=document.createElement('div');w.className='bg-white border p-3 rounded-2xl text-sm max-w-[85%] shadow-sm text-gray-400';w.textContent='Mengetik...';c.appendChild(w);c.scrollTop=c.scrollHeight;
+  setTimeout(()=>{w.remove();bubbleBot(jawabCS(v));},500);
+}
+function tanyaCepat(q){document.getElementById('chatInput').value=q;kirimChat();}
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat()});
 </script></body></html>
