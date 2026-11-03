@@ -46,6 +46,7 @@
       <p class="text-[12px] mt-1">No Order: <b id="no-sukses">-</b></p>
       <p id="ket-sukses" class="text-[11px] mt-2 leading-5">-</p>
       <a id="link-wa-ulang" href="#" target="_blank" rel="noopener noreferrer" class="inline-block mt-3 bg-green-600 text-white text-[12px] font-bold rounded-xl px-4 py-2">Buka WhatsApp lagi</a>
+      <a id="link-lacak" href="lacak.html" class="inline-block mt-3 ml-1 bg-white border border-green-600 text-green-700 text-[12px] font-bold rounded-xl px-4 py-2">Lacak pesanan</a>
     </div>
 
     <label for="nama" class="sr-only">Nama lengkap</label>
@@ -76,7 +77,7 @@
 
     <a href="https://wa.me/6285348650816?text=Halo%20Kak%20Ewaldus%2C%20Era%20Visual%20Ende!%20Saya%20mau%20tanya%20jasa..." target="_blank" rel="noopener noreferrer" class="w-full mt-3 bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] p-4 rounded-xl font-bold block text-center hover:bg-[#eef6ff] transition">💬 Chat Langsung Owner</a>
 
-    <p class="text-[10px] text-[#8aa4c8] mt-4 text-center leading-4">Dengan klik Pesan, data tercatat otomatis dan No Order lanjut otomatis. Pembayaran lewat DANA atau cash (layanan lokal).</p>
+    <p class="text-[10px] text-[#8aa4c8] mt-4 text-center leading-4">Dengan klik Pesan, data tercatat otomatis dan No Order dibuat otomatis. Pembayaran lewat DANA atau cash (layanan lokal).</p>
   </div>
 
   <div class="text-center mt-6">
@@ -159,8 +160,8 @@ function kirimWA(){
   const win=window.open('','_blank');
 
   ambilUrut(kodeTgl).then(async urut=>{
-    // Nomor dari server: EV-ddmmyy-0001 dst. Kalau server gagal: EV-ddmmyy-Xabcde (unik dari waktu, tidak mungkin kembar)
-    const no=urut?'EV-'+kodeTgl+'-'+String(urut).padStart(4,'0'):'EV-'+kodeTgl+'-X'+Date.now().toString(36).slice(-5).toUpperCase();
+    // Nomor dari server: EV-ddmmyy-0001 dst (tidak pernah sama). Kalau server gagal: EV-ddmmyy-Xabcde (unik dari waktu)
+    const no='EV-'+kodeTgl+'-'+(urut?String(urut).padStart(4,'0'):'X'+Date.now().toString(36).slice(-5).toUpperCase());
     const teks='Halo Era Visual! BOOKING BARU\n\nNo Order: '+no+'\nNama: '+nama+'\nLayanan: '+LABEL[layanan]+'\nCabang: '+cabang+'\nTgl: '+tgl+'\nDetail: '+(detail||'-')+'\nWA: '+waLokal+'\n\nMohon diproses ya kak!';
     const urlWA='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent(teks);
     btn.textContent='Menyimpan pesanan...';
@@ -181,6 +182,7 @@ function tampilHasil(h,no,urlWA){
   document.getElementById('box-sukses').className='border p-4 rounded-xl mb-4 text-center '+(ok?'bg-green-50 border-green-200 text-green-800':'bg-orange-50 border-orange-200 text-orange-700');
   document.getElementById('no-sukses').textContent=no;
   document.getElementById('link-wa-ulang').href=urlWA;
+  document.getElementById('link-lacak').href='lacak.html?no='+encodeURIComponent(no);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -195,7 +197,7 @@ async function simpanKeSheet(data){
   }catch(e){return 'tak-pasti';}
 }
 
-// Nomor urut dari Google Apps Script (berurutan per hari, dikunci agar tidak kembar). 0 = gagal.
+// Nomor urut per hari dari Google Apps Script (berurutan, dikunci agar tidak kembar). 0 = gagal.
 async function ambilUrut(kodeTgl){
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
