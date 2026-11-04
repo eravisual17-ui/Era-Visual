@@ -36,7 +36,7 @@
     <!-- Tutup -->
     <div id="box-tutup" class="hidden bg-orange-50 border border-orange-200 text-orange-700 p-4 rounded-xl text-center mb-4">
       <p class="font-bold text-sm">🔒 FORM PESAN TUTUP</p>
-      <p class="text-[12px] mt-1 leading-5">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b>08.00 - 18.00 WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
+      <p class="text-[12px] mt-1 leading-5">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b><span class="jam-teks">08.00 - 18.00</span> WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
       <p class="text-[11px] mt-2"><span id="countdown-buka">-</span></p>
     </div>
 
@@ -89,6 +89,9 @@
 
 <script>
 const WA_ADMIN='6285348650816';
+// Jam buka form (WITA, format 24 jam). UBAH DUA ANGKA INI SAJA.
+const JAM_BUKA=8, JAM_TUTUP=21;
+const jj=n=>String(n).padStart(2,'0')+'.00';
 // URL web app dari Kode-gabungan.gs (sama dengan admin.html)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 const LABEL={electrical:'Electrical',editor:'Editor',mechanical:'Mechanical'};
@@ -101,14 +104,14 @@ let sedangKirim=false;
 
 function getWITA(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;return new Date(u+8*3600000);}
 const p2=n=>String(n).padStart(2,'0');
-const sedangBuka=w=>w.getHours()>=8&&w.getHours()<18;
+const sedangBuka=w=>w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP;
 
 function cekJamBuka(){
   const w=getWITA();const jamStr=p2(w.getHours())+':'+p2(w.getMinutes());
   const badge=document.getElementById('badge-buka'),box=document.getElementById('box-tutup'),btn=document.getElementById('btnPesan');
   document.getElementById('jam-sekarang').textContent=jamStr;
   if(sedangBuka(w)){
-    badge.textContent='BUKA 08.00-18.00 • '+jamStr+' WITA';
+    badge.textContent='BUKA '+jj(JAM_BUKA)+'-'+jj(JAM_TUTUP)+' • '+jamStr+' WITA';
     badge.className='text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold';
     box.classList.add('hidden');
     if(!sedangKirim){btn.disabled=false;btn.className='w-full mt-5 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 transition';btn.textContent='Pesan Sekarang → WA';}
@@ -116,8 +119,8 @@ function cekJamBuka(){
     badge.textContent='TUTUP • '+jamStr+' WITA';
     badge.className='text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-bold';
     box.classList.remove('hidden');
-    btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent='🔒 Tutup - Buka Jam 08.00 WITA';
-    const b=new Date(w);if(w.getHours()>=18)b.setDate(b.getDate()+1);b.setHours(8,0,0,0);
+    btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent='🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
+    const b=new Date(w);if(w.getHours()>=JAM_TUTUP)b.setDate(b.getDate()+1);b.setHours(JAM_BUKA,0,0,0);
     const s=b-w;document.getElementById('countdown-buka').textContent='Buka lagi dalam '+Math.floor(s/3600000)+' jam '+Math.floor((s%3600000)/60000)+' menit';
   }
 }
@@ -139,7 +142,7 @@ function kirimWA(){
   if(sedangKirim)return;
   tampilError('');
   const w=getWITA();
-  if(!sedangBuka(w)){tampilError('Form tutup. Silakan pesan lagi mulai jam 08.00 WITA ya kak.');return;}
+  if(!sedangBuka(w)){tampilError('Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
   const nama=document.getElementById('nama').value.trim();
   const layanan=document.getElementById('layanan').value;
   const cabang=document.getElementById('cabang').value;
@@ -208,6 +211,7 @@ async function ambilUrut(kodeTgl){
   return 0;
 }
 document.getElementById('year').textContent=new Date().getFullYear();
+document.querySelectorAll('.jam-teks').forEach(e=>e.textContent=jj(JAM_BUKA)+' - '+jj(JAM_TUTUP));
 </script>
 </body>
 </html>
