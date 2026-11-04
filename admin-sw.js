@@ -7,7 +7,7 @@
    langsung terlihat tanpa ketahanan cache yang basi.
    ========================================================================== */
 
-const CACHE_NAME = 'era-visual-admin-v1';
+const CACHE_NAME = 'era-visual-admin-v2';
 const APP_SHELL = ['admin.html', 'admin-manifest.webmanifest', 'icon-192.png'];
 
 self.addEventListener('install', (event) => {

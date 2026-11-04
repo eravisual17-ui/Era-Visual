@@ -1,0 +1,16 @@
+{
+  "name": "Era Visual Admin",
+  "short_name": "EV Admin",
+  "description": "Dashboard admin Era Visual — kelola Order, Karyawan, Cabang, Layanan, dan Berita.",
+  "start_url": "admin.html",
+  "scope": "admin.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2F6FED",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
