@@ -24,6 +24,8 @@
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet hari ini</p><p id="omHari" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
 <div class="bg-white p-4 rounded-2xl border"><select id="bulan" onchange="render()" class="text-[11px] text-gray-400 font-bold bg-transparent -ml-1 max-w-full"></select><p id="omBulan" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
 <div class="col-span-2 md:col-span-1 bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet total</p><p id="omTotal" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div></div>
+<div id="baruBar" class="hidden flex justify-between items-center gap-3 bg-red-50 border border-red-200 text-red-700 text-[13px] font-semibold rounded-2xl px-4 py-3 mb-3"></div>
+<div class="flex justify-end mb-3"><button onclick="unduhRekap()" class="bg-white border border-blue-100 text-[#0a7bf2] text-[12px] font-bold px-4 py-2 rounded-full">⬇️ Unduh rekap bulan yang dipilih</button></div>
 <input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
 <div id="chips" class="flex gap-2 mb-4 overflow-x-auto"></div>
 <div id="list" class="space-y-3"></div></div>
@@ -69,14 +71,14 @@ function tampilLogin(m){$('login').style.display='flex';$('app').classList.add('
 function keluar(m){sessionStorage.removeItem('ev_key');KUNCI='';tampilLogin(m);}
 $('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
-async function loadData(){
-  $('list').textContent='Memuat...';
+async function loadData(silent){
+  if(!silent)$('list').textContent='Memuat...';
   try{
     const j=await kirim({action:'daftar'});
     if(j.ok!==true) throw new Error(j.error||'Tidak bisa terhubung ke server');
     all=j.data.reverse(); render();
   }catch(e){
-    $('list').innerHTML=`<div class="bg-red-50 text-red-700 p-4 rounded-2xl text-xs">Gagal memuat data: ${esc(e.message)}. Cek deploy Apps Script (akses: Siapa saja) dan SHEET_ID.</div>`;
+    if(silent)return;$('list').innerHTML=`<div class="bg-red-50 text-red-700 p-4 rounded-2xl text-xs">Gagal memuat data: ${esc(e.message)}. Cek deploy Apps Script (akses: Siapa saja) dan SHEET_ID.</div>`;
   }
 }
 
@@ -87,6 +89,7 @@ function render(){
   $('konf').textContent=all.filter(x=>is(x,'Dikonfirmasi')).length;
   $('selesai').textContent=all.filter(x=>is(x,'Selesai')).length;
   $('info').textContent='Terbaca '+all.length+' order dari sheet';
+  updBaru();
   const now=new Date(),sum=f=>all.filter(x=>!is(x,'Dibatalkan')).filter(x=>{const d=new Date(x.tgl);return !isNaN(d)&&f(d)}).reduce((a,x)=>a+num(x.omzet),0);
   $('omHari').textContent=rp(sum(d=>d.toDateString()===now.toDateString()));
   const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
@@ -103,7 +106,7 @@ function render(){
     const badge=is(d,'Dibatalkan')?'bg-red-100 text-red-700':done?'bg-green-100 text-green-700':conf?'bg-blue-100 text-blue-700':'bg-yellow-100 text-yellow-700';
     return `<div class="bg-white p-4 rounded-[20px] border shadow-sm">
       <div class="flex justify-between gap-2"><div>
-        <p class="font-bold text-[13px]">${esc(d.no)}</p>
+        <p class="font-bold text-[13px]">${esc(d.no)}${isBaru(d)?' <span class="ml-1 text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full">BARU</span>':''}</p>
         <p class="text-[11px] text-gray-400 mt-1">${esc(fmt(d.tgl))}</p>
         <p class="font-bold text-[14px] mt-2">${esc(d.nama)} <span class="text-[11px] font-normal text-gray-500">${esc(d.cabang)}</span></p>
         <p class="text-[11px] text-gray-500 mt-1">${esc(d.layanan)}${d.detail?' - '+esc(d.detail):''}</p>
@@ -175,6 +178,47 @@ function ubah(no,status){
   if(!status) return;
   const d=all.find(x=>x.no===no); if(d){d.status=status;render();}
   kirim({action:'updateStatus',no,status}).then(done);
+}
+
+/* ===== Penanda order baru, muat ulang otomatis, unduh rekap ===== */
+let seen=null;
+try{const t=JSON.parse(localStorage.getItem('ev_seen')||'null');if(Array.isArray(t))seen=new Set(t);}catch(e){}
+function simpanSeen(){try{localStorage.setItem('ev_seen',JSON.stringify([...seen]));}catch(e){}}
+function isBaru(d){return !!seen&&!seen.has(d.no);}
+function tandaiDibaca(){all.forEach(d=>seen.add(d.no));simpanSeen();render();}
+function updBaru(){
+  if(seen===null){seen=new Set(all.map(d=>d.no));simpanSeen();} // pertama kali: semua dianggap sudah dibaca
+  const n=all.filter(isBaru).length,b=$('baruBar');
+  b.classList.toggle('hidden',!n);
+  b.innerHTML=n?'<span>🔔 '+n+' order baru</span><button onclick="tandaiDibaca()" class="underline font-bold">Tandai dibaca</button>':'';
+  document.title=(n?'('+n+') ':'')+'Era Visual Admin';
+}
+// muat ulang tiap 60 detik, kecuali sedang mengetik atau ada form harga yang terbuka
+setInterval(()=>{
+  if(document.hidden||!KUNCI||$('app').classList.contains('hidden')||$('viewOrder').classList.contains('hidden'))return;
+  const a=document.activeElement;
+  if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
+  if(document.querySelector('details[open]'))return;
+  loadData(true);
+},60000);
+function unduhRekap(){
+  const bln=$('bulan').value;if(!bln){alert('Pilih bulan dulu.');return;}
+  const ymOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  const rows=all.filter(x=>{const d=new Date(x.tgl);return !isNaN(d)&&ymOf(d)===bln}).sort((a,b)=>new Date(a.tgl)-new Date(b.tgl));
+  if(!rows.length){alert('Tidak ada order di bulan itu.');return;}
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  let tH=0,tT=0,tO=0;
+  const lines=rows.map(x=>{
+    const batal=is(x,'Dibatalkan'),h=num(x.harga),t=num(x.tip),o=num(x.omzet);
+    if(!batal){tH+=h;tT+=t;tO+=o;}
+    let w=String(x.wa).replace(/\D/g,'');if(w.startsWith('62'))w='0'+w.slice(2);else if(w&&!w.startsWith('0'))w='0'+w;
+    return [q(x.no),q(new Date(x.tgl).toLocaleDateString('id-ID')),q(x.nama),q(x.layanan),q(x.cabang),q(x.detail),'="'+w+'"',q(x.status),h,t,o].join(';');
+  });
+  const head=['No Order','Tanggal','Nama','Layanan','Cabang','Detail','WA','Status','Harga','Tip','Omzet'].map(q).join(';');
+  const total=[q('TOTAL (tanpa yang dibatalkan)'),'','','','','','','',tH,tT,tO].join(';');
+  const blob=new Blob(['\ufeff'+[head].concat(lines,[total]).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-omzet-'+bln+'.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 if(KUNCI)masuk();
 </script></body></html>
