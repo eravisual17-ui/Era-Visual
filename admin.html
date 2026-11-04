@@ -6,7 +6,8 @@
 <div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div>
 <h1 class="font-bold mt-3">Era Visual Admin</h1>
 <input id="keyInput" type="password" placeholder="Kunci admin" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-5 text-center">
-<button onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button></div></div>
+<p id="loginErr" class="hidden text-xs text-red-600 mt-3"></p>
+<button id="btnMasuk" onclick="doLogin()" class="w-full bg-[#0a7bf2] text-white font-bold p-3 rounded-xl mt-3">Masuk</button></div></div>
 
 <div id="app" class="hidden">
 <div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -37,7 +38,7 @@
 
 <script>
 const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
-const KEYS=['eravisual2023','admin','123'];
+let KUNCI=sessionStorage.getItem('ev_key')||'';
 const FILTERS=['Semua','Menunggu','Dikonfirmasi','Selesai','Dibatalkan'];
 let all=[],filter='Semua';
 const $=id=>document.getElementById(id);
@@ -54,19 +55,26 @@ function simpanOmzet(no){
   const d=all.find(x=>x.no===no);if(d){d.harga=harga;d.tip=tip;d.omzet=omzet;render();}
   kirim({action:'updateOmzet',no,harga,tip,omzet}).then(done);
 }
-function doLogin(){
-  if(KEYS.includes($('keyInput').value.trim().toLowerCase())){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
+async function doLogin(){
+  const v=$('keyInput').value.trim();if(!v)return;
+  const b=$('btnMasuk');b.disabled=true;b.textContent='Memeriksa...';
+  KUNCI=v;
+  const j=await kirim({action:'cek'});
+  b.disabled=false;b.textContent='Masuk';
+  if(j.ok===true){sessionStorage.setItem('ev_key',KUNCI);$('keyInput').value='';masuk();}
+  else{KUNCI='';tampilLogin(j.error||'Tidak bisa terhubung ke server. Coba lagi.');}
 }
+function masuk(){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
+function tampilLogin(m){$('login').style.display='flex';$('app').classList.add('hidden');const e=$('loginErr');e.textContent=m||'';e.classList.toggle('hidden',!m);}
+function keluar(m){sessionStorage.removeItem('ev_key');KUNCI='';tampilLogin(m);}
 $('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
 async function loadData(){
   $('list').textContent='Memuat...';
   try{
-    const r=await fetch(API+'?t='+Date.now());
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const j=await r.json();
-    if(!Array.isArray(j)) throw new Error(j.error||'Format data tidak sesuai');
-    all=j.reverse(); render();
+    const j=await kirim({action:'daftar'});
+    if(j.ok!==true) throw new Error(j.error||'Tidak bisa terhubung ke server');
+    all=j.data.reverse(); render();
   }catch(e){
     $('list').innerHTML=`<div class="bg-red-50 text-red-700 p-4 rounded-2xl text-xs">Gagal memuat data: ${esc(e.message)}. Cek deploy Apps Script (akses: Siapa saja) dan SHEET_ID.</div>`;
   }
@@ -128,11 +136,9 @@ function showTab(t){
 async function loadBerita(){
   $('listBerita').textContent='Memuat...';
   try{
-    const r=await fetch(API+'?tab=berita&t='+Date.now());
-    const j=await r.json();
-    if(!Array.isArray(j)) throw new Error(j.error||'Format data tidak sesuai');
-    if(j.length&&!('judul' in j[0])) throw new Error('skrip Apps Script belum diperbarui, deploy "Versi baru" dulu');
-    berita=j.reverse();renderBerita();
+    const j=await kirim({action:'daftarBerita'});
+    if(j.ok!==true) throw new Error(j.error||'Tidak bisa terhubung ke server');
+    berita=j.data.reverse();renderBerita();
   }catch(e){$('listBerita').innerHTML=`<p class="text-xs text-red-600">Gagal memuat berita: ${esc(e.message)}</p>`}
 }
 function renderBerita(){
@@ -149,7 +155,7 @@ function updB(){
   const f=$('bFoto').value.trim(),im=$('bPrev');
   if(/^https?:\/\//.test(f)){im.src=f;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}
 }
-const kirim=p=>fetch(API,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).catch(()=>({ok:null}));
+const kirim=p=>fetch(API,{method:'POST',body:JSON.stringify({...p,key:KUNCI})}).then(r=>r.json()).then(j=>{if(j&&j.ok===false&&/kunci|percobaan/i.test(j.error||''))keluar(j.error);return j;}).catch(()=>({ok:null}));
 const done=r=>{if(r.ok===false)alert('Gagal menyimpan: '+(r.error||'tidak diketahui'));setTimeout(loadData,r.ok?200:3000)};
 async function simpanBerita(){
   const judul=$('bJudul').value.trim(),teks=$('bIsi').value.trim(),foto=$('bFoto').value.trim();
@@ -170,4 +176,5 @@ function ubah(no,status){
   const d=all.find(x=>x.no===no); if(d){d.status=status;render();}
   kirim({action:'updateStatus',no,status}).then(done);
 }
+if(KUNCI)masuk();
 </script></body></html>
