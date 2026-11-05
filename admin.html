@@ -28,6 +28,7 @@
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet hari ini</p><p id="omHari" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
 <div class="bg-white p-4 rounded-2xl border"><select id="bulan" onchange="render()" class="text-[11px] text-gray-400 font-bold bg-transparent -ml-1 max-w-full"></select><p id="omBulan" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div>
 <div class="col-span-2 md:col-span-1 bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Omzet total</p><p id="omTotal" class="text-lg font-bold text-[#0a7bf2]">Rp0</p></div></div>
+<div id="lamaBar" class="hidden bg-yellow-50 border border-yellow-300 text-yellow-800 text-[13px] font-semibold rounded-2xl px-4 py-3 mb-3"></div>
 <div id="baruBar" class="hidden flex justify-between items-center gap-3 bg-red-50 border border-red-200 text-red-700 text-[13px] font-semibold rounded-2xl px-4 py-3 mb-3"></div>
 <div class="flex justify-end mb-3"><button onclick="unduhRekap()" class="bg-white border border-blue-100 text-[#0a7bf2] text-[12px] font-bold px-4 py-2 rounded-full">⬇️ Unduh rekap bulan yang dipilih</button></div>
 <input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
@@ -110,7 +111,7 @@ function render(){
     const badge=is(d,'Dibatalkan')?'bg-red-100 text-red-700':done?'bg-green-100 text-green-700':conf?'bg-blue-100 text-blue-700':'bg-yellow-100 text-yellow-700';
     return `<div class="bg-white p-4 rounded-[20px] border shadow-sm">
       <div class="flex justify-between gap-2"><div>
-        <p class="font-bold text-[13px]">${esc(d.no)}${isBaru(d)?' <span class="ml-1 text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full">BARU</span>':''}</p>
+        <p class="font-bold text-[13px]">${esc(d.no)}${isLama(d)?' <span class="ml-1 text-[10px] bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full">Menunggu lama</span>':''}${isBaru(d)?' <span class="ml-1 text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full">BARU</span>':''}</p>
         <p class="text-[11px] text-gray-400 mt-1">${esc(fmt(d.tgl))}</p>
         <p class="font-bold text-[14px] mt-2">${esc(d.nama)} <span class="text-[11px] font-normal text-gray-500">${esc(d.cabang)}</span></p>
         <p class="text-[11px] text-gray-500 mt-1">${esc(d.layanan)}${d.detail?' - '+esc(d.detail):''}</p>
@@ -121,6 +122,7 @@ function render(){
           <option value="">Ubah status</option><option>Menunggu</option><option>Dikonfirmasi</option><option>Selesai</option><option>Dibatalkan</option></select>
         ${wa(d.wa)?`<a href="https://wa.me/${wa(d.wa)}" target="_blank" rel="noopener" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a>`:''}
       </div>
+      ${tombolWA(d)}
       <details class="mt-3"><summary class="text-[12px] font-bold text-[#0a7bf2] cursor-pointer">Harga, tip, omzet${num(d.omzet)?' - '+rp(num(d.omzet)):''}</summary>
         <div class="grid grid-cols-3 gap-2 mt-2">
           <label class="text-[10px] text-gray-400">Harga<input id="h-${esc(d.no)}" value="${num(d.harga)||''}" inputmode="numeric" oninput="hitung('${esc(d.no)}')" class="w-full bg-[#f6faff] border p-2 rounded-xl text-sm text-black"></label>
@@ -196,6 +198,7 @@ function updBaru(){
   b.classList.toggle('hidden',!n);
   b.innerHTML=n?'<span>🔔 '+n+' order baru</span><button onclick="tandaiDibaca()" class="underline font-bold">Tandai dibaca</button>':'';
   document.title=(n?'('+n+') ':'')+'Era Visual Admin';
+  updLama();
 }
 // muat ulang tiap 60 detik, kecuali sedang mengetik atau ada form harga yang terbuka
 setInterval(()=>{
@@ -223,6 +226,33 @@ function unduhRekap(){
   const blob=new Blob(['\ufeff'+[head].concat(lines,[total]).join('\r\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-omzet-'+bln+'.csv';
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+/* ===== Pesan WhatsApp siap kirim & penanda order menunggu lama ===== */
+const BATAS_JAM=24; // order berstatus Menunggu lebih lama dari ini ditandai
+const DANA='085348650816';
+const LINK_LACAK='https://eravisual17-ui.github.io/Era-Visual/lacak.html?no=';
+function waktuOrder(d){const m=String(d.ts||'').match(/(\d+)\/(\d+)\/(\d{4})\s+(\d+):(\d+)(?::(\d+))?/);return m?new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0)):new Date(d.tgl);}
+function isLama(d){if(!is(d,'Menunggu'))return false;const t=waktuOrder(d);return !isNaN(t)&&(Date.now()-t)/36e5>BATAS_JAM;}
+function updLama(){const n=all.filter(isLama).length,b=$('lamaBar');b.classList.toggle('hidden',!n);b.textContent=n?'⏳ '+n+' order menunggu lebih dari '+BATAS_JAM+' jam':'';}
+function sapaan(){const h=parseInt(new Date().toLocaleString('en-US',{timeZone:'Asia/Makassar',hour:'numeric',hour12:false}),10)%24;return h>=4&&h<11?'pagi':h>=11&&h<15?'siang':h>=15&&h<18?'sore':'malam';}
+function tombolWA(d){
+  if(!wa(d.wa)||is(d,'Dibatalkan'))return '';
+  const j=is(d,'Selesai')?'selesai':'konfirmasi';
+  return '<button onclick="kirimPesanWA(\''+esc(d.no)+'\',\''+j+'\')" class="w-full mt-3 bg-[#25D366] text-white text-[12px] font-bold p-2.5 rounded-xl">💬 Kirim '+(j==='selesai'?'pesan selesai':'konfirmasi')+' lewat WhatsApp</button>';
+}
+function kirimPesanWA(no,j){
+  const d=all.find(x=>x.no===no);if(!d)return;
+  const lay=String(d.layanan||'').replace(/^./,c=>c.toUpperCase());
+  let t;
+  if(j==='konfirmasi'){
+    t='Selamat '+sapaan()+' kak '+d.nama+'. Pesanan kakak, '+lay+', dengan nomor order '+d.no+' telah kami konfirmasi dan akan segera kami kerjakan. Status pesanan dapat dicek di '+LINK_LACAK+encodeURIComponent(d.no)+'. Terima kasih, Era Visual.';
+  }else{
+    t='Selamat '+sapaan()+', Kak '+d.nama+'. Pesanan Kakak ('+lay+') dengan nomor order '+d.no+' sudah selesai dikerjakan.';
+    const total=num(d.omzet)||(num(d.harga)+num(d.tip));
+    if(total>0)t+=' Total biaya: '+rp(total)+'. Pembayaran dapat dilakukan melalui DANA '+DANA+(/online/i.test(d.cabang)?'.':' atau tunai (lokal).');
+    t+=' Jika ada yang ingin ditanyakan, silakan balas pesan ini. Terima kasih telah mempercayakan pesanan kepada Era Visual.';
+  }
+  window.open('https://wa.me/'+wa(d.wa)+'?text='+encodeURIComponent(t),'_blank');
 }
 if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').catch(()=>{});
 if(KUNCI)masuk();
