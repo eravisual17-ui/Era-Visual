@@ -5,7 +5,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:Poppins,sans-serif;background:#eef6ff}</style></head><body>
+<style>body{font-family:Poppins,sans-serif;background:#eef6ff}</style><style>@media print{body *{visibility:hidden!important}#notaIsi,#notaIsi *{visibility:visible!important}#notaIsi{position:absolute;left:0;top:0;width:100%;box-shadow:none!important}}</style>
+</head><body>
 <div id="login" class="fixed inset-0 bg-[#0a192f] z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm p-8 rounded-[28px] text-center">
 <div class="w-12 h-12 bg-[#0a7bf2] rounded-2xl mx-auto flex items-center justify-center text-white font-bold">EV</div>
 <h1 class="font-bold mt-3">Era Visual Admin</h1>
@@ -18,7 +19,7 @@
 <div><p class="font-bold text-sm">Era Visual Admin</p><p id="info" class="text-[11px] text-gray-400"></p></div>
 <button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div>
 <div class="max-w-6xl mx-auto p-4">
-<div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button></div>
+<div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button></div>
 <div id="viewOrder">
 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Total order</p><p id="total" class="text-2xl font-bold">0</p></div>
@@ -34,6 +35,9 @@
 <input id="q" oninput="render()" placeholder="Cari nama, no order, cabang, layanan, WA" class="w-full bg-white border p-3 rounded-2xl text-sm mb-3">
 <div id="chips" class="flex gap-2 mb-4 overflow-x-auto"></div>
 <div id="list" class="space-y-3"></div></div>
+<div id="viewRingkas" class="hidden">
+<div class="bg-white p-5 rounded-2xl border mb-4"><p class="font-bold text-sm">Omzet 6 bulan terakhir</p><p id="rkTotal" class="text-[12px] text-gray-400 mb-4"></p><div id="rkGrafik"></div></div>
+<div class="bg-white p-5 rounded-2xl border"><p class="font-bold text-sm">Layanan terlaris</p><p class="text-[12px] text-gray-400 mb-4">6 bulan terakhir, tanpa order yang dibatalkan</p><div id="rkLayanan" class="space-y-4"></div></div></div>
 <div id="viewBerita" class="hidden"><div class="bg-white p-5 rounded-2xl border">
 <p id="editInfo" class="hidden text-[12px] text-yellow-700 mb-3">Sedang mengedit berita. <button onclick="batalEdit()" class="underline ml-1">Batal</button></p>
 <input id="bJudul" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Judul berita">
@@ -43,6 +47,16 @@
 <div class="bg-white p-4 rounded-2xl border mt-4"><p class="font-bold text-sm mb-3">Berita terbaru</p><div id="listBerita" class="space-y-2"></div></div></div>
 </div></div>
 
+<div id="notaBox" class="hidden fixed inset-0 z-[60] bg-black/50 overflow-y-auto p-4">
+  <div class="max-w-md mx-auto">
+    <div id="notaIsi" class="bg-white rounded-2xl p-6 shadow-xl text-[#0a192f]"></div>
+    <div class="grid grid-cols-2 gap-2 mt-3">
+      <button onclick="window.print()" class="bg-[#0a7bf2] text-white font-bold text-[13px] p-3 rounded-xl">🖨️ Cetak / Simpan PDF</button>
+      <button onclick="notaWA()" class="bg-[#25D366] text-white font-bold text-[13px] p-3 rounded-xl">💬 Kirim lewat WA</button>
+    </div>
+    <button onclick="tutupNota()" class="w-full mt-2 bg-white text-[#0a192f] font-bold text-[13px] p-3 rounded-xl">Tutup</button>
+  </div>
+</div>
 <script>
 const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 let KUNCI=sessionStorage.getItem('ev_key')||'';
@@ -122,7 +136,7 @@ function render(){
           <option value="">Ubah status</option><option>Menunggu</option><option>Dikonfirmasi</option><option>Selesai</option><option>Dibatalkan</option></select>
         ${wa(d.wa)?`<a href="https://wa.me/${wa(d.wa)}" target="_blank" rel="noopener" class="bg-[#25D366] text-white px-6 py-3 rounded-full text-[11px] font-bold">WA</a>`:''}
       </div>
-      ${tombolWA(d)}
+      ${tombolWA(d)}${tombolNota(d)}
       <details class="mt-3"><summary class="text-[12px] font-bold text-[#0a7bf2] cursor-pointer">Harga, tip, omzet${num(d.omzet)?' - '+rp(num(d.omzet)):''}</summary>
         <div class="grid grid-cols-3 gap-2 mt-2">
           <label class="text-[10px] text-gray-400">Harga<input id="h-${esc(d.no)}" value="${num(d.harga)||''}" inputmode="numeric" oninput="hitung('${esc(d.no)}')" class="w-full bg-[#f6faff] border p-2 rounded-xl text-sm text-black"></label>
@@ -139,8 +153,10 @@ const tabCls=a=>'px-5 py-2 rounded-full text-[12px] font-bold border '+(a?'bg-[#
 function showTab(t){
   $('viewOrder').classList.toggle('hidden',t!=='order');
   $('viewBerita').classList.toggle('hidden',t!=='berita');
-  $('tOrder').className=tabCls(t==='order');$('tBerita').className=tabCls(t==='berita');
+  $('viewRingkas').classList.toggle('hidden',t!=='ringkas');
+  $('tOrder').className=tabCls(t==='order');$('tBerita').className=tabCls(t==='berita');$('tRingkas').className=tabCls(t==='ringkas');
   if(t==='berita')loadBerita();
+  if(t==='ringkas')renderRingkas();
 }
 async function loadBerita(){
   $('listBerita').textContent='Memuat...';
@@ -233,7 +249,8 @@ const DANA='085348650816';
 const LINK_LACAK='https://eravisual17-ui.github.io/Era-Visual/lacak.html?no=';
 function waktuOrder(d){const m=String(d.ts||'').match(/(\d+)\/(\d+)\/(\d{4})\s+(\d+):(\d+)(?::(\d+))?/);return m?new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0)):new Date(d.tgl);}
 function isLama(d){if(!is(d,'Menunggu'))return false;const t=waktuOrder(d);return !isNaN(t)&&(Date.now()-t)/36e5>BATAS_JAM;}
-function updLama(){const n=all.filter(isLama).length,b=$('lamaBar');b.classList.toggle('hidden',!n);b.textContent=n?'⏳ '+n+' order menunggu lebih dari '+BATAS_JAM+' jam':'';}
+function updLama(){const n=all.filter(isLama).length,b=$('lamaBar');b.classList.toggle('hidden',!n);b.textContent=n?'⏳ '+n+' order menunggu lebih dari '+BATAS_JAM+' jam':'';
+  if(!$('viewRingkas').classList.contains('hidden'))renderRingkas();}
 function sapaan(){const h=parseInt(new Date().toLocaleString('en-US',{timeZone:'Asia/Makassar',hour:'numeric',hour12:false}),10)%24;return h>=4&&h<11?'pagi':h>=11&&h<15?'siang':h>=15&&h<18?'sore':'malam';}
 function tombolWA(d){
   if(!wa(d.wa)||is(d,'Dibatalkan'))return '';
@@ -253,6 +270,54 @@ function kirimPesanWA(no,j){
     t+=' Jika ada yang ingin ditanyakan, silakan balas pesan ini. Terima kasih telah mempercayakan pesanan kepada Era Visual.';
   }
   window.open('https://wa.me/'+wa(d.wa)+'?text='+encodeURIComponent(t),'_blank');
+}
+/* ===== Nota digital & Ringkasan ===== */
+function tombolNota(d){return '<button onclick="bukaNota(\''+esc(d.no)+'\')" class="w-full mt-2 bg-white border border-blue-100 text-[#0a7bf2] text-[12px] font-bold p-2.5 rounded-xl">🧾 Nota</button>';}
+function dataNota(d){
+  const harga=num(d.harga),tip=num(d.tip),total=num(d.omzet)||(harga+tip),online=/online/i.test(d.cabang);
+  return {harga,tip,total,bayar:'DANA '+DANA+' (a.n. Ewaldus Sangga)'+(online?'':' atau tunai (lokal)')};
+}
+function bukaNota(no){
+  const d=all.find(x=>x.no===no);if(!d)return;
+  const n=dataNota(d),lay=String(d.layanan||'').replace(/^./,c=>c.toUpperCase());
+  const baris=(k,v,tebal)=>'<div class="flex justify-between gap-3 py-1.5 text-[13px] '+(tebal?'font-bold border-t border-gray-300 mt-1 pt-2.5 text-[15px]':'')+'"><span>'+k+'</span><span>'+v+'</span></div>';
+  $('notaIsi').innerHTML=
+    '<div class="text-center"><img src="logo.jpg" alt="Era Visual" class="w-16 h-16 object-contain mx-auto"><p class="font-bold text-[18px] tracking-widest text-[#0a7bf2] mt-1">ERA VISUAL</p><p class="text-[11px] text-gray-500">Cabang Ende · Owner Ewaldus Sangga</p><p class="text-[11px] text-gray-500">WA 0853-4865-0816 · IG @eravisual1211</p></div>'+
+    '<div class="border-t border-dashed border-gray-300 my-4"></div>'+
+    '<p class="font-bold text-[13px] tracking-widest text-center mb-3">NOTA PESANAN</p>'+
+    '<div class="text-[13px] space-y-1"><div class="flex justify-between gap-3"><span class="text-gray-500">No. Order</span><b>'+esc(d.no)+'</b></div><div class="flex justify-between gap-3"><span class="text-gray-500">Tanggal</span><span>'+esc(fmt(d.tgl))+'</span></div><div class="flex justify-between gap-3"><span class="text-gray-500">Pelanggan</span><span class="text-right">'+esc(d.nama)+'</span></div><div class="flex justify-between gap-3"><span class="text-gray-500">Layanan</span><span class="text-right">'+esc(lay)+'</span></div>'+(d.detail?'<div class="flex justify-between gap-3"><span class="text-gray-500">Keterangan</span><span class="text-right break-words max-w-[60%]">'+esc(d.detail)+'</span></div>':'')+'</div>'+
+    '<div class="border-t border-dashed border-gray-300 my-4"></div>'+
+    (n.total>0?baris('Harga',rp(n.harga))+(n.tip>0?baris('Tip',rp(n.tip)):'')+baris('TOTAL',rp(n.total),true)+'<p class="text-[12px] text-gray-600 mt-3 leading-5">Pembayaran: '+esc(n.bayar)+'</p>':'<p class="text-[13px] text-gray-600 text-center">Harga belum ditentukan.</p>')+
+    '<p class="text-[11px] text-gray-500 text-center mt-5 leading-5">Terima kasih telah mempercayakan pesanan kepada Era Visual.<br>Cek status pesanan: '+esc(LINK_LACAK.replace('?no=',''))+'</p>';
+  $('notaBox').dataset.no=no;$('notaBox').classList.remove('hidden');
+}
+function tutupNota(){$('notaBox').classList.add('hidden');}
+function notaWA(){
+  const d=all.find(x=>x.no===$('notaBox').dataset.no);if(!d)return;
+  const n=dataNota(d),lay=String(d.layanan||'').replace(/^./,c=>c.toUpperCase());
+  let t='*NOTA ERA VISUAL*\nNo. Order: '+d.no+'\nPelanggan: '+d.nama+'\nLayanan: '+lay;
+  if(n.total>0)t+='\nTotal: '+rp(n.total)+'\nPembayaran: '+n.bayar;
+  t+='\n\nTerima kasih telah mempercayakan pesanan kepada Era Visual.';
+  window.open('https://wa.me/'+wa(d.wa)+'?text='+encodeURIComponent(t),'_blank');
+}
+const angkaSingkat=n=>n>=1e6?(n/1e6).toFixed(1).replace('.',',')+'jt':n>=1e3?Math.round(n/1e3)+'rb':String(n);
+function renderRingkas(){
+  const now=new Date(),ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  const bln=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);bln.push({k:ym(d),label:d.toLocaleDateString('id-ID',{month:'short'}),om:0,n:0});}
+  const lay={};
+  all.filter(x=>!is(x,'Dibatalkan')).forEach(x=>{
+    const d=new Date(x.tgl);if(isNaN(d))return;
+    const b=bln.find(m=>m.k===ym(d));if(!b)return;
+    const o=num(x.omzet);b.om+=o;b.n++;
+    const k=String(x.layanan||'Lainnya').toLowerCase();
+    const L=lay[k]||(lay[k]={nama:k.replace(/^./,c=>c.toUpperCase()),n:0,om:0});L.n++;L.om+=o;
+  });
+  const max=Math.max(1,...bln.map(m=>m.om));
+  $('rkTotal').textContent='Total 6 bulan: '+rp(bln.reduce((a,m)=>a+m.om,0));
+  $('rkGrafik').innerHTML='<div class="flex items-end gap-2 h-40">'+bln.map((m,i)=>'<div class="flex-1 flex flex-col items-center justify-end h-full"><span class="text-[10px] text-gray-500 mb-1">'+(m.om?angkaSingkat(m.om):'')+'</span><div class="w-full rounded-t-lg '+(i===5?'bg-[#0a7bf2]':'bg-blue-200')+'" style="height:'+Math.max(2,Math.round(m.om/max*80))+'%"></div></div>').join('')+'</div><div class="flex gap-2 mt-2">'+bln.map(m=>'<div class="flex-1 text-center text-[11px] text-gray-500">'+esc(m.label)+'<br><span class="text-[10px] text-gray-400">'+m.n+' order</span></div>').join('')+'</div>';
+  const arr=Object.values(lay).sort((a,b)=>b.n-a.n),maxN=Math.max(1,...arr.map(l=>l.n));
+  $('rkLayanan').innerHTML=arr.length?arr.map(l=>'<div><div class="flex justify-between gap-2 text-[13px]"><b>'+esc(l.nama)+'</b><span class="text-gray-500">'+l.n+' order · '+rp(l.om)+'</span></div><div class="h-2.5 bg-blue-50 rounded-full mt-1.5"><div class="h-2.5 rounded-full bg-[#0a7bf2]" style="width:'+Math.round(l.n/maxN*100)+'%"></div></div></div>').join(''):'<p class="text-sm text-gray-400">Belum ada data.</p>';
 }
 if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').catch(()=>{});
 if(KUNCI)masuk();
