@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kantor Era Visual - Ende</title>
+<meta name="description" content="Kunjungi kantor Era Visual Ende: meja Editor, servis kelistrikan, ruang mekanik, dan meja order. Lihat apa yang sedang dikerjakan Ewaldus hari ini.">
+<meta name="theme-color" content="#0a7bf2">
+<link rel="icon" href="logo.jpg">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Era Visual">
+<meta property="og:title" content="Kantor Era Visual Ende">
+<meta property="og:description" content="Lihat ruang kerja Era Visual dan layanan di tiap meja.">
+<meta property="og:url" content="https://eravisual17-ui.github.io/Era-Visual/kantor.html">
+<meta property="og:image" content="https://eravisual17-ui.github.io/Era-Visual/logo.jpg">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins,sans-serif}</style>
+</head>
+<body class="bg-[#eef6ff] text-[#0a192f]">
+<div class="max-w-2xl mx-auto min-h-screen p-6">
+
+  <div class="text-center">
+    <div class="flex justify-center mb-4">
+      <div class="w-20 h-20 bg-white p-1.5 rounded-2xl shadow-[0_8px_30px_rgba(10,123,242,0.15)] border border-blue-100 flex items-center justify-center overflow-hidden">
+        <img src="logo.jpg" alt="Era Visual" class="w-full h-full object-contain">
+      </div>
+    </div>
+    <h1 class="text-3xl font-bold text-[#0a7bf2] tracking-widest">KANTOR</h1>
+    <p class="text-[#5b7aa5] mt-1 text-xs font-semibold">Era Visual - Cabang Ende - Owner Ewaldus Sangga</p>
+    <p id="kantorChip" role="status" class="inline-block mt-4 text-[12px] font-bold bg-white border border-blue-100 text-[#0a7bf2] rounded-full px-4 py-1.5">Memuat status...</p>
+  </div>
+
+  <div class="mt-5">
+    <canvas id="kantorCanvas" class="w-full rounded-2xl border border-blue-100 bg-white shadow" style="aspect-ratio:400/620;touch-action:manipulation" role="img" aria-label="Ilustrasi kantor Era Visual dengan meja editor, servis kelistrikan, ruang mekanik, meja order, rak buku, meja informasi, pojok istirahat, dan meja owner"></canvas>
+    <p class="text-[11px] text-[#8aa4c8] mt-2 text-center">Ketuk meja atau Ewaldus untuk melihat info. Gambar hanya ilustrasi.</p>
+    <div id="kantorCard" class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 mt-3 text-[13px] text-[#334b6e] leading-6">Ketuk salah satu meja untuk melihat layanannya.</div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 mt-4">
+    <p class="font-bold text-[13px] text-[#0a7bf2] mb-2">Isi kantor kami</p>
+    <ul class="text-[12px] text-[#5b7aa5] leading-5 list-disc pl-5 space-y-0.5">
+      <li><b>Meja Editor</b>: desain CV, surat lamaran, logo, kartu nama, banner, poster, dan laporan PKL.</li>
+      <li><b>Servis Kelistrikan</b>: pemeriksaan, perawatan, dan pemasangan instalasi listrik rumah.</li>
+      <li><b>Ruang Mekanik</b>: pemeriksaan, perawatan, dan perbaikan mekanik ringan.</li>
+      <li><b>Laporan dan Order</b>: jumlah antrian pesanan dan cek status pesanan.</li>
+      <li><b>Meja Informasi</b>: jam buka, alamat, dan kontak.</li>
+      <li><b>Meja Saya</b>: Ewaldus Sangga, Owner Era Visual Cabang Ende.</li>
+    </ul>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-4">
+    <a href="pesan.html" class="text-center bg-[#0a7bf2] text-white font-bold p-3.5 rounded-xl">Pesan Sekarang</a>
+    <a href="lacak.html" class="text-center bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] font-bold p-3.5 rounded-xl">Lacak Order</a>
+  </div>
+
+  <div class="text-center mt-6">
+    <a href="index.html" class="text-[12px] text-[#0a7bf2] font-bold hover:underline">← Kembali ke Beranda</a>
+    <p class="text-[10px] text-[#8aa4c8] mt-4">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
+  </div>
+</div>
+
+<script>
+(function(){
+const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
+const BUKA=8,TUTUP=21; // jam buka (WITA), samakan dengan jam operasional
+const W=400,H=620;
+const cv=document.getElementById('kantorCanvas'),cx=cv.getContext('2d'),card=document.getElementById('kantorCard'),chipEl=document.getElementById('kantorChip');
+document.getElementById('year').textContent=new Date().getFullYear();
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const STATUS={
+ otomatis:'Otomatis',istirahat:'Sedang istirahat',editor:'Bekerja di Meja Editor',listrik:'Bekerja di Servis Kelistrikan',
+ mekanik:'Bekerja di Ruang Mekanik',meja:'Sibuk di mejanya',santai:'Santai di kantor',libur:'Libur'
+};
+const DESK={
+ E:{x:20,y:86,w:150,h:90,nama:'MEJA EDITOR'},
+ L:{x:230,y:86,w:150,h:90,nama:'SERVIS KELISTRIKAN'},
+ M:{x:20,y:226,w:150,h:100,nama:'RUANG MEKANIK'},
+ O:{x:230,y:226,w:150,h:100,nama:'LAPORAN & ORDER'},
+ R:{x:20,y:366,w:150,h:70,nama:'RAK BUKU'},
+ I:{x:230,y:366,w:150,h:70,nama:'MEJA INFORMASI'},
+ K:{x:20,y:486,w:150,h:100,nama:'POJOK ISTIRAHAT'},
+ S:{x:230,y:486,w:150,h:100,nama:'MEJA SAYA'}
+};
+// titik berdiri: x,y tujuan; ln = lorong tempat berbelok ke lorong tengah (x=200)
+const TG={
+ E:{x:95,y:201,ln:201},L:{x:305,y:201,ln:201},M:{x:95,y:346,ln:346},O:{x:305,y:346,ln:346},
+ R:{x:95,y:461,ln:461},I:{x:280,y:461,ln:461},S:{x:340,y:466,ln:461},K:{x:95,y:545,ln:461,sit:1},
+ H:{x:200,y:410,ln:410},W:{x:200,y:90,ln:90}
+};
+const ACT={
+ E:{k:'work',t:['Merapikan CV pelanggan','Mendesain logo & poster','Menyusun laporan PKL']},
+ L:{k:'work',t:['Memeriksa instalasi listrik','Menyiapkan alat ukur','Merawat kabel & stop kontak']},
+ M:{k:'work',t:['Merawat peralatan','Memeriksa baut & sambungan','Merapikan peralatan kerja']},
+ O:{k:'work',t:['Mengecek order masuk','Mengonfirmasi pesanan','Membalas pesan WA']},
+ S:{k:'work',t:['Menyusun penawaran','Membalas pesan pelanggan','Merencanakan jadwal']},
+ I:{k:'idle',t:['Membaca papan informasi']},
+ R:{k:'idle',t:['Mencari buku di rak 📚']},
+ K:{k:'sit',t:['Ngopi dulu ☕','Istirahat sebentar']},
+ H:{k:'hp',t:['Main HP 📱','Melihat pesan 📱']},
+ W:{k:'idle',t:['Melihat ke luar jendela']}
+};
+const me={x:340,y:466,ln:461,at:'S',to:'S',s:'work',t:3,path:[],task:'Merencanakan jadwal',k:'work'};
+let k=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',jam={h:12,m:0},visible=true;
+const pad=n=>String(n).padStart(2,'0')+'.00';
+const rand=a=>a[Math.floor(Math.random()*a.length)];
+
+function wita(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Makassar',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date());let h=0,m=0;p.forEach(x=>{if(x.type==='hour')h=+x.value%24;if(x.type==='minute')m=+x.value;});return {h,m};}
+const buka=()=>jam.h>=BUKA&&jam.h<TUTUP;
+function mode(){if(status==='libur')return 'libur';if(status==='otomatis'&&!buka())return 'tutup';return 'buka';}
+function fit(){const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));k=cv.width/W;}
+function rr(x,y,w,h,r,fill,stroke,lw){
+  cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath();
+  if(fill){cx.fillStyle=fill;cx.fill();}
+  if(stroke){cx.strokeStyle=stroke;cx.lineWidth=lw||1.5;cx.stroke();}
+}
+function circ(x,y,r,fill){cx.fillStyle=fill;cx.beginPath();cx.arc(x,y,r,0,7);cx.fill();}
+function txt(s,x,y,font,color,align){cx.font=font;cx.fillStyle=color;cx.textAlign=align||'left';cx.textBaseline='middle';cx.fillText(s,x,y);}
+
+function drawWall(){
+  cx.fillStyle='#0a7bf2';cx.fillRect(0,0,W,70);cx.fillStyle='#dbe8fb';cx.fillRect(0,70,W,6);
+  // plakat logo
+  rr(20,12,104,46,8,'#fff');txt('ERA',72,28,'700 15px Poppins,sans-serif','#0a7bf2','center');txt('VISUAL',72,45,'700 13px Poppins,sans-serif','#0a192f','center');
+  // jendela: siang atau malam sesuai jam WITA
+  const siang=jam.h>=6&&jam.h<18;
+  rr(148,8,104,54,6,siang?'#bfe0ff':'#0a192f');
+  if(siang){circ(226,26,9,'#ffd43b');}else{circ(226,26,8,'#f4f1de');circ(222,24,6,'#0a192f');[[170,22],[188,40],[205,20],[236,44]].forEach(p=>circ(p[0],p[1],1.5,'#fff'));}
+  cx.strokeStyle='#fff';cx.lineWidth=3;cx.strokeRect(148,8,104,54);cx.beginPath();cx.moveTo(200,8);cx.lineTo(200,62);cx.moveTo(148,35);cx.lineTo(252,35);cx.stroke();
+  // jam dinding WITA
+  circ(334,35,23,'#fff');cx.strokeStyle='#0a192f';cx.lineWidth=2;cx.beginPath();cx.arc(334,35,23,0,7);cx.stroke();
+  for(let i=0;i<12;i++){const a=i*Math.PI/6;cx.beginPath();cx.moveTo(334+Math.sin(a)*19,35-Math.cos(a)*19);cx.lineTo(334+Math.sin(a)*22,35-Math.cos(a)*22);cx.stroke();}
+  const ah=((jam.h%12)+jam.m/60)*Math.PI/6,am=jam.m*Math.PI/30;
+  cx.lineCap='round';cx.lineWidth=3;cx.beginPath();cx.moveTo(334,35);cx.lineTo(334+Math.sin(ah)*11,35-Math.cos(ah)*11);cx.stroke();
+  cx.lineWidth=2;cx.beginPath();cx.moveTo(334,35);cx.lineTo(334+Math.sin(am)*17,35-Math.cos(am)*17);cx.stroke();cx.lineCap='butt';
+  txt('WITA',334,66,'600 8px Poppins,sans-serif','#dbe8fb','center');
+}
+function drawDesk(id){
+  const d=DESK[id],x=d.x,y=d.y,on=sel===id;
+  rr(x,y,d.w,d.h,10,'#e6effd',on?'#0a7bf2':'#a9c6f2',on?3:1.5);
+  txt(d.nama,x+10,y+14,'700 11px Poppins,sans-serif','#0a7bf2');
+  if(id==='E'){
+    rr(x+14,y+26,52,36,4,'#0a192f');rr(x+18,y+30,44,26,2,'#0a7bf2');
+    cx.fillStyle='#fff';cx.beginPath();cx.moveTo(x+36,y+37);cx.lineTo(x+36,y+49);cx.lineTo(x+46,y+43);cx.closePath();cx.fill();
+    rr(x+34,y+62,14,6,2,'#5b7aa5');rr(x+78,y+50,46,15,3,'#fff','#a9c6f2',1);circ(x+142,y+52,7,'#0a7bf2');
+  }else if(id==='L'){
+    rr(x+16,y+28,34,48,5,'#0a192f');rr(x+21,y+33,24,12,2,'#bfe0ff');circ(x+33,y+61,8,'#5b7aa5');
+    cx.strokeStyle='#0a7bf2';cx.lineWidth=3;cx.beginPath();cx.moveTo(x+52,y+70);cx.bezierCurveTo(x+64,y+50,x+76,y+90,x+90,y+68);cx.stroke();
+    cx.fillStyle='#ffd43b';cx.strokeStyle='#e0a800';cx.lineWidth=1.5;cx.beginPath();
+    cx.moveTo(x+122,y+28);cx.lineTo(x+108,y+54);cx.lineTo(x+118,y+54);cx.lineTo(x+112,y+78);cx.lineTo(x+136,y+46);cx.lineTo(x+124,y+46);cx.lineTo(x+132,y+28);cx.closePath();cx.fill();cx.stroke();
+  }else if(id==='M'){
+    rr(x+16,y+46,56,34,5,'#5b7aa5');rr(x+34,y+39,20,9,3,null,'#0a192f',3);rr(x+40,y+58,8,6,1,'#fff');
+    cx.strokeStyle='#0a192f';cx.lineWidth=6;cx.lineCap='round';cx.beginPath();cx.moveTo(x+86,y+80);cx.lineTo(x+112,y+50);cx.stroke();cx.lineCap='butt';
+    cx.fillStyle='#e6effd';cx.strokeStyle='#0a192f';cx.lineWidth=3;cx.beginPath();cx.arc(x+114,y+48,7,0,7);cx.fill();cx.stroke();
+    rr(x+122,y+62,24,24,3,'#c7d8f3','#a9c6f2',1.5);rr(x+126,y+30,18,24,3,'#c7d8f3','#a9c6f2',1.5);
+  }else if(id==='O'){
+    for(let i=0;i<3;i++)rr(x+16+i*3,y+28+i*3,46,54,3,'#fff','#a9c6f2',1.2);
+    cx.strokeStyle='#cfe0f8';cx.lineWidth=2;for(let j=0;j<4;j++){cx.beginPath();cx.moveTo(x+28,y+42+j*9);cx.lineTo(x+56,y+42+j*9);cx.stroke();}
+    rr(x+82,y+28,62,24,6,'#fff3cd','#f59f00',1.5);txt('MENUNGGU',x+113,y+40,'700 10px Poppins,sans-serif','#8a5a00','center');
+    circ(x+113,y+72,15,'#f59f00');txt(antrian==null?'?':String(antrian),x+113,y+72,'700 15px Poppins,sans-serif','#fff','center');
+  }else if(id==='R'){
+    const wr=[10,14,9,12,16,10,13,9,15,11,12,10],cl=['#0a7bf2','#5b7aa5','#fff','#f59f00','#0a192f','#9ec3f5'];
+    [[22,40],[46,64]].forEach((row,ri)=>{let bx=x+10;for(let i=0;i<10&&bx<x+d.w-14;i++){const w=wr[(i+ri*3)%wr.length];rr(bx,y+row[0]+(i%3)*2,w,row[1]-row[0]-(i%3)*2,2,cl[(i+ri*2)%cl.length],'#a9c6f2',1);bx+=w+3;}cx.fillStyle='#a9c6f2';cx.fillRect(x+6,y+row[1],d.w-12,3);});
+  }else if(id==='I'){
+    rr(x+12,y+24,100,38,5,'#fff','#a9c6f2');
+    txt('JAM BUKA',x+62,y+36,'700 9px Poppins,sans-serif','#0a7bf2','center');
+    txt(pad(BUKA).replace('.00','')+'-'+pad(TUTUP).replace('.00','')+' WITA',x+62,y+50,'600 10px Poppins,sans-serif','#0a192f','center');
+    circ(x+132,y+43,14,'#0a7bf2');txt('i',x+132,y+43,'700 17px Poppins,sans-serif','#fff','center');
+  }else if(id==='K'){
+    rr(x+10,y+26,92,32,10,'#7aa6e6');rr(x+4,y+42,104,34,10,'#9ec3f5');rr(x+2,y+36,16,44,7,'#7aa6e6');rr(x+96,y+36,16,44,7,'#7aa6e6');
+    rr(x+118,y+28,26,56,4,'#0a192f');rr(x+122,y+34,18,12,2,'#bfe0ff');rr(x+126,y+66,10,10,2,'#fff');circ(x+131,y+52,2.5,'#f59f00');
+  }else{
+    rr(x+60,y+28,62,36,4,'#0a192f');rr(x+64,y+32,54,28,2,'#0a7bf2');txt('EV',x+91,y+46,'700 13px Poppins,sans-serif','#fff','center');
+    rr(x+52,y+64,78,8,3,'#5b7aa5');rr(x+134,y+58,40,18,3,'#0a7bf2');txt('Owner',x+154,y+67,'600 9px Poppins,sans-serif','#fff','center');
+    if(status==='meja'){for(let i=0;i<4;i++)rr(x+14+i*7,y+36+i*4,34,24,2,'#fff','#a9c6f2',1);rr(x+134,y+34,16,22,3,'#0a192f');}
+  }
+}
+function drawSetting(){
+  // dinding ruang mekanik (terbuka ke bawah)
+  const m=DESK.M;cx.strokeStyle='#7e9bc8';cx.lineWidth=6;cx.beginPath();cx.moveTo(m.x,m.y+m.h);cx.lineTo(m.x,m.y);cx.lineTo(m.x+m.w,m.y);cx.lineTo(m.x+m.w,m.y+m.h);cx.stroke();
+  // tanaman
+  rr(190,548,20,18,3,'#c7a27c');circ(200,540,11,'#5bbf8a');circ(192,546,8,'#4aa77a');circ(209,546,8,'#4aa77a');
+}
+function drawMe(){
+  const walk=me.s==='walk',sit=me.s==='sit',sw=walk?Math.sin(t0*10)*4:0,x=me.x,yb=me.y+(sit?8:0),y=yb+(walk?Math.sin(t0*10)*1.5:Math.sin(t0*3)*.6);
+  cx.fillStyle='rgba(10,25,47,.15)';cx.beginPath();cx.ellipse(x,yb+17,11,4,0,0,7);cx.fill();
+  cx.fillStyle='#0a192f';
+  if(sit){cx.fillRect(x-6,y+6,12,5);cx.fillRect(x-6,y+10,5,8);cx.fillRect(x+1,y+10,5,8);}
+  else{cx.fillRect(x-6+sw*.3,y+6,5,12);cx.fillRect(x+1-sw*.3,y+6,5,12);}
+  rr(x-9,y-12,18,20,5,'#0a7bf2');
+  cx.fillStyle='#0a7bf2';cx.fillRect(x-13,y-9+(walk?sw*.4:0),4,12);cx.fillRect(x+9,y-9-(walk?sw*.4:0),4,12);
+  circ(x,y-20,8,'#f1c27d');cx.fillStyle='#2b1b12';cx.beginPath();cx.arc(x,y-22,8,Math.PI,0);cx.fill();
+  if(me.k==='hp'&&!walk){rr(x+6,y-14,8,13,2,'#0a192f');rr(x+7.5,y-12.5,5,9,1,'#7fd0ff');}
+  if(sit&&me.at==='K'){rr(x+10,y-2,9,9,2,'#fff','#a9c6f2',1);}
+  if(!walk){
+    cx.font='600 11px Poppins,sans-serif';const w=cx.measureText(me.task).width+16,bx=Math.min(Math.max(x-w/2,6),W-6-w),by=Math.max(80,y-58);
+    rr(bx,by,w,22,8,'#fff','#0a7bf2',1.5);txt(me.task,bx+w/2,by+11,'600 11px Poppins,sans-serif','#0a192f','center');
+  }
+}
+function draw(){
+  cx.setTransform(k,0,0,k,0,0);cx.clearRect(0,0,W,H);
+  cx.fillStyle='#f4f8ff';cx.fillRect(0,0,W,H);
+  cx.strokeStyle='#e4edfb';cx.lineWidth=1;
+  for(let x=0;x<=W;x+=40){cx.beginPath();cx.moveTo(x,76);cx.lineTo(x,H);cx.stroke();}
+  for(let y=76;y<=H;y+=40){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+  drawWall();
+  for(const id in DESK)drawDesk(id);
+  drawSetting();
+  const md=mode();
+  if(md==='buka')drawMe();
+  else if(md==='libur'){
+    cx.fillStyle='rgba(10,25,47,.22)';cx.fillRect(0,0,W,H);
+    for(const id in DESK){const d=DESK[id];rr(d.x+d.w-54,d.y+d.h-26,46,18,4,'#fff','#d9480f',1.5);txt('LIBUR',d.x+d.w-31,d.y+d.h-17,'700 10px Poppins,sans-serif','#d9480f','center');}
+    rr(70,262,260,92,14,'#fff','#d9480f',3);txt('LIBUR',200,298,'700 34px Poppins,sans-serif','#d9480f','center');txt('Kantor sedang libur',200,332,'600 12px Poppins,sans-serif','#5b7aa5','center');
+  }else{
+    cx.fillStyle='rgba(10,25,47,.38)';cx.fillRect(0,0,W,H);
+    rr(100,262,200,76,12,'#fff','#0a7bf2',2);txt('TUTUP',200,290,'700 22px Poppins,sans-serif','#0a192f','center');txt('Buka '+pad(BUKA)+' WITA',200,318,'600 12px Poppins,sans-serif','#5b7aa5','center');
+  }
+}
+function pilihTarget(){
+  if(status==='editor')return 'E';if(status==='listrik')return 'L';if(status==='mekanik')return 'M';if(status==='meja')return 'S';if(status==='istirahat')return 'K';
+  const kerja=['E','L','M','O','S'],santai=['H','I','R','K','W'];
+  const pool=(status==='santai'?santai:(Math.random()<.8?kerja:santai)).filter(i=>i!==me.at);
+  return rand(pool);
+}
+function setAct(id){const a=ACT[id];me.k=a.k;me.task=rand(a.t);}
+function update(dt){
+  if(me.s==='work'||me.s==='sit'){
+    me.t-=dt;
+    if(me.t<=0){
+      const to=pilihTarget();
+      if(to===me.at){setAct(to);me.t=5+Math.random()*3;}
+      else{const g=TG[to];me.to=to;me.path=[[me.x,me.ln],[200,me.ln],[200,g.ln],[g.x,g.ln],[g.x,g.y]];me.s='walk';me.k='walk';}
+    }
+  }else{
+    const p=me.path[0],dx=p[0]-me.x,dy=p[1]-me.y,dist=Math.hypot(dx,dy),v=60*dt;
+    if(dist<=v){
+      me.x=p[0];me.y=p[1];me.path.shift();
+      if(!me.path.length){const g=TG[me.to];me.at=me.to;me.ln=g.ln;me.s=g.sit?'sit':'work';setAct(me.at);me.t=5+Math.random()*3;}
+    }else{me.x+=dx/dist*v;me.y+=dy/dist*v;}
+  }
+}
+function resetMe(){me.x=340;me.y=466;me.ln=461;me.at='S';me.to='S';me.s='work';me.t=0.5;me.path=[];setAct('S');}
+function loop(ts){
+  const dt=Math.min(.05,((ts-last)/1000)||0);last=ts;t0+=dt;
+  if(mode()==='buka')update(dt);
+  draw();requestAnimationFrame(loop);
+}
+
+const btn=(href,teks,pri,ext)=>'<a href="'+href+'"'+(ext?' target="_blank" rel="noopener noreferrer"':'')+' class="inline-block mt-3 mr-2 '+(pri?'bg-[#0a7bf2] text-white':'bg-white border border-[#0a7bf2] text-[#0a7bf2]')+' text-[12px] font-bold px-4 py-2 rounded-full">'+teks+'</a>';
+const judul=t=>'<b class="text-[#0a7bf2] text-[14px]">'+t+'</b><p class="mt-1">';
+const WA='https://wa.me/6285348650816?text=Halo%20Era%20Visual%20Ende%2C%20saya%20mau%20tanya%20jasa...';
+function info(id){
+  const md=mode();let h='';
+  if(id==='E')h=judul('🖥️ Meja Editor')+'Desain CV, surat lamaran, logo, kartu nama, banner, poster, dan laporan PKL. Harga mulai Rp10.000.</p>'+btn('pesan.html','Pesan Editor',1)+btn('index.html#daftarHarga','Lihat harga',0);
+  else if(id==='L')h=judul('⚡ Servis Kelistrikan')+'Pemeriksaan, perawatan, dan pemasangan instalasi listrik rumah. Pemasangan disurvei dulu, dan material serta transportasi dihitung terpisah.</p>'+btn('pesan.html','Pesan Electrical',1)+btn('index.html#daftarHarga','Lihat harga',0);
+  else if(id==='M')h=judul('🔧 Ruang Mekanik')+'Pemeriksaan, perawatan, dan perbaikan mekanik ringan. Diperiksa dulu sebelum penawaran harga, dan suku cadang, material, serta transportasi dihitung terpisah.</p>'+btn('pesan.html','Pesan Mechanical',1)+btn('index.html#daftarHarga','Lihat harga',0);
+  else if(id==='O'){
+    const n=antrian==null?'Jumlah antrian belum bisa dimuat.':antrian===0?'Tidak ada antrian. Pesananmu bisa langsung kami proses.':antrian+' order sedang menunggu konfirmasi.';
+    h=judul('🗂️ Laporan dan Order')+n+'</p>'+btn('lacak.html','Lacak Order',1)+btn('pesan.html','Buat Pesanan',0);
+  }else if(id==='R')h=judul('📚 Rak Buku')+'Sudut rak buku kantor. Ewaldus kadang mampir ke sini saat santai (ilustrasi).</p>';
+  else if(id==='I')h=judul('ℹ️ Meja Informasi')+'Jam buka: '+pad(BUKA)+' sampai '+pad(TUTUP)+' WITA. Alamat: Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT.</p>'+btn(WA,'WhatsApp',1,1)+btn('https://instagram.com/eravisual1211','Instagram',0,1);
+  else if(id==='K')h=judul('☕ Pojok Istirahat')+'Tempat Ewaldus ngopi saat istirahat (ilustrasi).</p>';
+  else if(id==='S')h=judul('👤 Meja Saya')+'Ewaldus Sangga, Owner Era Visual Cabang Ende.</p>'+btn(WA,'WhatsApp',1,1)+btn('https://instagram.com/eravisual1211','Instagram',0,1);
+  else h=judul('👤 Ewaldus Sangga')+'Owner Era Visual Cabang Ende. '+(md==='buka'?'Yang terlihat di gambar: '+me.task+' (ilustrasi).':'')+'</p>'+btn('pesan.html','Pesan Sekarang',1);
+  card.innerHTML=h;
+}
+function chip(){
+  const md=mode();let t;
+  if(md==='libur')t='🏖️ Kantor sedang libur';
+  else if(md==='tutup')t='🌙 Kantor tutup · buka '+pad(BUKA)+' WITA';
+  else if(status==='otomatis')t='🟢 Kantor buka · Ewaldus berkeliling di kantor';
+  else t='🟢 Ewaldus: '+STATUS[status];
+  chipEl.textContent=t;
+}
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+  if(mode()==='buka'&&Math.hypot(x-me.x,y-(me.y-6))<22){sel=null;info('ME');if(reduce)draw();return;}
+  for(const id in DESK){const d=DESK[id];if(x>=d.x&&x<=d.x+d.w&&y>=d.y&&y<=d.y+d.h){sel=id;info(id);if(reduce)draw();return;}}
+});
+function muat(){
+  fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{
+    if(!j||!j.ok)return;
+    const st=STATUS[j.status]?j.status:'otomatis',before=mode();
+    if(st!==status){status=st;me.t=0;}
+    if(mode()==='buka'&&before!=='buka')resetMe();
+    antrian=Number.isInteger(j.menunggu)?j.menunggu:null;
+    chip();if(sel==='O')info('O');if(reduce)draw();
+  }).catch(()=>{chipEl.textContent='Status kantor belum bisa dimuat';});
+}
+function tik(){const before=mode();jam=wita();if(mode()==='buka'&&before!=='buka')resetMe();chip();if(reduce)draw();}
+jam=wita();fit();window.addEventListener('resize',()=>{fit();if(reduce)draw();});
+setAct('S');chip();muat();setInterval(muat,30000);setInterval(tik,1000);
+if(reduce)draw();else requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
