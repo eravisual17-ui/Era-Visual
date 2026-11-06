@@ -21,6 +21,11 @@
 <div class="max-w-6xl mx-auto p-4">
 <div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button></div>
 <div id="viewOrder">
+<details id="kantorAdm" class="bg-white rounded-2xl border border-blue-100 p-4 mb-4">
+<summary class="font-bold text-[13px] cursor-pointer">🏢 Status Kantor: <span id="kStatusTeks" class="text-[#0a7bf2]">...</span></summary>
+<div id="kantorTombol" class="grid grid-cols-2 gap-2 mt-3"></div>
+<p class="text-[11px] text-gray-400 mt-3 leading-5">Otomatis: Ewaldus berjalan sendiri sesuai jam buka. Status lain berlaku sampai kamu mengubahnya lagi. Libur menampilkan meja bertuliskan LIBUR dan Ewaldus tidak ada.</p>
+</details>
 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Total order</p><p id="total" class="text-2xl font-bold">0</p></div>
 <div class="bg-yellow-50 p-4 rounded-2xl border"><p class="text-[11px] text-yellow-700 font-bold">Menunggu</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
@@ -85,7 +90,7 @@ async function doLogin(){
   if(j.ok===true){sessionStorage.setItem('ev_key',KUNCI);$('keyInput').value='';masuk();}
   else{KUNCI='';tampilLogin(j.error||'Tidak bisa terhubung ke server. Coba lagi.');}
 }
-function masuk(){$('login').style.display='none';$('app').classList.remove('hidden');loadData();}
+function masuk(){$('login').style.display='none';$('app').classList.remove('hidden');loadData();muatKantor();}
 function tampilLogin(m){$('login').style.display='flex';$('app').classList.add('hidden');const e=$('loginErr');e.textContent=m||'';e.classList.toggle('hidden',!m);}
 function keluar(m){sessionStorage.removeItem('ev_key');KUNCI='';tampilLogin(m);}
 $('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
@@ -319,6 +324,20 @@ function renderRingkas(){
   const arr=Object.values(lay).sort((a,b)=>b.n-a.n),maxN=Math.max(1,...arr.map(l=>l.n));
   $('rkLayanan').innerHTML=arr.length?arr.map(l=>'<div><div class="flex justify-between gap-2 text-[13px]"><b>'+esc(l.nama)+'</b><span class="text-gray-500">'+l.n+' order · '+rp(l.om)+'</span></div><div class="h-2.5 bg-blue-50 rounded-full mt-1.5"><div class="h-2.5 rounded-full bg-[#0a7bf2]" style="width:'+Math.round(l.n/maxN*100)+'%"></div></div></div>').join(''):'<p class="text-sm text-gray-400">Belum ada data.</p>';
 }
+/* ===== Status Kantor (tampil di kantor.html) ===== */
+const KANTOR_LABEL={otomatis:'Otomatis',istirahat:'Istirahat',editor:'Meja Editor',listrik:'Servis Listrik',mekanik:'Ruang Mekanik',meja:'Sibuk di Meja Sendiri',santai:'Santai',libur:'Libur'};
+let kantorNow='otomatis';
+function renderKantorAdm(){
+  $('kStatusTeks').textContent=KANTOR_LABEL[kantorNow]||kantorNow;
+  $('kantorTombol').innerHTML=Object.keys(KANTOR_LABEL).map(k=>'<button onclick="setKantor(\''+k+'\')" class="'+(k===kantorNow?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white text-[#0a192f]')+' border rounded-xl p-2.5 text-[12px] font-bold">'+KANTOR_LABEL[k]+'</button>').join('');
+}
+function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorNow=j.status;renderKantorAdm();}}).catch(()=>{});}
+async function setKantor(st){
+  const lama=kantorNow;kantorNow=st;renderKantorAdm();
+  const j=await kirim({action:'setKantor',status:st});
+  if(j.ok!==true){kantorNow=lama;renderKantorAdm();alert('Gagal mengubah status kantor: '+(j.error||'tidak bisa terhubung'));}
+}
+renderKantorAdm();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').catch(()=>{});
 if(KUNCI)masuk();
 </script></body></html>
