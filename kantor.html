@@ -36,11 +36,12 @@ body{font-family:Poppins,sans-serif}
     <h1 class="text-3xl font-bold text-[#0a7bf2] tracking-widest">KANTOR</h1>
     <p class="text-[#5b7aa5] mt-1 text-xs font-semibold">Era Visual - Cabang Ende - Owner Ewaldus Sangga</p>
     <p id="kantorChip" role="status" class="inline-block mt-4 text-[12px] font-bold bg-white border border-blue-100 text-[#0a7bf2] rounded-full px-4 py-1.5">Memuat status...</p>
+    <p id="kantorDiatur" class="text-[10px] text-[#8aa4c8] mt-1"></p>
   </div>
 
   <div class="mt-5">
     <div class="relative">
-      <canvas id="kantorCanvas" class="w-full rounded-2xl border border-blue-100 shadow block" style="aspect-ratio:600/880;touch-action:pan-y;background:#d6ecda" role="img" aria-label="Denah kantor Era Visual dari atas: ruang editor, servis kelistrikan, ruang mekanik, laporan dan order, meja informasi, rak buku, pojok istirahat, dan meja owner. Bisa diperbesar dan digeser."></canvas>
+      <canvas id="kantorCanvas" class="w-full rounded-2xl border border-blue-100 shadow block" style="aspect-ratio:660/880;touch-action:pan-y;background:#d6ecda" role="img" aria-label="Denah kantor Era Visual dari atas: ruang editor, servis kelistrikan, ruang mekanik, laporan dan order, meja informasi, rak buku, pojok istirahat, dan meja owner. Bisa diperbesar dan digeser."></canvas>
       <div class="absolute top-3 right-3 flex flex-col gap-2">
         <button id="zIn" type="button" class="zbtn" aria-label="Perbesar">+</button>
         <button id="zOut" type="button" class="zbtn" aria-label="Perkecil">&minus;</button>
@@ -93,49 +94,51 @@ body{font-family:Poppins,sans-serif}
 (function(){
 const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 const BUKA=8,TUTUP=21; // jam buka (WITA), samakan dengan jam operasional
-const W=600,H=880;     // ukuran dunia denah (satuan bebas)
+const W=660,H=880;     // ukuran dunia denah (satuan bebas)
 const MINZ=1,MAXZ=5;
 const cv=document.getElementById('kantorCanvas'),cx=cv.getContext('2d'),card=document.getElementById('kantorCard'),chipEl=document.getElementById('kantorChip'),lvlEl=document.getElementById('zLvl'),folBtn=document.getElementById('follow');
 document.getElementById('year').textContent=new Date().getFullYear();
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 const STATUS={
  otomatis:'Otomatis',istirahat:'Sedang istirahat',editor:'Bekerja di Meja Editor',listrik:'Bekerja di Servis Kelistrikan',
- mekanik:'Bekerja di Ruang Mekanik',meja:'Sibuk di mejanya',santai:'Santai di kantor',libur:'Libur'
+ mekanik:'Bekerja di Ruang Mekanik',meja:'Sibuk di mejanya',order:'Memproses antrian order',telepon:'Menelepon pelanggan',keluar:'Sedang keluar',santai:'Santai di kantor',libur:'Libur'
 };
 const CARD0='Ketuk ruangan untuk melihat layanannya.';
 
 /* ====== DENAH: ubah angka di sini untuk memindah / mengubah ukuran ruangan ======
    x,y = pojok kiri atas, w,h = ukuran, fl = warna lantai, nama/pendek = label */
 const DESK={
- R:{x:50, y:90, w:160,h:140,nama:'RAK BUKU',pendek:'RAK BUKU',em:'📚',fl:'#e4f3ea',lx:130,ly:106},
- K:{x:390,y:90, w:160,h:140,nama:'POJOK ISTIRAHAT',pendek:'PANTRY',em:'☕',fl:'#ffeadb',lx:470,ly:106},
- E:{x:50, y:230,w:160,h:210,nama:'MEJA EDITOR',pendek:'EDITOR',em:'🖥️',fl:'#e0ecff',lx:130,ly:246},
- L:{x:390,y:230,w:160,h:210,nama:'SERVIS KELISTRIKAN',pendek:'KELISTRIKAN',em:'⚡',fl:'#fff3c9',lx:470,ly:246},
- M:{x:50, y:440,w:160,h:190,nama:'RUANG MEKANIK',pendek:'MEKANIK',em:'🔧',fl:'#e4ebee',lx:130,ly:456},
- S:{x:390,y:440,w:160,h:190,nama:'MEJA SAYA',pendek:'OWNER',em:'👤',fl:'#ece6ff',lx:470,ly:456},
- O:{x:235,y:255,w:130,h:150,nama:'LAPORAN & ORDER',pendek:'ORDER',em:'🗂️',lx:300,ly:268,hall:1},
- I:{x:235,y:652,w:130,h:104,nama:'MEJA INFORMASI',pendek:'INFO',em:'ℹ️',lx:300,ly:744,hall:1}
+ R:{x:50, y:90, w:190,h:140,nama:'RAK BUKU',pendek:'RAK BUKU',em:'📚',fl:'#eadcc3',lx:145,ly:106},
+ K:{x:420,y:90, w:190,h:140,nama:'POJOK ISTIRAHAT',pendek:'PANTRY',em:'☕',fl:'#fff0e3',lx:515,ly:106},
+ E:{x:50, y:230,w:190,h:210,nama:'MEJA EDITOR',pendek:'EDITOR',em:'🖥️',fl:'#e0ecff',lx:145,ly:246},
+ L:{x:420,y:230,w:190,h:210,nama:'SERVIS KELISTRIKAN',pendek:'KELISTRIKAN',em:'⚡',fl:'#fff3c9',lx:515,ly:246},
+ M:{x:50, y:440,w:190,h:190,nama:'RUANG MEKANIK',pendek:'MEKANIK',em:'🔧',fl:'#e4ebee',lx:145,ly:456},
+ S:{x:420,y:440,w:190,h:190,nama:'MEJA SAYA',pendek:'OWNER',em:'👤',fl:'#ece6ff',lx:515,ly:456},
+ O:{x:265,y:255,w:130,h:150,nama:'LAPORAN & ORDER',pendek:'ORDER',em:'🗂️',lx:330,ly:268,hall:1},
+ I:{x:265,y:652,w:130,h:104,nama:'MEJA INFORMASI',pendek:'INFO',em:'ℹ️',lx:330,ly:744,hall:1}
 };
 const DECOR={
- T:{x:50, y:630,w:160,h:160,fl:'#e3eef2',nama:'TOILET',lx:130,ly:646},
- G:{x:390,y:630,w:160,h:160,fl:'#efe9df',nama:'GUDANG',lx:470,ly:646}
+ T:{x:50, y:630,w:190,h:160,fl:'#e3eef2',nama:'TOILET',lx:145,ly:646},
+ G:{x:420,y:630,w:190,h:160,fl:'#efe9df',nama:'GUDANG',lx:515,ly:646}
 };
 // Titik berdiri Ewaldus. side: L/R = ruang kiri/kanan, C = lorong tengah.
-// sx,sy = tempat berdiri; dx,dy = pintu (pintu harus sejajar celah dinding di bawah)
+// sx,sy = tempat berdiri; dx,dy = pintu (pintu harus sejajar celah dinding di GAPS)
 const TG={
- R:{side:'L',sx:125,sy:149,dx:210,dy:160},
- E:{side:'L',sx:165,sy:304,dx:210,dy:335},
- M:{side:'L',sx:110,sy:510,dx:210,dy:535},
- K:{side:'R',sx:462,sy:203,dx:390,dy:160,sit:1},
- L:{side:'R',sx:460,sy:304,dx:390,dy:335},
- S:{side:'R',sx:485,sy:522,dx:390,dy:535},
- O:{side:'C',sx:300,sy:408,dx:300,dy:408},
- H:{side:'C',sx:300,sy:482,dx:300,dy:482},
- I:{side:'C',sx:300,sy:668,dx:300,dy:668},
- W:{side:'C',sx:300,sy:116,dx:300,dy:116}
+ R:{side:'L',sx:140,sy:140,dx:240,dy:180},
+ E:{side:'L',sx:185,sy:306,dx:240,dy:335},
+ M:{side:'L',sx:110,sy:512,dx:240,dy:535},
+ K:{side:'R',sx:476,sy:196,dx:420,dy:180,sit:1},
+ L:{side:'R',sx:500,sy:306,dx:420,dy:335},
+ S:{side:'R',sx:505,sy:526,dx:420,dy:535},
+ O:{side:'C',sx:330,sy:408,dx:330,dy:408},
+ H:{side:'C',sx:330,sy:482,dx:330,dy:482},
+ I:{side:'C',sx:330,sy:668,dx:330,dy:668},
+ W:{side:'C',sx:330,sy:116,dx:330,dy:116},
+ D:{side:'C',sx:330,sy:766,dx:330,dy:766},  // di balik pintu depan
+ P:{side:'C',sx:330,sy:668,dx:330,dy:668}   // menelepon di dekat meja informasi
 };
-const GAPS=[160,335,535,710]; // pintu di dinding kiri dan kanan lorong
-const LANE={L:228,R:372},JY=432; // jalur jalan di lorong
+const GAPS=[180,335,535,710]; // pintu di dinding kiri dan kanan lorong
+const LANE={L:258,R:402},JY=432; // jalur jalan di lorong
 /* ================================================================================= */
 
 const ACT={
@@ -148,11 +151,13 @@ const ACT={
  R:{k:'idle',t:['Mencari buku di rak 📚']},
  K:{k:'sit',t:['Ngopi dulu ☕','Istirahat sebentar']},
  H:{k:'hp',t:['Main HP 📱','Melihat pesan 📱']},
- W:{k:'idle',t:['Melihat ke luar jendela']}
+ W:{k:'idle',t:['Melihat ke luar jendela']},
+ D:{k:'idle',t:['Sudah kembali ✅','Baru sampai di kantor']},
+ P:{k:'phone',t:['Menelepon pelanggan 📞','Berbicara dengan pelanggan 📞']}
 };
 const me={x:TG.S.sx,y:TG.S.sy,at:'S',to:'S',s:'work',t:3,path:[],task:'Merencanakan jadwal',k:'work'};
 const view={z:1,x:0,y:0},tgt={z:1,x:0,y:0};
-let S=1,cssK=1,ls=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',jam={h:12,m:0},follow=false;
+let S=1,cssK=1,ls=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',jam={h:12,m:0},follow=false,catatan='',kembaliMs=0,diaturMs=0,first=true;
 const pad=n=>String(n).padStart(2,'0')+'.00';
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -196,9 +201,9 @@ function label(t,x,y,maxW,on){
 const WT=8,WALLS=[];
 function vw(x,y1,y2,gaps){let a=y1;(gaps||[]).forEach(g=>{WALLS.push([x,a,x,g-22]);a=g+22;});WALLS.push([x,a,x,y2]);}
 function hw(y,x1,x2){WALLS.push([x1,y,x2,y]);}
-vw(50,90,790);vw(550,90,790);vw(210,90,790,GAPS);vw(390,90,790,GAPS);
-hw(90,50,550);WALLS.push([50,790,255,790],[345,790,550,790]);
-[230,440,630].forEach(y=>{hw(y,50,210);hw(y,390,550);});
+vw(50,90,790);vw(610,90,790);vw(240,90,790,GAPS);vw(420,90,790,GAPS);
+hw(90,50,610);WALLS.push([50,790,285,790],[375,790,610,790]);
+[230,440,630].forEach(y=>{hw(y,50,240);hw(y,420,610);});
 function wallRects(g,e,col){
   cx.fillStyle=col;
   WALLS.forEach(s=>{
@@ -207,26 +212,70 @@ function wallRects(g,e,col){
     else cx.fillRect(s[0]-e,s[1]-WT/2-e,s[2]-s[0]+2*e,WT+2*e);
   });
 }
-function drawWalls(){wallRects(0,1.6,'#a9bcd8');wallRects(0,0,'#ffffff');}
+function drawWalls(){wallRects(0,2.2,'#8ea5c9');wallRects(0,0,'#ffffff');wallRects(0,-2.6,'#f1f5fc');}
+// pintu: daun terbuka ke dalam ruangan + garis ayunan
+function drawDoors(){
+  GAPS.forEach(g=>{
+    [[240,-1],[420,1]].forEach(([wx,dir])=>{
+      const hy=g-22,L=44;
+      rr(wx-5,g-22,10,44,0,'#dccdb0');                       // ambang
+      rr(wx-5.5,g-26,11,6,1.5,'#6e5a3c');rr(wx-5.5,g+20,11,6,1.5,'#6e5a3c'); // kusen
+      cx.save();cx.strokeStyle='rgba(10,25,47,.30)';cx.lineWidth=1;cx.setLineDash([3,3]);
+      cx.beginPath();if(dir<0)cx.arc(wx,hy,L,Math.PI/2,Math.PI);else cx.arc(wx,hy,L,0,Math.PI/2);cx.stroke();cx.restore();
+      cx.strokeStyle='#8a6a45';cx.lineWidth=4;cx.lineCap='round';cx.beginPath();cx.moveTo(wx,hy);cx.lineTo(wx+dir*L,hy);cx.stroke();
+      cx.strokeStyle='#b58b5a';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(wx+dir*3,hy);cx.lineTo(wx+dir*(L-3),hy);cx.stroke();cx.lineCap='butt';
+      circ(wx+dir*(L-8),hy+(dir<0?3:3),2,'#e0c27a');
+    });
+  });
+}
+// pintu depan ganda (terbuka ke dalam)
+function drawEntry(){
+  rr(285,786,90,9,0,'#dccdb0');rr(280,783,8,15,2,'#6e5a3c');rr(372,783,8,15,2,'#6e5a3c');
+  cx.save();cx.strokeStyle='rgba(10,25,47,.30)';cx.lineWidth=1;cx.setLineDash([3,3]);
+  cx.beginPath();cx.arc(285,790,45,-Math.PI/2,0);cx.stroke();cx.beginPath();cx.arc(375,790,45,Math.PI,Math.PI*1.5);cx.stroke();cx.restore();
+  [[285,1],[375,-1]].forEach(([hx])=>{
+    cx.strokeStyle='#8a6a45';cx.lineWidth=5;cx.lineCap='round';cx.beginPath();cx.moveTo(hx,790);cx.lineTo(hx,745);cx.stroke();
+    cx.strokeStyle='#bfe0ff';cx.lineWidth=2;cx.beginPath();cx.moveTo(hx,786);cx.lineTo(hx,750);cx.stroke();cx.lineCap='butt';
+  });
+}
 
 /* ---------- gambar denah ---------- */
+function zbox(x,y,w,h,r,fill,stroke){rr(x+1.5,y+2.5,w,h,r,'rgba(10,25,47,.16)');rr(x,y,w,h,r,fill,stroke||'rgba(10,25,47,.18)',1);}
+function zchair(x,y,col){circ(x+1,y+2,10,'rgba(10,25,47,.15)');circ(x,y,9,col);circ(x,y,5.5,'rgba(255,255,255,.28)');}
+function zplant(x,y,r){circ(x+1,y+2,r,'rgba(10,25,47,.15)');circ(x,y,r,'#4aa77a');circ(x-r*.35,y-r*.2,r*.62,'#5bbf8a');circ(x+r*.3,y+r*.25,r*.5,'#6fcf9b');circ(x,y,r*.22,'#c7a27c');}
+function ztree(x,y,r){circ(x+3,y+4,r,'rgba(10,25,47,.15)');circ(x,y,r,'#5ba873');circ(x-r*.3,y-r*.25,r*.65,'#6fbf88');circ(x+r*.3,y+r*.3,r*.5,'#4f9a68');}
+function zbooks(x,y,w,h,vert){
+  const cl=['#0a7bf2','#5b7aa5','#f59f00','#0a192f','#9ec3f5','#e8590c','#5bbf8a'];let p=0,i=0;
+  if(vert){while(p<h-6){const bh=8+(i*5)%7;rr(x+2,y+3+p,w-4,Math.min(bh,h-6-p),1.5,cl[i%cl.length]);p+=bh+1.5;i++;}}
+  else{while(p<w-6){const bw=6+(i*5)%7;rr(x+3+p,y+3,Math.min(bw,w-6-p),h-6,1.5,cl[i%cl.length]);p+=bw+1.5;i++;}}
+}
+function zmon(x,y){rr(x-13,y,26,18,3,'#0a192f');rr(x-11,y+2,22,12,2,'#0a7bf2');rr(x-3,y+18,6,4,1,'#5b7aa5');}
+function zkey(x,y){rr(x-12,y,24,7,2,'#fff','#c3d3ec',1);}
+function zlamp(x,y){circ(x,y,8,'rgba(255,224,138,.35)');circ(x,y,4,'#ffe08a');}
+function zbolt(x,y,s){cx.fillStyle='#ffd43b';cx.strokeStyle='#e0a800';cx.lineWidth=1.2;cx.beginPath();cx.moveTo(x+s*.55,y);cx.lineTo(x,y+s*.55);cx.lineTo(x+s*.3,y+s*.55);cx.lineTo(x+s*.1,y+s*1.1);cx.lineTo(x+s*.75,y+s*.42);cx.lineTo(x+s*.45,y+s*.42);cx.lineTo(x+s*.7,y);cx.closePath();cx.fill();cx.stroke();}
+function grid(x,y,w,h,s,col){cx.strokeStyle=col;cx.lineWidth=1;cx.beginPath();for(let i=x+s;i<x+w;i+=s){cx.moveTo(i,y);cx.lineTo(i,y+h);}for(let j=y+s;j<y+h;j+=s){cx.moveTo(x,j);cx.lineTo(x+w,j);}cx.stroke();}
+function checker(x,y,w,h,s,col){cx.fillStyle=col;for(let r=0;r*s<h;r++)for(let c=0;c*s<w;c++)if((r+c)%2===0)cx.fillRect(x+c*s,y+r*s,Math.min(s,w-c*s),Math.min(s,h-r*s));}
+function planks(x,y,w,h,ph,col){cx.strokeStyle=col;cx.lineWidth=1;cx.beginPath();let r=0;for(let j=y;j<y+h;j+=ph,r++){cx.moveTo(x,j);cx.lineTo(x+w,j);for(let i=x+((r*37)%70);i<x+w;i+=70){cx.moveTo(i,j);cx.lineTo(i,Math.min(j+ph,y+h));}}cx.stroke();}
+function rug(x,y,w,h,c){rr(x,y,w,h,8,c,'rgba(10,25,47,.12)',1);rr(x+5,y+5,w-10,h-10,6,null,'rgba(255,255,255,.6)',1.5);}
+
+let ZDOTS=null;
 function drawGround(){
   const d=siang();
   cx.fillStyle=d?'#d6ecda':'#aac4b4';cx.fillRect(0,0,W,H);
   cx.fillStyle=d?'#cde6d2':'#a2bcac';for(let y=0;y<H;y+=40)cx.fillRect(0,y,W,20);
-  cx.setLineDash([10,7]);cx.strokeStyle=d?'#8fbb9b':'#7a9988';cx.lineWidth=3;cx.strokeRect(20,34,560,836);cx.setLineDash([]);
-  rr(57,99,500,700,4,'rgba(10,25,47,.13)');
-  [[42,62,18],[558,62,18],[42,850,18],[558,850,18],[42,460,13],[558,460,13]].forEach(t=>tree(t[0],t[1],t[2]));
+  if(!ZDOTS){ZDOTS=[];let s=7;for(let i=0;i<70;i++){s=(s*9301+49297)%233280;const a=s/233280;s=(s*9301+49297)%233280;const b=s/233280;ZDOTS.push([a*W,b*H,1+a*1.6]);}}
+  cx.fillStyle=d?'rgba(255,255,255,.35)':'rgba(255,255,255,.12)';ZDOTS.forEach(p=>{cx.beginPath();cx.arc(p[0],p[1],p[2],0,7);cx.fill();});
+  cx.setLineDash([10,7]);cx.strokeStyle=d?'#8fbb9b':'#7a9988';cx.lineWidth=3;cx.strokeRect(20,34,620,836);cx.setLineDash([]);
+  rr(57,99,560,700,4,'rgba(10,25,47,.16)');
+  [[42,62,18],[618,62,18],[42,850,18],[618,850,18],[30,460,13],[630,460,13],[30,260,11],[630,260,11]].forEach(t=>ztree(t[0],t[1],t[2]));
 }
 function drawHeader(){
   const d=siang();
   const fs=14*Math.min(ls,1.4);
-  rr(176,44,248,34,17,'#0a7bf2');txt('ERA VISUAL · ENDE',300,61.5,'700 '+fs+'px Poppins,sans-serif','#fff','center');
-  // matahari / bulan
-  circ(96,62,16,d?'#fff6d6':'#1c2d4a');
-  if(d){circ(96,62,9,'#ffd43b');}else{circ(96,62,9,'#f4f1de');circ(92,60,7,'#1c2d4a');}
-  // jam dinding WITA
-  const cX=504,cY=62;circ(cX,cY,20,'#fff');cx.strokeStyle='#0a192f';cx.lineWidth=2;cx.beginPath();cx.arc(cX,cY,20,0,7);cx.stroke();
+  rr(206,44,248,34,17,'#0a7bf2');txt('ERA VISUAL · ENDE',330,61.5,'700 '+fs+'px Poppins,sans-serif','#fff','center');
+  circ(100,62,16,d?'#fff6d6':'#1c2d4a');
+  if(d){circ(100,62,9,'#ffd43b');}else{circ(100,62,9,'#f4f1de');circ(96,60,7,'#1c2d4a');}
+  const cX=564,cY=62;circ(cX,cY,20,'#fff');cx.strokeStyle='#0a192f';cx.lineWidth=2;cx.beginPath();cx.arc(cX,cY,20,0,7);cx.stroke();
   for(let i=0;i<12;i++){const a=i*Math.PI/6;cx.beginPath();cx.moveTo(cX+Math.sin(a)*16,cY-Math.cos(a)*16);cx.lineTo(cX+Math.sin(a)*19,cY-Math.cos(a)*19);cx.stroke();}
   const ah=((jam.h%12)+jam.m/60)*Math.PI/6,am=jam.m*Math.PI/30;
   cx.lineCap='round';cx.lineWidth=3;cx.beginPath();cx.moveTo(cX,cY);cx.lineTo(cX+Math.sin(ah)*9,cY-Math.cos(ah)*9);cx.stroke();
@@ -234,85 +283,120 @@ function drawHeader(){
   txt('WITA',cX,87,'600 8px Poppins,sans-serif','#5b7aa5','center');
 }
 function drawFloors(){
-  cx.fillStyle='#f6f1e7';cx.fillRect(210,90,180,700);
-  cx.strokeStyle='rgba(176,150,112,.22)';cx.lineWidth=1;cx.beginPath();for(let y=112;y<790;y+=22){cx.moveTo(210,y);cx.lineTo(390,y);}cx.stroke();
+  cx.fillStyle='#f0e4cf';cx.fillRect(240,90,180,700);planks(240,90,180,700,18,'rgba(150,115,70,.30)');
   for(const id in DESK){const d=DESK[id];if(!d.hall){cx.fillStyle=d.fl;cx.fillRect(d.x,d.y,d.w,d.h);}}
   for(const id in DECOR){const d=DECOR[id];cx.fillStyle=d.fl;cx.fillRect(d.x,d.y,d.w,d.h);}
-  // karpet lorong
-  rr(254,428,92,212,10,'rgba(10,123,242,.10)');rr(262,436,76,196,8,null,'rgba(10,123,242,.18)',1.5);
-  // teras depan
-  rr(236,794,128,58,8,'#ede5d8','#d8ccb8',1.5);cx.strokeStyle='#d8ccb8';cx.lineWidth=1.5;cx.beginPath();[808,822,836].forEach(y=>{cx.moveTo(240,y);cx.lineTo(360,y);});cx.stroke();
-  rr(266,772,68,16,5,'#0a7bf2');txt('MASUK',300,780.5,'700 9px Poppins,sans-serif','#fff','center');
-  plant(236,838,8);plant(364,838,8);
-  // mobil
-  bx(430,806,92,44,14,'#0a7bf2','#0a62c4');rr(450,812,46,32,9,'#bfe0ff');rr(458,812,2.5,32,1,'#0a7bf2');rr(486,812,2.5,32,1,'#0a7bf2');
-  rr(440,802,16,6,3,'#0a192f');rr(496,802,16,6,3,'#0a192f');rr(440,848,16,6,3,'#0a192f');rr(496,848,16,6,3,'#0a192f');
+  planks(50,90,190,140,16,'rgba(150,115,70,.32)');
+  checker(420,90,190,140,20,'rgba(232,120,60,.10)');
+  grid(50,230,190,210,20,'rgba(10,123,242,.09)');
+  grid(420,230,190,210,24,'rgba(176,140,40,.17)');
+  grid(50,440,190,190,28,'rgba(90,110,130,.20)');
+  cx.fillStyle='rgba(60,70,80,.10)';[[90,600,16],[190,470,12]].forEach(o=>{cx.beginPath();cx.ellipse(o[0],o[1],o[2],o[2]*.6,0,0,7);cx.fill();});
+  grid(420,440,190,190,24,'rgba(110,90,190,.09)');
+  grid(50,630,190,160,18,'rgba(90,130,150,.24)');
+  grid(420,630,190,160,30,'rgba(150,120,70,.20)');
+  zbox(284,428,92,212,10,'#c4d6f2','#a3bce6');rr(292,436,76,196,7,null,'#ffffff',2);rr(300,444,60,180,5,null,'#8fb0e3',1.2);
+  cx.strokeStyle='#8fb0e3';cx.lineWidth=1.2;for(let i=0;i<4;i++){const cy=476+i*44;cx.beginPath();cx.moveTo(330,cy-16);cx.lineTo(346,cy);cx.lineTo(330,cy+16);cx.lineTo(314,cy);cx.closePath();cx.stroke();}
+  cx.strokeStyle='#e9eefb';cx.lineWidth=1.5;cx.beginPath();for(let x=290;x<=370;x+=6){cx.moveTo(x,428);cx.lineTo(x,422);cx.moveTo(x,640);cx.lineTo(x,646);}cx.stroke();
+  rr(266,794,128,58,8,'#ede5d8','#d8ccb8',1.5);cx.strokeStyle='#d8ccb8';cx.lineWidth=1.5;cx.beginPath();[808,822,836].forEach(y=>{cx.moveTo(270,y);cx.lineTo(390,y);});cx.stroke();
+  rr(310,852,40,20,4,'#e3dccf','#d8ccb8',1);rr(296,772,68,16,5,'#0a7bf2');txt('MASUK',330,780.5,'700 9px Poppins,sans-serif','#fff','center');
+  zplant(266,838,8);zplant(394,838,8);
+  zbox(470,806,92,44,14,'#0a7bf2','#0a62c4');rr(490,812,46,32,9,'#bfe0ff');rr(498,812,2.5,32,1,'#0a7bf2');rr(526,812,2.5,32,1,'#0a7bf2');
+  rr(480,802,16,6,3,'#0a192f');rr(536,802,16,6,3,'#0a192f');rr(480,848,16,6,3,'#0a192f');rr(536,848,16,6,3,'#0a192f');
+  // motor Ewaldus (hilang saat ia sedang keluar)
+  if(me.k!=='ride'&&!me.away){rr(282,808,10,30,5,'#0a192f');rr(276,813,22,3,1.5,'#5b7aa5');rr(284,823,6,9,3,'#e8590c');circ(287,806,2.5,'#ffd43b');}
 }
 function drawWindows(){
-  const c=siang()?'#bfe0ff':'#ffe08a';
-  [[250,86,100,8],[46,130,8,60],[46,290,8,70],[46,500,8,70],[546,130,8,60],[546,290,8,70],[546,500,8,70]].forEach(w=>{rr(w[0],w[1],w[2],w[3],2,c,'#fff',1.5);});
+  [[280,86,100,8,1],[46,130,8,60,0],[46,290,8,70,0],[46,500,8,70,0],[606,130,8,60,0],[606,290,8,70,0],[606,500,8,70,0]].forEach(w=>{
+    rr(w[0],w[1],w[2],w[3],2,'#bfe0ff','#6e8fb8',1.5);
+    cx.strokeStyle='#fff';cx.lineWidth=1.5;cx.beginPath();
+    if(w[4]){cx.moveTo(w[0]+w[2]/2,w[1]);cx.lineTo(w[0]+w[2]/2,w[1]+w[3]);}else{cx.moveTo(w[0],w[1]+w[3]/2);cx.lineTo(w[0]+w[2],w[1]+w[3]/2);}
+    cx.stroke();cx.fillStyle='rgba(255,255,255,.55)';
+    if(w[4])cx.fillRect(w[0]+3,w[1]+1,w[2]*.3,2);else cx.fillRect(w[0]+1,w[1]+3,2,w[3]*.3);
+  });
 }
 function drawE(){
-  [[62,60],[134,64]].forEach((a,i)=>{bx(a[0],262,a[1],30,5,'#fff');mon(a[0]+a[1]/2,266);chairAt(a[0]+a[1]/2,304,i?'#0a7bf2':'#5b7aa5');});
-  bx(60,352,40,28,3,'#fff');rr(65,357,14,9,2,'#0a7bf2');circ(89,370,5,'#f59f00');
-  bx(60,408,140,22,3,'#fff');books(60,408,140,22);
-  plant(188,382,10);
+  rug(64,318,162,64,'#c9dcfb');
+  zbox(60,262,72,30,5,'#fff');zmon(96,266);zkey(96,284);zchair(96,306,'#5b7aa5');
+  zbox(140,262,90,30,5,'#fff');zmon(176,266);zkey(176,284);zbox(206,266,16,12,2,'#e8d3b0','#c9ae85');zchair(185,306,'#0a7bf2');
+  zbox(60,352,44,28,3,'#fff');rr(65,357,26,12,2,'#0a7bf2');rr(68,352,18,7,1,'#fff','#c3d3ec',1);
+  zbox(112,352,26,28,3,'#fff');rr(116,357,18,18,2,'#c3d3ec');
+  zbox(198,350,30,44,3,'#dfe7f3');[0,1,2].forEach(i=>rr(201,354+i*13,24,10,2,'#fff','#b8c8e0',1));
+  zbox(60,408,134,22,3,'#fff');zbooks(60,408,134,22);
+  zplant(214,414,10);zlamp(226,270);
 }
 function drawL(){
-  bx(402,262,136,28,5,'#fff7da','#e8d9a0');
-  rr(410,267,16,18,2,'#0a192f');rr(413,270,10,6,1,'#7fd0ff');circ(419,281,1.8,'#f59f00');
-  [11,8,5].forEach((r,i)=>{cx.strokeStyle=i===1?'#ffd43b':'#0a7bf2';cx.lineWidth=2.2;cx.beginPath();cx.arc(454,277,r,0,7);cx.stroke();});
-  bolt(512,276,.8);chairAt(460,304,'#f59f00');
-  bx(402,352,36,20,3,'#e8590c','#b8430a');rr(412,347,16,6,3,null,'#0a192f',2);
-  [[424,398,15],[456,414,12]].forEach(r=>{circ(r[0]+2,r[1]+3,r[2],'rgba(10,25,47,.12)');circ(r[0],r[1],r[2],'#c58b4a');circ(r[0],r[1],r[2]*.62,'#e0b985');circ(r[0],r[1],r[2]*.2,'#7a5530');});
-  bx(498,372,42,58,4,'#dfe7f3');for(let i=0;i<4;i++){rr(504,380+i*12,30,8,2,'#fff');circ(510+(i%2)*18,384+i*12,2,i%2?'#f03e3e':'#2f9e44');}
+  zbox(428,262,174,30,5,'#fff7da','#e8d9a0');
+  rr(436,267,18,20,2,'#0a192f');rr(439,270,12,7,1,'#bfe0ff');circ(445,282,3,'#5b7aa5');
+  cx.strokeStyle='#0a7bf2';cx.lineWidth=3;cx.beginPath();cx.moveTo(462,284);cx.bezierCurveTo(474,268,488,300,500,280);cx.stroke();
+  circ(528,277,9,'#c7d8f3');circ(528,277,5,'#5b7aa5');zbolt(556,266,22);rr(580,270,18,6,2,'#0a192f');
+  zchair(500,306,'#f59f00');
+  zbox(432,352,40,22,3,'#e8590c','#b8430a');rr(444,347,16,7,2,null,'#0a192f',2.5);rr(448,358,8,5,1,'#fff');
+  circ(452,404,15,'#d9b98f');circ(452,404,6,'#8a6a45');circ(488,416,12,'#e8d3b0');circ(488,416,5,'#8a6a45');
+  zbox(556,372,46,58,4,'#dfe7f3');[0,1,2,3].forEach(i=>{rr(562,378+i*13,34,8,2,'#fff','#b8c8e0',1);circ(570+(i%2)*10,382+i*13,2,i%2?'#f03e3e':'#2e9e64');});
 }
 function drawM(){
-  bx(62,468,136,28,5,'#e9eff3');rr(70,472,18,20,2,'#5b7aa5');rr(74,476,10,6,1,'#0a192f');
-  cx.strokeStyle='#0a192f';cx.lineWidth=4;cx.lineCap='round';cx.beginPath();cx.moveTo(108,490);cx.lineTo(144,474);cx.stroke();cx.lineCap='butt';circ(146,473,5,'#8794a8');
-  circ(172,482,8,'#8794a8');circ(172,482,3.5,'#e9eff3');cx.setLineDash([3,3.5]);cx.strokeStyle='#8794a8';cx.lineWidth=4;cx.beginPath();cx.arc(172,482,10.5,0,7);cx.stroke();cx.setLineDash([]);
-  chairAt(110,510,'#7e9bc8');
-  bx(62,572,76,44,6,'#5b7aa5','#3f5a80');circ(88,594,13,'#3f5a80');circ(88,594,6,'#c3d3ec');rr(108,580,24,10,2,'#8794a8');rr(108,598,24,10,2,'#8794a8');
-  circ(172,588,17,'#2b3544');circ(172,588,9,'#8794a8');circ(172,588,3,'#2b3544');
-  bx(150,540,40,16,3,'#f03e3e','#b52b2b');
+  zbox(58,468,174,28,5,'#e9eff3');rr(66,472,18,20,2,'#5b7aa5');rr(70,468,10,6,1,'#0a192f');
+  cx.strokeStyle='#0a192f';cx.lineWidth=5;cx.lineCap='round';cx.beginPath();cx.moveTo(110,490);cx.lineTo(136,474);cx.stroke();cx.lineCap='butt';
+  circ(142,472,6,'#e9eff3');cx.strokeStyle='#0a192f';cx.lineWidth=2.5;cx.beginPath();cx.arc(142,472,6,0,7);cx.stroke();
+  circ(180,482,8,'#c7d8f3');circ(180,482,3,'#5b7aa5');circ(200,482,6,'#c7d8f3');circ(200,482,2.5,'#5b7aa5');
+  zchair(110,512,'#5b7aa5');
+  zbox(60,568,86,46,6,'#5b7aa5','#3f5a80');circ(84,591,12,'#c7d8f3');circ(84,591,5,'#3f5a80');rr(108,576,30,30,3,'#3f5a80');rr(112,580,22,8,2,'#bfe0ff');
+  zbox(150,560,48,18,3,'#f03e3e','#b52f2f');rr(166,555,16,7,2,null,'#0a192f',2.5);
+  zbox(204,566,28,28,3,'#c7d8f3');
+  circ(176,600,14,'#2b3544');circ(176,600,7,'#5b6b7d');circ(176,600,2.5,'#c7d8f3');circ(206,612,11,'#2b3544');circ(206,612,5.5,'#5b6b7d');
 }
 function drawR(){
-  bx(58,112,144,24,3,'#fff');books(58,112,144,24);
-  bx(58,142,16,72,3,'#fff');books(58,142,16,72,1);
-  bx(92,184,58,22,4,'#e8d3b0','#c9ae85');rr(100,188,18,12,1,'#fff','#c3d3ec',1);rr(122,190,18,10,1,'#9ec3f5');
-  chairAt(121,218,'#5bbf8a');plant(190,214,10);
+  rug(120,144,104,70,'#c9d8f0');
+  zbox(58,116,174,22,3,'#fff');zbooks(58,116,174,22);
+  zbox(58,144,16,76,3,'#fff');zbooks(58,144,16,76,1);
+  zbox(146,176,40,34,10,'#5bbf8a','#3f9a6c');rr(148,170,36,12,6,'#6fcf9b','#3f9a6c',1);
+  zbox(196,182,24,24,4,'#e8d3b0','#c9ae85');zlamp(208,194);
+  zbox(110,194,22,14,2,'#fff');rr(112,196,8,10,1,'#0a7bf2');rr(122,196,8,10,1,'#f59f00');
+  zplant(226,214,10);
 }
 function drawK(){
-  bx(398,118,144,22,3,'#fff');rr(406,122,22,14,3,'#bfe0ff','#9ec3f5',1);
-  circ(452,129,5,'#0a192f');circ(468,129,5,'#0a192f');rr(492,121,22,16,3,'#e8590c');circ(503,129,4,'#fff');rr(520,123,16,12,2,'#e6effd');
-  bx(416,190,100,28,8,'#7aa6e6','#5b86c4');rr(420,190,92,9,4,'#6a97d9');
-  circ(536,205,11,'#e8d3b0');rr(532,200,8,8,2,'#fff');plant(403,214,7);
+  zbox(428,118,174,22,3,'#fff');
+  rr(434,122,28,14,3,'#bfe0ff','#8fb7e0',1);rr(446,118,4,6,1,'#5b7aa5');
+  circ(482,129,5,'#2b3544');circ(498,129,5,'#2b3544');circ(482,129,2,'#f03e3e');circ(498,129,2,'#f03e3e');
+  rr(520,120,22,17,3,'#e8590c');rr(524,124,14,7,2,'#bfe0ff');circ(532,134,2,'#ffd43b');
+  rr(548,122,24,14,2,'#5b7aa5');rr(551,125,14,8,1,'#bfe0ff');
+  zbox(576,114,28,44,3,'#fff');rr(578,116,24,2,1,'#c3d3ec');rr(595,126,2,10,1,'#8fa6c9');
+  zbox(428,176,98,36,10,'#7aa6e6','#5b86c4');rr(434,180,86,22,8,'#9ec3f5');rr(438,182,24,18,6,'#bcd6fb');rr(466,182,24,18,6,'#bcd6fb');rr(494,182,24,18,6,'#bcd6fb');
+  circ(548,194,18,'rgba(10,25,47,.15)');circ(546,192,18,'#e8d3b0');circ(546,192,12,'#f0e0c4');
+  zchair(520,192,'#9ec3f5');zchair(572,192,'#9ec3f5');
+  zbox(480,214,36,10,3,'#e8d3b0','#c9ae85');
+  zplant(596,214,10);
 }
 function drawS(){
-  bx(430,468,110,36,6,'#d9b98f','#b8946a');mon(485,474);rr(438,482,22,14,1,'#fff');rr(441,484,22,14,1,'#e6effd');rr(512,480,18,12,2,'#0a7bf2');
-  if(status==='meja'){for(let i=0;i<4;i++)rr(436+i*4,478+i*3,24,16,1,'#fff','#c3d3ec',1);}
-  chairAt(485,522,'#0a7bf2');
-  bx(402,588,76,28,8,'#b7a6f0','#9684d8');rr(406,588,68,9,4,'#a794e8');
-  bx(520,522,24,64,3,'#fff');books(520,522,24,64,1);plant(532,608,9);
+  rug(450,534,112,66,'#d9d0f7');
+  zbox(440,468,132,40,6,'#d9b98f','#b8946a');zmon(480,472);zkey(480,492);
+  rr(520,474,24,14,2,'#fff','#c3d3ec',1);rr(522,477,18,2,1,'#0a7bf2');rr(522,481,14,2,1,'#c3d3ec');
+  rr(548,480,16,8,2,'#0a7bf2');txt('EV',556,484.5,'700 6px Poppins,sans-serif','#fff','center');
+  zchair(505,526,'#0a7bf2');
+  zbox(576,470,28,110,3,'#fff');zbooks(576,470,28,110,1);
+  zchair(466,566,'#b7a6f0');zchair(548,566,'#b7a6f0');zbox(494,556,32,20,4,'#e8d3b0','#c9ae85');
+  zplant(440,612,10);
+  if(status==='meja'){for(let i=0;i<4;i++)rr(446+i*6,472+i*3,30,22,2,'#fff','#a9c6f2',1);rr(556,490,14,20,3,'#0a192f');}
 }
 function drawO(){
-  [[275,273],[325,273],[275,377],[325,377]].forEach(c=>chairAt(c[0],c[1],'#5b7aa5'));
-  bx(255,285,90,82,10,'#e8d3b0','#c9ae85');
-  for(let i=0;i<3;i++)rr(264+i*3,296+i*3,28,36,2,'#fff','#c3d3ec',1);
-  rr(306,300,28,19,2,'#0a192f');rr(309,303,22,12,1,'#38a1ff');rr(310,340,24,12,2,'#fff3cd','#f59f00',1);
-  circ(347,287,13,'#f59f00');txt(antrian==null?'?':String(antrian),347,287.5,'700 13px Poppins,sans-serif','#fff','center');
+  [[305,273],[355,273],[305,377],[355,377]].forEach(c=>zchair(c[0],c[1],'#9ec3f5'));
+  zbox(285,285,90,82,8,'#fff');
+  const np=antrian==null?3:Math.min(8,Math.max(antrian,0));for(let i=0;i<np;i++)rr(294+i*1.8,296+i*1.8,28,36,2,'#fff','#c3d3ec',1);
+  rr(340,298,28,20,3,'#0a192f');rr(342,300,24,12,2,'#0a7bf2');
+  rr(326,338,38,16,3,'#fff3cd','#f59f00',1.5);txt('MENUNGGU',345,346.5,'700 6px Poppins,sans-serif','#8a5a00','center');
+  circ(375,287,13,'#f59f00');txt(antrian==null?'?':String(antrian),375,287.5,'700 13px Poppins,sans-serif','#fff','center');
 }
 function drawI(){
-  bx(240,690,120,34,8,'#fff');rr(246,696,108,6,3,'#0a7bf2');
-  circ(300,713,8,'#0a7bf2');txt('i',300,713.5,'700 11px Poppins,sans-serif','#fff','center');
-  rr(250,706,14,12,2,'#f59f00');rr(336,706,14,12,2,'#5bbf8a');
+  zbox(270,690,120,34,6,'#fff');rr(276,696,108,6,3,'#0a7bf2');
+  circ(330,713,9,'#0a7bf2');txt('i',330,713.5,'700 11px Poppins,sans-serif','#fff','center');
+  rr(280,706,14,12,2,'#c3d3ec');rr(366,706,14,12,2,'#c3d3ec');rr(340,704,18,12,2,'#0a192f');
 }
 function drawDecor(){
-  // toilet
-  [[62,664],[104,664]].forEach(p=>{bx(p[0],p[1],34,40,3,'#fff');circ(p[0]+17,p[1]+22,9,'#e6effd');rr(p[0]+8,p[1]+5,18,9,2,'#c3d3ec');});
-  bx(150,664,48,26,5,'#fff');circ(174,677,7,'#bfe0ff');
-  // gudang
-  [[402,664,44,36],[452,664,40,36],[402,708,50,36],[460,712,34,30],[500,664,38,40]].forEach(b=>{bx(b[0],b[1],b[2],b[3],3,'#d9b98f','#b8946a');rr(b[0]+b[2]/2-1.5,b[1],3,b[3],0,'rgba(120,80,40,.35)');});
+  [[62,664],[106,664],[150,664]].forEach(a=>{zbox(a[0],a[1],34,44,3,'#fff');rr(a[0]+8,a[1]+6,18,12,6,'#f4f8ff','#c3d3ec',1);rr(a[0]+9,a[1]+20,16,18,7,'#fff','#c3d3ec',1.2);});
+  zbox(196,644,36,24,3,'#fff');circ(214,656,7,'#bfe0ff');
+  [[472,662,44,34],[522,662,40,34],[480,712,48,34],[538,716,36,30],[430,744,36,34]].forEach(b=>{zbox(b[0],b[1],b[2],b[3],3,'#d9b98f','#b8946a');cx.strokeStyle='#b8946a';cx.lineWidth=1;cx.beginPath();cx.moveTo(b[0]+b[2]/2,b[1]);cx.lineTo(b[0]+b[2]/2,b[1]+b[3]);cx.stroke();});
+  zbox(578,646,24,110,3,'#d9b98f');cx.strokeStyle='#b8946a';cx.lineWidth=1;cx.beginPath();for(let y=668;y<756;y+=22){cx.moveTo(578,y);cx.lineTo(602,y);}cx.stroke();
 }
 function drawFurniture(){drawE();drawL();drawM();drawR();drawK();drawS();drawO();drawI();drawDecor();}
 
@@ -324,15 +408,30 @@ function drawLabels(){
   for(const id in DECOR){const d=DECOR[id];label(d.nama,d.lx,d.ly,d.w-30,false);}
   if(sel&&DESK[sel]){const d=DESK[sel];if(d.hall){rr(d.x,d.y,d.w,d.h,10,'rgba(10,123,242,.06)','#0a7bf2',3);}else{rr(d.x+4,d.y+4,d.w-8,d.h-8,8,'rgba(10,123,242,.07)','#0a7bf2',3);}}
 }
+function signKeluar(){
+  const e=etaStr();
+  rr(266,798,128,42,8,'#fff','#e8590c',2);
+  txt('🛵 SEDANG KELUAR',330,811,'700 10px Poppins,sans-serif','#d9480f','center');
+  txt(e?'kembali ±'+e+' WITA':'mohon tunggu',330,827,'600 9.5px Poppins,sans-serif','#5b7aa5','center');
+}
 function drawMe(){
-  const walk=me.s==='walk',sit=me.s==='sit',avs=clamp(ls,1,1.5),R=11*avs;
-  const bob=walk?Math.abs(Math.sin(t0*11))*2.2:Math.sin(t0*3)*.6,x=me.x,y=me.y-bob;
+  const ride=me.k==='ride',walk=me.s==='walk'||((me.s==='exit'||me.s==='enter')&&me.k==='walk'),sit=me.s==='sit',avs=clamp(ls,1,1.5),R=11*avs;
+  const bob=walk?Math.abs(Math.sin(t0*11))*2.2:Math.sin(t0*3)*.6,x=me.x,y=me.y-(ride?0:bob);
   cx.fillStyle='rgba(10,25,47,.2)';cx.beginPath();cx.ellipse(x+1,me.y+R*.55,R*.95,R*.5,0,0,7);cx.fill();
+  if(ride){
+    const dir=me.s==='exit'?1:-1;
+    rr(x-5,y-R-12,10,R*2+24,5,'#0a192f');rr(x-12,y+dir*(R+3),24,3,1.5,'#5b7aa5');circ(x,y+dir*(R+14),3,'#ffd43b');rr(x-4,y-dir*(R+6),8,10,3,'#e8590c');
+  }
   circ(x,y,R+2.5,'#fff');circ(x,y,R,'#0a7bf2');
   circ(x,y,R*.62,'#f1c27d');cx.fillStyle='#2b1b12';cx.beginPath();cx.arc(x,y-R*.05,R*.62,Math.PI*1.05,Math.PI*1.95);cx.fill();
   if(me.k==='hp'&&!walk){rr(x+R*.55,y-R*.2,R*.5,R*.8,1.5,'#0a192f');rr(x+R*.62,y-R*.1,R*.36,R*.55,1,'#7fd0ff');}
+  if(me.k==='phone'&&!walk){
+    rr(x+R*.5,y-R*.55,R*.42,R*.95,1.5,'#0a192f');
+    cx.strokeStyle='#0a7bf2';cx.lineWidth=1.6;
+    cx.beginPath();cx.arc(x+R*1.05,y-R*.1,R*.45,-1,1);cx.stroke();cx.beginPath();cx.arc(x+R*1.05,y-R*.1,R*.85,-.9,.9);cx.stroke();
+  }
   if(sit&&me.at==='K'){rr(x+R*.75,y+R*.15,R*.6,R*.6,2,'#fff','#c3d3ec',1);}
-  if(!walk){
+  if(!walk&&!ride&&me.task){
     const fs=11*ls;cx.font='600 '+fs+'px Poppins,sans-serif';const w=cx.measureText(me.task).width+14*ls,bh=fs+10*ls;
     const bxx=clamp(x-w/2,6,W-6-w),byy=Math.max(4,y-R-bh-8*ls);
     rr(bxx,byy,w,bh,bh/2.4,'#fff','#0a7bf2',1.5);
@@ -344,27 +443,32 @@ function draw(){
   cx.setTransform(S,0,0,S,0,0);cx.fillStyle='#d6ecda';cx.fillRect(0,0,W,H);
   ls=clamp(1/(cssK*view.z),.55,1.8);
   cx.setTransform(S*view.z,0,0,S*view.z,S*view.x,S*view.y);
-  drawGround();drawHeader();drawFloors();drawFurniture();drawWalls();drawWindows();drawLabels();
+  drawGround();drawHeader();drawFloors();drawFurniture();drawWalls();drawDoors();drawEntry();drawWindows();drawLabels();if(mode()==='buka'&&me.away)signKeluar();
   const md=mode();
-  if(md==='buka')drawMe();
+  if(md==='buka'&&!me.away)drawMe();
   cx.setTransform(S,0,0,S,0,0);
   if(md==='libur'){
     cx.fillStyle='rgba(10,25,47,.24)';cx.fillRect(0,0,W,H);
-    rr(150,380,300,120,16,'#fff','#d9480f',3);txt('LIBUR',300,425,'700 40px Poppins,sans-serif','#d9480f','center');txt('Kantor sedang libur',300,468,'600 15px Poppins,sans-serif','#5b7aa5','center');
+    for(const id in DESK){const d=DESK[id];let tx=d.x+d.w-52,ty=d.y+d.h-24;if(d.hall){tx=d.x+d.w/2-22;ty=id==='O'?d.y+d.h+4:d.y-22;}rr(tx,ty,44,16,4,'#fff','#d9480f',1.5);txt('LIBUR',tx+22,ty+8.5,'700 9px Poppins,sans-serif','#d9480f','center');}
+    rr(W/2-95,470,190,106,16,'#fff','#d9480f',3);txt('LIBUR',W/2,508,'700 34px Poppins,sans-serif','#d9480f','center');txt('Kantor sedang libur',W/2,548,'600 13px Poppins,sans-serif','#5b7aa5','center');
   }else if(md==='tutup'){
     cx.fillStyle='rgba(10,25,47,.40)';cx.fillRect(0,0,W,H);
-    rr(160,380,280,100,14,'#fff','#0a7bf2',2);txt('TUTUP',300,415,'700 28px Poppins,sans-serif','#0a192f','center');txt('Buka '+pad(BUKA)+' WITA',300,452,'600 14px Poppins,sans-serif','#5b7aa5','center');
+    rr(W/2-95,470,190,96,14,'#fff','#0a7bf2',2);txt('TUTUP',W/2,503,'700 28px Poppins,sans-serif','#0a192f','center');txt('Buka '+pad(BUKA)+' WITA',W/2,540,'600 14px Poppins,sans-serif','#5b7aa5','center');
   }
 }
 
 /* ---------- gerak Ewaldus ---------- */
 function pilihTarget(){
   if(status==='editor')return 'E';if(status==='listrik')return 'L';if(status==='mekanik')return 'M';if(status==='meja')return 'S';if(status==='istirahat')return 'K';
-  const kerja=['E','L','M','O','S'],santai=['H','I','R','K','W'];
+  if(status==='order')return 'O';if(status==='telepon')return 'P';if(status==='keluar')return 'D';
+  const kerja=['E','L','M','O','S','P'],santai=['H','I','R','K','W'];
   const pool=(status==='santai'?santai:(Math.random()<.8?kerja:santai)).filter(i=>i!==me.at);
   return rand(pool);
 }
-function setAct(id){const a=ACT[id];me.k=a.k;me.task=rand(a.t);}
+function setAct(id){
+  const a=ACT[id];me.k=a.k;me.task=rand(a.t);
+  if(id==='O'&&status==='order')me.task=antrian==null?'Mengecek order masuk':antrian===0?'Antrian kosong 👍':'Memproses '+antrian+' order';
+}
 function route(a,b){
   const A=TG[a],B=TG[b],p=[];let la;
   if(A.side==='C'){la=B.side==='C'?LANE.L:LANE[B.side];p.push([la,A.sy]);}
@@ -375,25 +479,40 @@ function route(a,b){
   if(B.side==='C')p.push([B.sx,B.sy]);else p.push([B.dx,B.dy],[B.sx,B.dy],[B.sx,B.sy]);
   return p;
 }
+function stepPath(dt,v){
+  const p=me.path[0];if(!p)return true;
+  const dx=p[0]-me.x,dy=p[1]-me.y,d=Math.hypot(dx,dy),s=v*dt;
+  if(d<=s){me.x=p[0];me.y=p[1];me.path.shift();return me.path.length===0;}
+  me.x+=dx/d*s;me.y+=dy/d*s;return false;
+}
+function arrive(){const g=TG[me.to];me.at=me.to;me.s=g.sit?'sit':'work';setAct(me.at);me.t=(status==='keluar'&&me.at==='D')?1:5+Math.random()*3;}
+function startLeave(){me.s='exit';me.k='walk';me.task='';me.path=[[330,818],[330,925]];}   // keluar pintu, naik motor, pergi
+function startReturn(){me.away=false;me.x=330;me.y=925;me.s='enter';me.k='ride';me.at='D';me.task='';me.path=[[330,818],[330,778]];} // pulang naik motor, turun, masuk pintu
 function update(dt){
+  if(me.away)return;
+  if(me.s==='exit'||me.s==='enter'){
+    const n=me.path.length,done=stepPath(dt,me.k==='ride'?140:72);
+    if(me.s==='exit'&&n===2&&me.path.length===1)me.k='ride';
+    if(me.s==='enter'&&n===2&&me.path.length===1)me.k='walk';
+    if(done){
+      if(me.s==='exit'){me.away=true;me.s='work';}
+      else{me.at='D';me.s='work';setAct('D');me.t=2;}
+    }
+    return;
+  }
   if(me.s!=='walk'){
     me.t-=dt;
     if(me.t<=0){
       const to=pilihTarget();
-      if(to===me.at){setAct(to);me.t=5+Math.random()*3;}
+      if(to===me.at){if(status==='keluar'&&me.at==='D'){startLeave();return;}setAct(to);me.t=5+Math.random()*3;}
       else{me.to=to;me.path=route(me.at,to);me.s='walk';me.k='walk';}
     }
   }else{
-    const p=me.path[0];
-    if(!p){const g=TG[me.to];me.at=me.to;me.s=g.sit?'sit':'work';setAct(me.at);me.t=5+Math.random()*3;return;}
-    const dx=p[0]-me.x,dy=p[1]-me.y,dist=Math.hypot(dx,dy),v=72*dt;
-    if(dist<=v){
-      me.x=p[0];me.y=p[1];me.path.shift();
-      if(!me.path.length){const g=TG[me.to];me.at=me.to;me.s=g.sit?'sit':'work';setAct(me.at);me.t=5+Math.random()*3;}
-    }else{me.x+=dx/dist*v;me.y+=dy/dist*v;}
+    if(!me.path.length){arrive();return;}
+    if(stepPath(dt,72))arrive();
   }
 }
-function resetMe(){const g=TG.S;me.x=g.sx;me.y=g.sy;me.at='S';me.to='S';me.s='work';me.t=.5;me.path=[];setAct('S');}
+function resetMe(){const g=TG.S;me.x=g.sx;me.y=g.sy;me.at='S';me.to='S';me.s='work';me.k='work';me.t=.5;me.path=[];me.away=(status==='keluar');setAct('S');}
 
 /* ---------- kamera: zoom & geser ---------- */
 function clampV(v){v.z=clamp(v.z,MINZ,MAXZ);v.x=clamp(v.x,W-W*v.z,0);v.y=clamp(v.y,H-H*v.z,0);}
@@ -412,7 +531,7 @@ function flyRoom(id){
 }
 function resetView(){tgt.z=1;tgt.x=0;tgt.y=0;follow=false;commit();}
 function stepView(dt){
-  if(follow&&mode()==='buka'){tgt.z=Math.max(tgt.z,2.4);tgt.x=W/2-me.x*tgt.z;tgt.y=H/2-(me.y-8)*tgt.z;clampV(tgt);}
+  if(follow&&mode()==='buka'&&!me.away){tgt.z=Math.max(tgt.z,2.4);tgt.x=W/2-me.x*tgt.z;tgt.y=H/2-(me.y-8)*tgt.z;clampV(tgt);}
   const a=reduce?1:1-Math.exp(-dt*8);
   view.z+=(tgt.z-view.z)*a;view.x+=(tgt.x-view.x)*a;view.y+=(tgt.y-view.y)*a;
   if(Math.abs(tgt.z-view.z)<.002&&Math.abs(tgt.x-view.x)<.2&&Math.abs(tgt.y-view.y)<.2)Object.assign(view,tgt);
@@ -456,7 +575,7 @@ document.getElementById('zOut').addEventListener('click',()=>{stopFollow();zoomA
 document.getElementById('zReset').addEventListener('click',()=>{sel=null;card.innerHTML=CARD0;resetView();});
 folBtn.addEventListener('click',()=>{
   follow=!follow;
-  if(follow){if(mode()!=='buka')follow=false;else{tgt.z=Math.max(tgt.z,2.4);}}
+  if(follow){if(mode()!=='buka'||me.away)follow=false;else{tgt.z=Math.max(tgt.z,2.4);}}
   else{tgt.z=1;tgt.x=0;tgt.y=0;}
   commit();
 });
@@ -475,13 +594,15 @@ function onTap(p){
   }
   lastTap={t:now,x:p.x,y:p.y};
   const x=(p.x-view.x)/view.z,y=(p.y-view.y)/view.z;
-  if(mode()==='buka'&&Math.hypot(x-me.x,y-(me.y-4))<22*clamp(ls,1,1.5)){sel=null;info('ME');ui();redraw();return;}
+  if(mode()==='buka'&&me.away&&x>=266&&x<=394&&y>=798&&y<=840){sel=null;info('KEL');ui();redraw();return;}
+  if(mode()==='buka'&&!me.away&&Math.hypot(x-me.x,y-(me.y-4))<22*clamp(ls,1,1.5)){sel=null;info('ME');ui();redraw();return;}
   for(const id in DESK){const d=DESK[id];if(x>=d.x&&x<=d.x+d.w&&y>=d.y&&y<=d.y+d.h){sel=id;info(id);ui();redraw();return;}}
 }
 
 /* ---------- kartu info & status ---------- */
 const btn=(href,teks,pri,ext)=>'<a href="'+href+'"'+(ext?' target="_blank" rel="noopener noreferrer"':'')+' class="inline-block mt-3 mr-2 '+(pri?'bg-[#0a7bf2] text-white':'bg-white border border-[#0a7bf2] text-[#0a7bf2]')+' text-[12px] font-bold px-4 py-2 rounded-full">'+teks+'</a>';
 const judul=t=>'<b class="text-[#0a7bf2] text-[14px]">'+t+'</b><p class="mt-1">';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WA='https://wa.me/6285348650816?text=Halo%20Era%20Visual%20Ende%2C%20saya%20mau%20tanya%20jasa...';
 function info(id){
   const md=mode();let h='';
@@ -495,24 +616,38 @@ function info(id){
   else if(id==='I')h=judul('ℹ️ Meja Informasi')+'Jam buka: '+pad(BUKA)+' sampai '+pad(TUTUP)+' WITA. Alamat: Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT.</p>'+btn(WA,'WhatsApp',1,1)+btn('https://instagram.com/eravisual1211','Instagram',0,1);
   else if(id==='K')h=judul('☕ Pojok Istirahat')+'Tempat Ewaldus ngopi saat istirahat (ilustrasi).</p>';
   else if(id==='S')h=judul('👤 Meja Saya')+'Ewaldus Sangga, Owner Era Visual Cabang Ende.</p>'+btn(WA,'WhatsApp',1,1)+btn('https://instagram.com/eravisual1211','Instagram',0,1);
+  else if(id==='KEL'){const e=etaStr();h=judul('🛵 Sedang keluar')+(catatan?esc(catatan)+'. ':'')+(e?'Perkiraan kembali sekitar '+e+' WITA. ':'')+'Pesanan tetap bisa dibuat dan dilacak, dan kamu bisa menghubungi lewat WhatsApp.</p>'+btn(WA,'WhatsApp',1,1)+btn('lacak.html','Lacak Order',0)+btn('pesan.html','Buat Pesanan',0);}
   else h=judul('👤 Ewaldus Sangga')+'Owner Era Visual Cabang Ende. '+(md==='buka'?'Yang terlihat di gambar: '+me.task+' (ilustrasi).':'')+'</p>'+btn('pesan.html','Pesan Sekarang',1);
   card.innerHTML=h;
+}
+function fmtJam(ms){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Makassar',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(ms));let h='00',m='00';p.forEach(x=>{if(x.type==='hour')h=x.value==='24'?'00':x.value;if(x.type==='minute')m=x.value;});return h+'.'+m;}
+function etaStr(){return kembaliMs>Date.now()?fmtJam(kembaliMs):'';}
+function diaturStr(){
+  if(!diaturMs)return '';
+  const tz={timeZone:'Asia/Makassar'},hari=d=>new Date(d).toLocaleDateString('en-CA',tz),j=fmtJam(diaturMs)+' WITA';
+  return hari(diaturMs)===hari(Date.now())?j:new Date(diaturMs).toLocaleDateString('id-ID',{timeZone:'Asia/Makassar',day:'numeric',month:'short'})+' '+j;
 }
 function chip(){
   const md=mode();let t;
   if(md==='libur')t='🏖️ Kantor sedang libur';
   else if(md==='tutup')t='🌙 Kantor tutup · buka '+pad(BUKA)+' WITA';
   else if(status==='otomatis')t='🟢 Kantor buka · Ewaldus berkeliling di kantor';
+  else if(status==='keluar'){const e=etaStr();t='🛵 Sedang keluar'+(catatan?' · '+catatan:'')+(e?' · kembali ±'+e:'');}
   else t='🟢 Ewaldus: '+STATUS[status];
   chipEl.textContent=t;
+  const dEl=document.getElementById('kantorDiatur');if(dEl)dEl.textContent=(status!=='otomatis'&&diaturMs)?'Status diatur owner '+diaturStr():'';
 }
 function muat(){
   fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{
     if(!j||!j.ok)return;
-    const st=STATUS[j.status]?j.status:'otomatis',before=mode();
+    const st=STATUS[j.status]?j.status:'otomatis',before=mode(),lama=status;
+    catatan=typeof j.catatan==='string'?j.catatan.slice(0,60):'';kembaliMs=Number(j.kembali)||0;diaturMs=Number(j.diatur)||0;
     if(st!==status){status=st;me.t=0;}
     if(mode()==='buka'&&before!=='buka')resetMe();
+    else if(!first&&lama==='keluar'&&st!=='keluar'&&me.away)startReturn();
+    if(first){first=false;me.away=(status==='keluar');}
     antrian=Number.isInteger(j.menunggu)?j.menunggu:null;
+    if(status==='order'&&me.at==='O'&&me.s==='work')setAct('O');
     if(mode()!=='buka'&&follow){follow=false;resetView();}
     chip();if(sel==='O')info('O');redraw();
   }).catch(()=>{chipEl.textContent='Status kantor belum bisa dimuat';});
