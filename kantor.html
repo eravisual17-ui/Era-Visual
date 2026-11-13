@@ -7,6 +7,7 @@
 <meta name="description" content="Kunjungi kantor Era Visual Ende: meja Editor, servis kelistrikan, ruang mekanik, dan meja order. Lihat apa yang sedang dikerjakan Ewaldus hari ini.">
 <meta name="theme-color" content="#0a7bf2">
 <link rel="icon" href="logo.jpg">
+<link rel="canonical" href="https://eravisual17-ui.github.io/Era-Visual/kantor.html">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Era Visual">
 <meta property="og:title" content="Kantor Era Visual Ende">
 <meta property="og:description" content="Lihat ruang kerja Era Visual dan layanan di tiap meja.">
@@ -34,9 +35,9 @@ body{font-family:Poppins,sans-serif}
       </div>
     </div>
     <h1 class="text-3xl font-bold text-[#0a7bf2] tracking-widest">KANTOR</h1>
-    <p class="text-[#5b7aa5] mt-1 text-xs font-semibold">Era Visual - Cabang Ende - Owner Ewaldus Sangga</p>
+    <p class="text-[#4f6f9c] mt-1 text-xs font-semibold">Era Visual - Cabang Ende - Owner Ewaldus Sangga</p>
     <p id="kantorChip" role="status" class="inline-block mt-4 text-[12px] font-bold bg-white border border-blue-100 text-[#0a7bf2] rounded-full px-4 py-1.5">Memuat status...</p>
-    <p id="kantorDiatur" class="text-[10px] text-[#8aa4c8] mt-1"></p>
+    <p id="kantorDiatur" class="text-[12px] text-[#56749e] mt-1"></p>
   </div>
 
   <div class="mt-5">
@@ -47,7 +48,7 @@ body{font-family:Poppins,sans-serif}
         <button id="zOut" type="button" class="zbtn" aria-label="Perkecil">&minus;</button>
         <button id="zReset" type="button" class="zbtn" aria-label="Tampilan penuh" style="font-size:16px">&#x2922;</button>
       </div>
-      <div id="zLvl" class="absolute left-3 top-3 text-[10px] font-bold bg-white/90 border border-blue-100 text-[#0a7bf2] rounded-full px-2.5 py-1">100%</div>
+      <div id="zLvl" class="absolute left-3 top-3 text-[12px] font-bold bg-white/90 border border-blue-100 text-[#0a7bf2] rounded-full px-2.5 py-1">100%</div>
     </div>
 
     <div class="chips mt-3" role="toolbar" aria-label="Fokus ke ruangan">
@@ -63,13 +64,13 @@ body{font-family:Poppins,sans-serif}
       <button type="button" id="follow" class="chip" aria-pressed="false">📍 Ikuti Ewaldus</button>
     </div>
 
-    <p class="text-[11px] text-[#8aa4c8] mt-2 text-center">Cubit dua jari atau tombol + / − untuk zoom, geser untuk berpindah. Ketuk ruangan atau Ewaldus untuk info. Gambar hanya ilustrasi.</p>
+    <p class="text-[12px] text-[#56749e] mt-2 text-center">Cubit dua jari atau tombol + / − untuk zoom, geser untuk berpindah. Ketuk ruangan atau Ewaldus untuk info. Gambar hanya ilustrasi.</p>
     <div id="kantorCard" class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 mt-3 text-[13px] text-[#334b6e] leading-6">Ketuk ruangan untuk melihat layanannya.</div>
   </div>
 
   <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 mt-4">
     <p class="font-bold text-[13px] text-[#0a7bf2] mb-2">Isi kantor kami</p>
-    <ul class="text-[12px] text-[#5b7aa5] leading-5 list-disc pl-5 space-y-0.5">
+    <ul class="text-[12px] text-[#4f6f9c] leading-5 list-disc pl-5 space-y-0.5">
       <li><b>Meja Editor</b>: desain CV, surat lamaran, logo, kartu nama, banner, poster, dan laporan PKL.</li>
       <li><b>Servis Kelistrikan</b>: pemeriksaan, perawatan, dan pemasangan instalasi listrik rumah.</li>
       <li><b>Ruang Mekanik</b>: pemeriksaan, perawatan, dan perbaikan mekanik ringan.</li>
@@ -86,7 +87,7 @@ body{font-family:Poppins,sans-serif}
 
   <div class="text-center mt-6">
     <a href="index.html" class="text-[12px] text-[#0a7bf2] font-bold hover:underline">← Kembali ke Beranda</a>
-    <p class="text-[10px] text-[#8aa4c8] mt-4">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
+    <p class="text-[12px] text-[#56749e] mt-4">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
   </div>
 </div>
 
@@ -157,7 +158,7 @@ const ACT={
 };
 const me={x:TG.S.sx,y:TG.S.sy,at:'S',to:'S',s:'work',t:3,path:[],task:'Merencanakan jadwal',k:'work'};
 const view={z:1,x:0,y:0},tgt={z:1,x:0,y:0};
-let S=1,cssK=1,ls=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',jam={h:12,m:0},follow=false,catatan='',kembaliMs=0,diaturMs=0,first=true;
+let S=1,cssK=1,ls=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',jam={h:12,m:0},follow=false,catatan='',kembaliMs=0,diaturMs=0,first=true,vis=true,run=false,lastMuat=0;
 const pad=n=>String(n).padStart(2,'0')+'.00';
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -167,7 +168,7 @@ function wita(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Makassar
 const buka=()=>jam.h>=BUKA&&jam.h<TUTUP;
 const siang=()=>jam.h>=6&&jam.h<18;
 function mode(){if(status==='libur')return 'libur';if(status==='otomatis'&&!buka())return 'tutup';return 'buka';}
-function fit(){const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(cv.width*H/W));S=cv.width/W;cssK=Math.max(.1,r.width/W);}
+function fit(){const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);cv.width=Math.min(2400,Math.max(1,Math.round(r.width*d)));cv.height=Math.max(1,Math.round(cv.width*H/W));S=cv.width/W;cssK=Math.max(.1,Math.min(r.width,1200)/W);}
 
 /* ---------- alat gambar ---------- */
 function rr(x,y,w,h,r,fill,stroke,lw){
@@ -638,6 +639,7 @@ function chip(){
   const dEl=document.getElementById('kantorDiatur');if(dEl)dEl.textContent=(status!=='otomatis'&&diaturMs)?'Status diatur owner '+diaturStr():'';
 }
 function muat(){
+  lastMuat=Date.now();
   fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{
     if(!j||!j.ok)return;
     const st=STATUS[j.status]?j.status:'otomatis',before=mode(),lama=status;
@@ -655,14 +657,20 @@ function muat(){
 function tik(){const before=mode();jam=wita();if(mode()==='buka'&&before!=='buka')resetMe();chip();redraw();}
 
 function loop(ts){
+  if(document.hidden||!vis){run=false;return;}
   const dt=Math.min(.05,((ts-last)/1000)||0);last=ts;t0+=dt;
   if(mode()==='buka')update(dt);
   stepView(dt);draw();ui();requestAnimationFrame(loop);
 }
 jam=wita();fit();
 window.addEventListener('resize',()=>{fit();redraw();});
-setAct('S');chip();muat();setInterval(muat,30000);setInterval(tik,1000);ui();
-if(reduce)draw();else requestAnimationFrame(loop);
+if(window.ResizeObserver)new ResizeObserver(()=>{fit();redraw();}).observe(cv);
+function resume(){if(reduce||run||document.hidden||!vis)return;run=true;last=performance.now();requestAnimationFrame(loop);}
+function muatBila(){if(Date.now()-lastMuat>20000)muat();}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){jam=wita();resume();redraw();muatBila();}});
+if(window.IntersectionObserver)new IntersectionObserver(e=>{vis=e[0].isIntersecting;if(vis){resume();redraw();muatBila();}}).observe(cv);
+setAct('S');chip();muat();setInterval(()=>{if(!document.hidden&&vis)muat();},60000);setInterval(()=>{if(!document.hidden)tik();},1000);ui();
+if(reduce)draw();else{run=true;requestAnimationFrame(loop);}
 })();
 </script>
 </body>
