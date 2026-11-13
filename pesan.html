@@ -36,8 +36,9 @@
     <!-- Tutup -->
     <div id="box-tutup" class="hidden bg-orange-50 border border-orange-200 text-orange-700 p-4 rounded-xl text-center mb-4">
       <p class="font-bold text-sm">🔒 FORM PESAN TUTUP</p>
-      <p class="text-[12px] mt-1 leading-5">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b><span class="jam-teks">08.00 - 18.00</span> WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
-      <p class="text-[11px] mt-2"><span id="countdown-buka">-</span></p>
+      <p id="libur-info" class="hidden text-[12px] mt-1 leading-5">Kantor sedang <b>LIBUR</b>.<br>Silakan pesan lagi setelah kantor buka kembali, atau chat WhatsApp dulu ya kak.</p>
+      <p id="tutup-ket" class="text-[12px] mt-1 leading-5">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b><span class="jam-teks">08.00 - 18.00</span> WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
+      <p id="tutup-cd" class="text-[11px] mt-2"><span id="countdown-buka">-</span></p>
     </div>
 
     <!-- Hasil -->
@@ -82,7 +83,7 @@
 
   <div class="text-center mt-6">
     <a href="index.html" class="text-[12px] text-[#0a7bf2] font-bold hover:underline">← Kembali ke Beranda</a>
-    <p class="text-[11px] text-[#8aa4c8] mt-3 leading-5">IG: @eravisual1211<br>kbatam275@gmail.com • eravisual17@gmail.com<br>WA: 0853-4865-0816<br>Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT</p>
+    <p class="text-[11px] text-[#8aa4c8] mt-3 leading-5">IG: @eravisual1211<br>eravisual17@gmail.com<br>WA: 0853-4865-0816<br>Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT</p>
     <p class="text-[10px] text-[#8aa4c8] mt-4">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
   </div>
 </div>
@@ -101,10 +102,11 @@ const INFO={
   mechanical:'⚙️ Pemeriksaan dulu sebelum penawaran harga. Suku cadang, material, dan transportasi dihitung terpisah. Area layanan Ende & Wolotopo.'
 };
 let sedangKirim=false;
+let kantorLibur=false; // diisi dari Status Kantor di admin
 
 function getWITA(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;return new Date(u+8*3600000);}
 const p2=n=>String(n).padStart(2,'0');
-const sedangBuka=w=>w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP;
+const sedangBuka=w=>!kantorLibur&&w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP;
 
 function cekJamBuka(){
   const w=getWITA();const jamStr=p2(w.getHours())+':'+p2(w.getMinutes());
@@ -116,15 +118,21 @@ function cekJamBuka(){
     box.classList.add('hidden');
     if(!sedangKirim){btn.disabled=false;btn.className='w-full mt-5 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 transition';btn.textContent='Pesan Sekarang → WA';}
   }else{
-    badge.textContent='TUTUP • '+jamStr+' WITA';
+    badge.textContent=(kantorLibur?'LIBUR':'TUTUP')+' • '+jamStr+' WITA';
+    document.getElementById('libur-info').classList.toggle('hidden',!kantorLibur);
+    document.getElementById('tutup-ket').classList.toggle('hidden',kantorLibur);
+    document.getElementById('tutup-cd').classList.toggle('hidden',kantorLibur);
     badge.className='text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-bold';
     box.classList.remove('hidden');
-    btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent='🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
+    btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent=kantorLibur?'🔒 Kantor Libur':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
     const b=new Date(w);if(w.getHours()>=JAM_TUTUP)b.setDate(b.getDate()+1);b.setHours(JAM_BUKA,0,0,0);
     const s=b-w;document.getElementById('countdown-buka').textContent='Buka lagi dalam '+Math.floor(s/3600000)+' jam '+Math.floor((s%3600000)/60000)+' menit';
   }
 }
 setInterval(cekJamBuka,1000);cekJamBuka();
+// Status Kantor dari admin: kalau Libur, form ikut ditutup (dicek ulang tiap 60 detik)
+function muatStatusKantor(){fetch(SHEET_URL+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorLibur=(j.status==='libur');cekJamBuka();}}).catch(()=>{});}
+muatStatusKantor();setInterval(muatStatusKantor,60000);
 
 function ubahLayanan(){
   const v=document.getElementById('layanan').value,info=document.getElementById('info-layanan'),cab=document.getElementById('cabang');
@@ -142,7 +150,7 @@ function kirimWA(){
   if(sedangKirim)return;
   tampilError('');
   const w=getWITA();
-  if(!sedangBuka(w)){tampilError('Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
+  if(!sedangBuka(w)){tampilError(kantorLibur?'Kantor sedang libur. Silakan pesan lagi setelah kantor buka kembali ya kak.':'Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
   const nama=document.getElementById('nama').value.trim();
   const layanan=document.getElementById('layanan').value;
   const cabang=document.getElementById('cabang').value;
