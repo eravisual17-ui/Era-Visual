@@ -17,7 +17,7 @@
 <div id="app" class="hidden">
 <div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
 <div><p class="font-bold text-sm">Era Visual Admin</p><p id="info" class="text-[11px] text-gray-400"></p></div>
-<div class="flex items-center gap-2"><button id="btnInstall" onclick="installAdmin()" class="bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">📲 Install Aplikasi</button><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div></div>
+<div class="flex items-center gap-2"><button id="btnInstall" onclick="installAdmin()" class="hidden bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">📲 Install Aplikasi</button><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div></div>
 <div class="max-w-6xl mx-auto p-4">
 <div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button></div>
 <div id="viewOrder">
@@ -339,43 +339,19 @@ async function setKantor(st){
 }
 renderKantorAdm();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').catch(()=>{});
+/* ===== Tombol Install Aplikasi Admin ===== */
+let _pwaEvt=null;
+const _sudahInstall=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const _isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+function _tampilInstall(){const b=document.getElementById('btnInstall');if(b&&!_sudahInstall)b.classList.remove('hidden');}
+function _sembunyiInstall(){const b=document.getElementById('btnInstall');if(b)b.classList.add('hidden');}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_pwaEvt=e;_tampilInstall();});
+window.addEventListener('appinstalled',()=>{_pwaEvt=null;_sembunyiInstall();});
+if(_isIOS)_tampilInstall();
+async function installAdmin(){
+  if(_pwaEvt){_pwaEvt.prompt();try{await _pwaEvt.userChoice;}catch(e){}_pwaEvt=null;_sembunyiInstall();return;}
+  if(_isIOS){alert('Untuk install di iPhone/iPad:\n1. Ketuk tombol Bagikan (ikon kotak dengan panah ke atas) di Safari\n2. Pilih "Tambahkan ke Layar Utama"\n3. Ketuk "Tambah"');return;}
+  alert('Install belum tersedia di browser ini. Buka lewat Chrome lalu pilih menu ⋮ > "Install aplikasi" / "Tambahkan ke layar utama".');
+}
 if(KUNCI)masuk();
-</script>
-<script>
-/* ===== Tombol Install Aplikasi Admin (script terpisah) ===== */
-(function(){
-  var evt=null;
-  var btn=document.getElementById('btnInstall');
-  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
-  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(standalone&&btn)btn.style.display='none';
-  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();evt=e;});
-  window.addEventListener('appinstalled',function(){evt=null;if(btn)btn.style.display='none';});
-  function panduan(){
-    if(document.getElementById('instPanduan'))return;
-    var langkah=ios
-      ?'<li>Ketuk tombol <b>Bagikan</b> (kotak dengan panah ke atas) di Safari</li><li>Pilih <b>Tambahkan ke Layar Utama</b></li><li>Ketuk <b>Tambah</b></li>'
-      :'<li>Ketuk <b>menu browser</b> (titik tiga ⋮ atau ikon menu Opera)</li><li>Pilih <b>Install aplikasi</b>, <b>Tambahkan ke layar utama</b>, atau di Opera: <b>Layar utama</b> / <b>Tambah ke → Layar utama</b></li><li>Ketuk <b>Tambah</b> / <b>Install</b></li>';
-    var d=document.createElement('div');
-    d.id='instPanduan';
-    d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(10,25,47,.6);display:flex;align-items:center;justify-content:center;padding:16px';
-    d.innerHTML='<div style="background:#fff;max-width:340px;width:100%;border-radius:20px;padding:20px;font-family:Poppins,sans-serif"><p style="font-weight:700;font-size:15px;margin:0 0 10px">📲 Install Aplikasi Admin</p><ol style="font-size:13px;line-height:1.7;padding-left:18px;margin:0 0 14px">'+langkah+'</ol><p style="font-size:11px;color:#6b7280;margin:0 0 14px">Jika sudah terinstal, buka dari ikon di layar utama.</p><button id="instTutup" style="width:100%;background:#0a7bf2;color:#fff;font-weight:700;padding:10px;border-radius:12px;border:0">Mengerti</button></div>';
-    document.body.appendChild(d);
-    document.getElementById('instTutup').onclick=function(){d.remove();};
-    d.onclick=function(e){if(e.target===d)d.remove();};
-  }
-  window.installAdmin=function(){
-    if(!evt){panduan();return;}
-    var selesai=false;
-    var t=setTimeout(function(){if(!selesai)panduan();},2500);
-    try{
-      evt.prompt();
-      evt.userChoice.then(function(c){
-        selesai=true;clearTimeout(t);evt=null;
-        if(c&&c.outcome==='accepted'&&btn)btn.style.display='none';
-      }).catch(function(){selesai=true;clearTimeout(t);panduan();});
-    }catch(e){clearTimeout(t);evt=null;panduan();}
-  };
-})();
-</script>
-</body></html>
+</script></body></html>
