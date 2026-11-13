@@ -351,7 +351,7 @@ if(_sudahInstall)_sembunyiInstall();
 async function installAdmin(){
   if(_pwaEvt){_pwaEvt.prompt();try{await _pwaEvt.userChoice;}catch(e){}_pwaEvt=null;_sembunyiInstall();return;}
   if(_isIOS){alert('Untuk install di iPhone/iPad:\n1. Ketuk tombol Bagikan (ikon kotak dengan panah ke atas) di Safari\n2. Pilih "Tambahkan ke Layar Utama"\n3. Ketuk "Tambah"');return;}
-  alert('Untuk install di Android:\n1. Ketuk menu ⋮ di pojok kanan atas Chrome\n2. Pilih "Install aplikasi" atau "Tambahkan ke layar utama"\n3. Ketuk "Install"\n\n(Gunakan Chrome. Jika sudah terinstal, buka dari ikon di layar utama.)');
+  alert('Untuk install di Android:\n1. Ketuk menu di browser (⋮ di Chrome, atau ikon menu Opera)\n2. Pilih "Install aplikasi" / "Tambahkan ke layar utama" (di Opera: menu > "Layar utama" / "Tambah ke" > "Layar utama")\n3. Ketuk "Tambah" atau "Install"\n\nJika sudah terinstal, buka dari ikon di layar utama.');
 }
 if(KUNCI)masuk();
 </script></body></html>
