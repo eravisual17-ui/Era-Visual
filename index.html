@@ -7,11 +7,11 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
 *,*::before,*::after{box-sizing:border-box}
 a{color:inherit;text-decoration:none}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{position:relative;overflow-x:hidden;margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .clock-font{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.5px}
 @keyframes evmarq{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-.halaman{position:relative;max-width:1120px;margin:0 auto;padding:20px 22px 110px;overflow:hidden}
+.halaman{max-width:1120px;margin:0 auto;padding:20px 22px 110px}
 .gumpal{position:absolute;z-index:0;pointer-events:none}
 .g1{width:340px;height:300px;left:-120px;top:-60px;background:var(--blob);border-radius:58% 42% 55% 45%/50% 58% 42% 50%}
 .g2{width:420px;height:380px;right:-140px;top:120px;background:var(--blob);border-radius:45% 55% 40% 60%/55% 45% 55% 45%}
@@ -31,7 +31,7 @@ a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var
 .kat{margin:0 0 10px;font-size:.72rem;letter-spacing:.14em;color:var(--sub);text-transform:uppercase}
 .judul{margin:0;font-family:'Libre Baskerville',serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:1.12}
 .judul span{display:block;font-size:clamp(1rem,5.9vw,2.15rem)}
-.judul b{display:block;margin-top:4px;font-weight:700;font-size:clamp(1.9rem,10.4vw,3.6rem)}
+.judul b{display:block;margin-top:4px;font-weight:700;white-space:nowrap;font-size:clamp(1.6rem,9.2vw,3.1rem)}
 .lead{margin:20px 0 0;max-width:46ch;font-size:.88rem;color:var(--ink2)}
 .tombol{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
 .tb{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 28px;border-radius:99px;font-size:.84rem;font-weight:600;transition:transform .12s}
@@ -81,7 +81,7 @@ details[open] .sum .pn{transform:rotate(90deg)}
 .sb{font-size:.74rem;color:var(--sub);font-weight:400}
 .nm{margin:8px 0 0;font-size:.78rem;font-weight:600;color:var(--blue)}
 .rr{margin:0 6px 10px;font-size:.95rem;font-weight:600}
-.dua{display:grid;gap:0}
+.kolom2{display:grid;gap:0}
 #kantor{margin-top:34px}
 .kantor{display:flex;align-items:center;gap:14px;padding:16px}
 .kantor .em{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--pastel);font-size:1.6rem}
@@ -102,11 +102,11 @@ details[open] .sum .pn{transform:rotate(90deg)}
   .halaman{padding:28px 40px 120px}
   .hero{grid-template-columns:1.05fr 1fr;padding:50px 0 24px}
   .judul span{font-size:clamp(1.3rem,2.6vw,2.15rem)}
-  .judul b{font-size:clamp(2.4rem,5vw,3.9rem)}
+  .judul b{font-size:clamp(2.1rem,4.2vw,3.1rem)}
   .lead{font-size:.92rem}
   .tiga{grid-template-columns:repeat(3,1fr);gap:18px}
   .jam3 .clock-font{font-size:1.1rem}
-  .dua{grid-template-columns:1.1fr 1fr;gap:34px;align-items:start}
+  .kolom2{grid-template-columns:1.1fr 1fr;gap:34px;align-items:start}
   #kantor{margin-top:0}
   #listBeritaLobby{grid-template-columns:repeat(2,1fr)}
   #hasilList{grid-template-columns:repeat(4,1fr)}
@@ -177,7 +177,7 @@ details[open] .sum .pn{transform:rotate(90deg)}
 
     <section id="testiWrap" class="hidden blok"><h2 class="jdl">Kata pelanggan</h2><p id="ratingRingkas" class="hidden rr"></p><div id="testiList" class="daftar"></div></section>
 
-    <div class="dua blok">
+    <div class="kolom2 blok">
       <section id="daftarHarga">
         <h2 class="jdl">Daftar harga</h2>
         <details class="harga"><summary class="sum"><span>⚡ Electrical</span><svg class="pn" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg></summary><div class="hg"><div><span>Pemeriksaan instalasi listrik</span><b>menyesuaikan</b></div><div><span>Perawatan instalasi listrik</span><b>menyesuaikan</b></div><div><span>Pemasangan titik lampu, sakelar, stop kontak, jalur kabel, instalasi rumah</span><b>harga survei</b></div></div></details><details class="harga"><summary class="sum"><span>📝 Editor</span><svg class="pn" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg></summary><div class="hg"><div><span>CV ATS</span><b>Rp15.000</b></div><div><span>CV Modern</span><b>Rp20.000</b></div><div><span>Surat Lamaran Kerja</span><b>Rp10.000</b></div><div><span>Paket CV ATS + Surat Lamaran</span><b>Rp25.000</b></div><div><span>Desain Logo Sederhana</span><b>Rp25.000</b></div><div><span>Desain Kartu Nama</span><b>Rp15.000</b></div><div><span>Desain Banner/Spanduk</span><b>Rp25.000</b></div><div><span>Desain Poster Promosi</span><b>Rp20.000</b></div><div><span>Laporan PKL (hasil PDF, tanpa biaya cetak)</span><b>sesuai halaman</b></div></div></details><details class="harga"><summary class="sum"><span>🔧 Mechanical</span><svg class="pn" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg></summary><div class="hg"><div><span>Pemeriksaan mekanik</span><b>menyesuaikan</b></div><div><span>Perawatan mekanik ringan</span><b>menyesuaikan</b></div><div><span>Pekerjaan mekanik sederhana</span><b>menyesuaikan</b></div></div></details>
