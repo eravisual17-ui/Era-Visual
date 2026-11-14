@@ -50,6 +50,7 @@
       </dl>
 
       <a id="h-wa" href="#" target="_blank" rel="noopener noreferrer" class="block text-center mt-5 bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] p-3.5 rounded-xl font-bold hover:bg-[#eef6ff] transition">💬 Tanya Admin tentang Order Ini</a>
+      <a id="h-rating" href="#" class="hidden block text-center mt-3 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition">⭐ Beri Rating</a>
     </div>
   </div>
 
@@ -105,12 +106,14 @@ function tampil(j){
   ['t-harga','h-harga'].forEach(id=>$(id).classList.toggle('hidden',!h));
   if(h)$('h-harga').textContent='Rp'+h.toLocaleString('id-ID');
   $('h-wa').href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent('Halo Era Visual! Saya mau tanya pesanan No Order: '+j.no);
+  const rb=$('h-rating');rb.classList.toggle('hidden',st!=='Selesai');rb.href='rating.html?no='+encodeURIComponent(j.no);
   $('hasil').classList.remove('hidden');
 }
 
 $('no').value=(new URLSearchParams(location.search).get('no')||'').toUpperCase();
 $('no').addEventListener('keydown',e=>{if(e.key==='Enter')cek();});
 $('year').textContent=new Date().getFullYear();
+if($('no').value)cek(); // dibuka dari link order: langsung cari
 </script>
 </body>
 </html>
