@@ -34,7 +34,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offse
 .menu{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:'Libre Baskerville',serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
 .menu a{padding:4px 0;border-bottom:2px solid transparent}
 .menu a:hover,.menu a.aktif{border-color:var(--blue)}
-.pecah{display:grid;gap:0}
+.pecah{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.judulwrap,.peta,.bawah{min-width:0}
 .judulwrap{padding:34px 4px 6px}
 .kat{margin:0 0 10px;font-size:.72rem;letter-spacing:.14em;color:var(--sub);text-transform:uppercase}
 .judul{margin:0;font-family:'Libre Baskerville',serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:1.12}
@@ -45,7 +46,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offse
 .diatur{margin:6px 6px 0;font-size:.76rem;color:var(--sub)}
 .peta{margin-top:22px}
 .petawrap{position:relative}
-.canvas{display:block;width:100%;border-radius:26px;border:1.5px solid var(--blue);box-shadow:0 6px 24px rgba(10,80,180,.08)}
+.canvas{display:block;width:100%;max-width:100%;height:auto;border-radius:26px;border:1.5px solid var(--blue);box-shadow:0 6px 24px rgba(10,80,180,.08)}
 .zctl{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:8px}
 .zbtn{display:flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border:1.5px solid var(--garis);border-radius:14px;background:rgba(255,255,255,.94);color:var(--blue);font:inherit;font-weight:700;font-size:19px;line-height:1;box-shadow:0 4px 14px rgba(10,123,242,.18);cursor:pointer}
 .zbtn:active{transform:scale(.94)}
@@ -77,7 +78,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offse
 .hak{margin:14px 0 0;font-size:.72rem;color:var(--sub)}
 @media (min-width:860px){
   .halaman{padding:28px 40px 56px}
-  .pecah{grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;grid-template-areas:"a b" "c b";column-gap:56px;align-items:start}
+  .pecah{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"a b" "c b";column-gap:56px;align-items:start}
   .judulwrap{grid-area:a}
   .peta{grid-area:b;margin-top:34px}
   .bawah{grid-area:c}
