@@ -344,7 +344,7 @@ const TESTIMONI=[];
   fetch('https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec?aksi=kantor').then(r=>r.json()).then(j=>{
     if(!j||!j.ok)return;
     window.kantorLibur=(j.status==='libur');if(typeof updateEraClock==='function')updateEraClock();
-    let t=T[j.status];if(j.status==='keluar')t='Ewaldus sedang keluar'+(j.catatan?' ('+j.catatan+')':'')+'.';
+    let t=T[j.status];if(j.status==='libur'&&j.alasan)t='Kantor sedang libur: '+j.alasan+'.';if(j.status==='keluar')t='Ewaldus sedang keluar'+(j.catatan?' ('+j.catatan+')':'')+'.';
     if(!t){const h=parseInt(new Date().toLocaleString('en-US',{timeZone:'Asia/Makassar',hour:'numeric',hour12:false}),10)%24;t=(h>=8&&h<21)?'Kantor buka. Ewaldus sedang berkeliling di kantor.':'Kantor sedang tutup. Buka kembali pukul 08.00 WITA.';}
     el.textContent=t;
   }).catch(()=>{});

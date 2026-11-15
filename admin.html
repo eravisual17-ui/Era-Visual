@@ -19,11 +19,12 @@
 <div><p class="font-bold text-sm">Era Visual Admin</p><p id="info" class="text-[11px] text-gray-400"></p></div>
 <div class="flex items-center gap-2"><button id="btnInstall" onclick="installAdmin()" class="hidden bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">📲 Install Aplikasi</button><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div></div>
 <div class="max-w-6xl mx-auto p-4">
-<div class="flex gap-2 mb-4"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button></div>
+<div class="flex gap-2 mb-4 overflow-x-auto"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button><button id="tKal" onclick="showTab('kalender')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Kalender</button></div>
 <div id="viewOrder">
 <details id="kantorAdm" class="bg-white rounded-2xl border border-blue-100 p-4 mb-4">
 <summary class="font-bold text-[13px] cursor-pointer">🏢 Status Kantor: <span id="kStatusTeks" class="text-[#0a7bf2]">...</span></summary>
 <div id="kantorTombol" class="grid grid-cols-2 gap-2 mt-3"></div>
+<p id="kOto" class="hidden text-[11px] text-red-600 font-semibold mt-3 leading-5"></p>
 <p class="text-[11px] text-gray-400 mt-3 leading-5">Otomatis: Ewaldus berjalan sendiri sesuai jam buka. Status lain berlaku sampai kamu mengubahnya lagi. Libur menampilkan meja bertuliskan LIBUR dan Ewaldus tidak ada.</p>
 </details>
 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
@@ -43,6 +44,29 @@
 <div id="viewRingkas" class="hidden">
 <div class="bg-white p-5 rounded-2xl border mb-4"><p class="font-bold text-sm">Omzet 6 bulan terakhir</p><p id="rkTotal" class="text-[12px] text-gray-400 mb-4"></p><div id="rkGrafik"></div></div>
 <div class="bg-white p-5 rounded-2xl border"><p class="font-bold text-sm">Layanan terlaris</p><p class="text-[12px] text-gray-400 mb-4">6 bulan terakhir, tanpa order yang dibatalkan</p><div id="rkLayanan" class="space-y-4"></div></div></div>
+<div id="viewKal" class="hidden">
+<div id="kalBanner" class="rounded-2xl border p-4 mb-4 text-[13px] font-semibold bg-white">Memuat kalender...</div>
+<div class="bg-white p-4 rounded-2xl border mb-4">
+<div class="flex items-center justify-between mb-3">
+<button onclick="kalGeser(-1)" aria-label="Bulan sebelumnya" class="w-10 h-10 rounded-full border bg-[#f6faff] font-bold text-lg">‹</button>
+<div class="text-center"><p id="kalJudul" class="font-bold text-sm"></p><button onclick="kalKeHariIni()" class="text-[11px] text-[#0a7bf2] font-bold">Ke hari ini</button></div>
+<button onclick="kalGeser(1)" aria-label="Bulan berikutnya" class="w-10 h-10 rounded-full border bg-[#f6faff] font-bold text-lg">›</button>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold mb-1"><span class="text-red-500">Min</span><span class="text-gray-400">Sen</span><span class="text-gray-400">Sel</span><span class="text-gray-400">Rab</span><span class="text-gray-400">Kam</span><span class="text-gray-400">Jum</span><span class="text-gray-400">Sab</span></div>
+<div id="kalGrid" class="grid grid-cols-7 gap-1"></div>
+<div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-[10px] text-gray-500"><span><b class="text-red-500">■</b> Libur nasional</span><span><b class="text-orange-500">■</b> Cuti bersama</span><span><b class="text-purple-600">■</b> Libur khusus</span><span><b class="text-green-600">■</b> Tetap buka</span><span><b class="text-[#0a7bf2]">○</b> Hari ini</span></div>
+</div>
+<div id="kalDetail" class="hidden bg-white p-4 rounded-2xl border mb-4"></div>
+<div class="bg-white p-4 rounded-2xl border mb-4"><p class="font-bold text-sm mb-3">Libur mendatang</p><div id="kalAkan" class="space-y-2"></div></div>
+<div class="bg-white p-4 rounded-2xl border">
+<p class="font-bold text-sm">Pengaturan libur otomatis</p>
+<p class="text-[11px] text-gray-400 mt-1 mb-3 leading-5">Saat status kantor "Otomatis", kantor otomatis tampil LIBUR pada tanggal yang dihitung libur. Form pesan ikut ditutup. Status lain yang kamu pilih sendiri selalu diutamakan.</p>
+<label class="flex items-center gap-3 text-[13px] py-2"><input id="kNas" type="checkbox" onchange="kalSimpanSet()" class="w-5 h-5"> Libur nasional (tanggal merah)</label>
+<label class="flex items-center gap-3 text-[13px] py-2"><input id="kCuti" type="checkbox" onchange="kalSimpanSet()" class="w-5 h-5"> Cuti bersama</label>
+<p class="text-[12px] font-bold mt-3 mb-2">Libur mingguan</p><div id="kMing" class="flex flex-wrap gap-2"></div>
+<p class="text-[11px] text-gray-400 mt-3 leading-5">Tanggal merah diambil dari kalender Google "Hari libur di Indonesia" dan daftar SKB 3 Menteri. Ketuk tanggal pada kalender untuk menandai libur khusus atau tetap buka.</p>
+</div>
+</div>
 <div id="viewBerita" class="hidden"><div class="bg-white p-5 rounded-2xl border">
 <p id="editInfo" class="hidden text-[12px] text-yellow-700 mb-3">Sedang mengedit berita. <button onclick="batalEdit()" class="underline ml-1">Batal</button></p>
 <input id="bJudul" class="w-full bg-[#f6faff] border p-3 rounded-xl mb-3 text-sm" placeholder="Judul berita">
@@ -159,7 +183,9 @@ function showTab(t){
   $('viewOrder').classList.toggle('hidden',t!=='order');
   $('viewBerita').classList.toggle('hidden',t!=='berita');
   $('viewRingkas').classList.toggle('hidden',t!=='ringkas');
-  $('tOrder').className=tabCls(t==='order');$('tBerita').className=tabCls(t==='berita');$('tRingkas').className=tabCls(t==='ringkas');
+  $('viewKal').classList.toggle('hidden',t!=='kalender');
+  $('tOrder').className=tabCls(t==='order');$('tBerita').className=tabCls(t==='berita');$('tRingkas').className=tabCls(t==='ringkas');$('tKal').className=tabCls(t==='kalender');
+  if(t==='kalender')muatKal();
   if(t==='berita')loadBerita();
   if(t==='ringkas')renderRingkas();
 }
@@ -326,12 +352,13 @@ function renderRingkas(){
 }
 /* ===== Status Kantor (tampil di kantor.html) ===== */
 const KANTOR_LABEL={otomatis:'Otomatis',istirahat:'Istirahat',editor:'Meja Editor',listrik:'Servis Listrik',mekanik:'Ruang Mekanik',meja:'Sibuk di Meja Sendiri',santai:'Santai',libur:'Libur'};
-let kantorNow='otomatis';
+let kantorNow='otomatis',kantorAlasan='';
 function renderKantorAdm(){
-  $('kStatusTeks').textContent=KANTOR_LABEL[kantorNow]||kantorNow;
+  $('kStatusTeks').textContent=(KANTOR_LABEL[kantorNow]||kantorNow)+(kantorAlasan?' (libur hari ini)':'');
+  const ko=$('kOto');ko.textContent=kantorAlasan?'🗓️ Hari ini libur otomatis: '+kantorAlasan+'. Pilih status lain di atas kalau kantor tetap buka.':'';ko.classList.toggle('hidden',!kantorAlasan);
   $('kantorTombol').innerHTML=Object.keys(KANTOR_LABEL).map(k=>'<button onclick="setKantor(\''+k+'\')" class="'+(k===kantorNow?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white text-[#0a192f]')+' border rounded-xl p-2.5 text-[12px] font-bold">'+KANTOR_LABEL[k]+'</button>').join('');
 }
-function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorNow=j.status;renderKantorAdm();}}).catch(()=>{});}
+function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorNow=j.statusAtur||j.status;kantorAlasan=(kantorNow==='otomatis'&&j.status==='libur')?(j.alasan||'Libur'):'';renderKantorAdm();}}).catch(()=>{});}
 async function setKantor(st){
   const lama=kantorNow;kantorNow=st;renderKantorAdm();
   const j=await kirim({action:'setKantor',status:st});
@@ -353,5 +380,97 @@ async function installAdmin(){
   if(_isIOS){alert('Untuk install di iPhone/iPad:\n1. Ketuk tombol Bagikan (ikon kotak dengan panah ke atas) di Safari\n2. Pilih "Tambahkan ke Layar Utama"\n3. Ketuk "Tambah"');return;}
   alert('Install belum tersedia di browser ini. Buka lewat Chrome lalu pilih menu ⋮ > "Install aplikasi" / "Tambahkan ke layar utama".');
 }
+/* ===== Kalender & libur otomatis ===== */
+const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const HR=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const pad2=n=>String(n).padStart(2,'0');
+const ymdOf=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const tglDari=y=>new Date(+y.slice(0,4),+y.slice(5,7)-1,+y.slice(8,10));
+const tglPanjang=y=>tglDari(y).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const hariIniWITA=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Makassar'});
+let kalBln=(()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),1)})(),kalData={},kalSet={nasional:true,cuti:true,mingguan:[]},kalOvr={},kalHariIni=null,kalPilih=null,kalSibuk=false;
+function terapkanPaket(j){kalData[j.tahun]=j.hari||{};kalSet=j.set||kalSet;kalOvr=j.ovr||{};kalHariIni=j.hariIni||null;}
+async function ambilKal(t){const j=await kirim({action:'kalender',tahun:t});if(j&&j.ok===true){terapkanPaket(j);return true;}return false;}
+async function muatKal(){
+  $('kalBanner').textContent='Memuat kalender...';
+  const t=kalBln.getFullYear();
+  if(!(await ambilKal(t))){$('kalBanner').innerHTML='<span class="text-red-600">Gagal memuat kalender. Pastikan Apps Script sudah diperbarui ke versi v10-kalender, lalu coba lagi.</span>';return;}
+  renderKal();
+  if(!kalData[t+1])ambilKal(t+1).then(renderKal);
+}
+// Status satu tanggal (sama dengan perhitungan di server)
+function infoHari(y){
+  const o=kalOvr[y];
+  if(o&&o.s==='buka')return{libur:false,jenis:'buka',alasan:'Tetap buka'};
+  if(o&&o.s==='libur')return{libur:true,jenis:'khusus',alasan:o.ket||'Libur khusus'};
+  if(kalSet.mingguan.includes(tglDari(y).getDay()))return{libur:true,jenis:'mingguan',alasan:'Libur mingguan'};
+  const t=(kalData[+y.slice(0,4)]||{})[y];
+  if(t){const cuti=/cuti bersama/i.test(t);return{libur:cuti?kalSet.cuti:kalSet.nasional,jenis:cuti?'cuti':'nasional',alasan:t,merah:true};}
+  return{libur:false,jenis:'',alasan:''};
+}
+function renderKal(){
+  const hi=hariIniWITA(),inf=infoHari(hi),y0=kalBln.getFullYear(),m0=kalBln.getMonth();
+  $('kalJudul').textContent=BLN[m0]+' '+y0;
+  const b=$('kalBanner');
+  b.className='rounded-2xl border p-4 mb-4 text-[13px] font-semibold '+(inf.libur?'bg-red-50 border-red-200 text-red-700':'bg-green-50 border-green-200 text-green-700');
+  b.textContent=inf.libur?'🗓️ Hari ini libur: '+inf.alasan+'. '+(kantorNow==='otomatis'?'Kantor tampil LIBUR di situs.':'Status kantor kamu atur manual ('+(KANTOR_LABEL[kantorNow]||kantorNow)+'), jadi tidak ikut libur otomatis.'):'✅ Hari ini hari kerja biasa.';
+  const cnt={};all.forEach(x=>{const d=new Date(x.tgl);if(!isNaN(d)){const k=ymdOf(d);cnt[k]=(cnt[k]||0)+1;}});
+  const awal=new Date(y0,m0,1).getDay(),jml=new Date(y0,m0+1,0).getDate();
+  let h='';for(let i=0;i<awal;i++)h+='<span></span>';
+  for(let d=1;d<=jml;d++){
+    const y=y0+'-'+pad2(m0+1)+'-'+pad2(d),f=infoHari(y),dow=new Date(y0,m0,d).getDay();
+    let c='bg-white text-[#0a192f] border-gray-200';
+    if(f.jenis==='buka')c='bg-green-50 text-green-700 border-green-300';
+    else if(f.libur&&f.jenis==='khusus')c='bg-purple-50 text-purple-700 border-purple-200';
+    else if(f.libur&&f.jenis==='cuti')c='bg-orange-50 text-orange-600 border-orange-200';
+    else if(f.libur&&f.jenis==='nasional')c='bg-red-50 text-red-600 border-red-200';
+    else if(f.libur)c='bg-red-50 text-red-400 border-red-100';
+    else if(f.merah)c='bg-white text-red-300 border-red-100';
+    else if(dow===0)c='bg-white text-red-500 border-gray-200';
+    if(y===kalPilih)c='bg-[#0a7bf2] text-white border-[#0a7bf2]';
+    const ring=y===hi?' ring-2 ring-[#0a7bf2] ring-offset-1':'';
+    h+='<button onclick="kalPilihHari(\''+y+'\')" aria-label="'+esc(tglPanjang(y))+'" class="h-12 rounded-xl border text-[13px] font-bold leading-tight '+c+ring+'">'+d+(cnt[y]?'<span class="block text-[9px] font-normal">'+cnt[y]+' order</span>':'')+'</button>';
+  }
+  $('kalGrid').innerHTML=h;
+  // detail tanggal terpilih
+  const dt=$('kalDetail');
+  if(kalPilih){
+    const f=infoHari(kalPilih),btn='w-full mt-3 rounded-xl p-3 text-[12px] font-bold ';
+    let s='<p class="text-[12px] text-gray-400">'+esc(tglPanjang(kalPilih))+'</p><p class="font-bold text-[14px] mt-1">'+(f.libur?'🔴 Libur':'🟢 Buka')+(f.alasan?': '+esc(f.alasan):'')+'</p>';
+    if(f.merah&&!f.libur)s+='<p class="text-[11px] text-gray-400 mt-1">Tanggal merah ini tidak diikuti (lihat pengaturan di bawah).</p>';
+    if(f.libur&&(f.jenis==='nasional'||f.jenis==='cuti'||f.jenis==='mingguan'))s+='<button onclick="kalAksi(\''+kalPilih+'\',\'buka\')" class="'+btn+'bg-green-600 text-white">Tetap buka di tanggal ini</button>';
+    else if(f.jenis==='khusus')s+='<button onclick="kalAksi(\''+kalPilih+'\',\'hapus\')" class="'+btn+'bg-white border text-red-600">Hapus libur khusus</button>';
+    else if(f.jenis==='buka')s+='<button onclick="kalAksi(\''+kalPilih+'\',\'hapus\')" class="'+btn+'bg-white border text-[#0a192f]">Kembalikan ke kalender</button>';
+    if(!f.libur)s+='<input id="kalKet" maxlength="60" placeholder="Keterangan (misalnya: acara keluarga)" class="w-full bg-[#f6faff] border p-3 rounded-xl mt-3 text-sm"><button onclick="kalAksi(\''+kalPilih+'\',\'libur\')" class="'+btn+'!mt-2 bg-[#0a7bf2] text-white">Tandai libur</button>';
+    dt.innerHTML=s;dt.classList.remove('hidden');
+  }else dt.classList.add('hidden');
+  // libur mendatang (6 berikutnya)
+  const akan=[],t0=tglDari(hi);
+  for(let i=0;i<400&&akan.length<6;i++){const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+i),y=ymdOf(d),f=infoHari(y);if(f.libur)akan.push({y,f,i});}
+  $('kalAkan').innerHTML=akan.length?akan.map(x=>'<button onclick="kalLompat(\''+x.y+'\')" class="w-full flex justify-between gap-3 text-left bg-[#f6faff] border rounded-xl p-3 text-[12px]"><span><b>'+esc(x.f.alasan)+'</b><br><span class="text-gray-400">'+esc(tglPanjang(x.y))+'</span></span><span class="text-gray-400 whitespace-nowrap">'+(x.i===0?'hari ini':x.i+' hari lagi')+'</span></button>').join(''):'<p class="text-[12px] text-gray-400">Belum ada libur tercatat dalam waktu dekat.</p>';
+  // pengaturan
+  $('kNas').checked=!!kalSet.nasional;$('kCuti').checked=!!kalSet.cuti;
+  $('kMing').innerHTML=HR.map((n,i)=>'<button onclick="kalMing('+i+')" class="px-4 py-2 rounded-full border text-[12px] font-bold '+(kalSet.mingguan.includes(i)?'bg-red-500 text-white border-red-500':'bg-white text-[#0a192f]')+'">'+n+'</button>').join('');
+}
+function kalGeser(n){kalBln=new Date(kalBln.getFullYear(),kalBln.getMonth()+n,1);const t=kalBln.getFullYear();if(kalData[t])renderKal();else muatKal();}
+function kalKeHariIni(){const y=hariIniWITA();kalBln=new Date(+y.slice(0,4),+y.slice(5,7)-1,1);kalPilih=y;if(kalData[kalBln.getFullYear()])renderKal();else muatKal();}
+function kalPilihHari(y){kalPilih=kalPilih===y?null:y;renderKal();}
+function kalLompat(y){kalBln=new Date(+y.slice(0,4),+y.slice(5,7)-1,1);kalPilih=y;if(kalData[kalBln.getFullYear()])renderKal();else muatKal();scrollTo(0,0);}
+async function kalAksi(y,s){
+  if(kalSibuk)return;kalSibuk=true;
+  const ket=$('kalKet')?$('kalKet').value.trim():'';
+  const j=await kirim({action:'kalOvr',tgl:y,s,ket});
+  kalSibuk=false;
+  if(j&&j.ok===true){terapkanPaket(j);renderKal();muatKantor();}
+  else alert('Gagal menyimpan: '+((j&&j.error)||'tidak bisa terhubung ke server'));
+}
+async function kalSimpanSet(){
+  if(kalSibuk)return;kalSibuk=true;
+  const j=await kirim({action:'kalSimpan',nasional:$('kNas').checked,cuti:$('kCuti').checked,mingguan:kalSet.mingguan,tahun:kalBln.getFullYear()});
+  kalSibuk=false;
+  if(j&&j.ok===true){terapkanPaket(j);renderKal();muatKantor();}
+  else{alert('Gagal menyimpan: '+((j&&j.error)||'tidak bisa terhubung ke server'));renderKal();}
+}
+function kalMing(i){const a=kalSet.mingguan;kalSet.mingguan=a.includes(i)?a.filter(x=>x!==i):a.concat(i);kalSimpanSet();}
 if(KUNCI)masuk();
 </script></body></html>
