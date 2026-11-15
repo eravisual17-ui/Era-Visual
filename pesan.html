@@ -2,90 +2,179 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a7bf2">
 <title>Pesan - Era Visual Ende</title>
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:Poppins,sans-serif}</style>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Tampilan putih serasi dengan beranda. Tidak memakai Tailwind. */
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{position:relative;overflow-x:hidden;margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.latar{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;z-index:0;pointer-events:none}
+.gumpal{position:absolute;z-index:0;pointer-events:none}
+.g1{width:340px;height:300px;left:-120px;top:-60px;background:var(--blob);border-radius:58% 42% 55% 45%/50% 58% 42% 50%}
+.g2{width:420px;height:380px;right:-140px;top:160px;background:var(--blob2);border-radius:45% 55% 40% 60%/55% 45% 55% 45%}
+.halaman{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:20px 22px 48px}
+.atas{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px}
+.merek{display:flex;align-items:center;gap:10px;font-family:'Libre Baskerville',serif;font-weight:700;font-size:.9rem;letter-spacing:.06em}
+.merek i{width:36px;height:36px;border-radius:50%;background:#fff var(--lg) center/80% no-repeat;border:2px solid var(--blue)}
+.menu{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:'Libre Baskerville',serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
+.menu a{padding:4px 0;border-bottom:2px solid transparent}
+.menu a:hover,.menu a.aktif{border-color:var(--blue)}
+.pecah{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.judulwrap{padding:34px 4px 6px}
+.kat{margin:0 0 10px;font-size:.72rem;letter-spacing:.14em;color:var(--sub);text-transform:uppercase}
+.judul{margin:0;font-family:'Libre Baskerville',serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:1.12}
+.judul span{display:block;font-size:clamp(1rem,5.2vw,1.7rem)}
+.judul b{display:block;margin-top:4px;font-weight:700;white-space:nowrap;font-size:clamp(1.6rem,9vw,2.8rem)}
+.lead{margin:14px 0 0;max-width:46ch;font-size:.88rem;color:var(--ink2)}
+.lencana{display:inline-block;margin-top:16px;padding:5px 14px;border-radius:99px;background:var(--pastel);color:#0a5bbd;font-size:.72rem;font-weight:700}
+.lencana.ok{background:#d9f5e3;color:#13703a}
+.lencana.tutup{background:#ffe9cc;color:#a85a00}
+.layananl{margin:10px 6px 0;font-size:.78rem;color:var(--sub)}
+.kartu{margin-top:22px;padding:22px;background:#fff;border:1.5px solid var(--blue);border-radius:26px;box-shadow:0 6px 24px rgba(10,80,180,.08)}
+.kartu h2{margin:0;font-family:'Libre Baskerville',serif;font-size:1rem}
+.kartu .sub{margin:4px 0 0;font-size:.76rem;color:var(--sub)}
+.isian{display:block;width:100%;margin-top:12px;padding:14px 20px;border:1.5px solid var(--garis);border-radius:99px;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;outline:none;transition:border-color .12s}
+.isian:focus{border-color:var(--blue)}
+.isian::placeholder{color:var(--sub)}
+textarea.isian{border-radius:22px;resize:none;line-height:1.5}
+select.isian{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2358739a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center/16px;padding-right:40px}
+.dua-isi{display:grid;grid-template-columns:1fr;gap:0}
+.infol{margin-top:12px;padding:12px 16px;border-radius:20px;background:var(--pastel);font-size:.76rem;line-height:1.65;color:var(--ink2)}
+.err{margin:12px 6px 0;font-size:.8rem;font-weight:600;color:#c62828}
+.tb{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin-top:16px;padding:0 24px;border:0;border-radius:99px;font:inherit;font-size:.92rem;font-weight:600;cursor:pointer;transition:transform .12s}
+.tb:active{transform:scale(.98)}
+.tb.satu{background:var(--blue);color:#fff}
+.tb.garis{background:#fff;color:var(--blue);border:2px solid var(--blue);margin-top:12px}
+.tb.mati{background:#e3e8ef;color:#8a97ab;cursor:not-allowed}
+.kotak{margin:16px 0 0;padding:16px;border-radius:22px;text-align:center;border:1.5px solid}
+.kotak.hijau{background:#eefaf3;border-color:#9fdcb7;color:#13703a}
+.kotak.oranye{background:#fff6e8;border-color:#f3c98b;color:#8a4b00}
+.kotak b.jt{display:block;font-size:.9rem}
+.kotak p{margin:4px 0 0;font-size:.78rem;line-height:1.65}
+.mini{display:inline-flex;align-items:center;margin:12px 4px 0;padding:9px 18px;border-radius:99px;font-size:.78rem;font-weight:600}
+.mini.satu{background:#13703a;color:#fff}
+.mini.garis{background:#fff;color:#13703a;border:1.5px solid #13703a}
+.catatan{margin:16px 6px 0;text-align:center;font-size:.72rem;line-height:1.6;color:var(--sub)}
+.langkah{margin:20px 6px 0;padding:0;list-style:none;font-size:.84rem;color:var(--ink2)}
+.langkah li{display:flex;gap:12px;align-items:flex-start;padding:8px 0}
+.langkah b{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--pastel);color:var(--blue);font-size:.76rem}
+.kaki{margin-top:28px;text-align:center;font-size:.8rem;line-height:1.7}
+.kaki a{font-weight:600;color:var(--blue)}
+.kaki a:hover{text-decoration:underline}
+.kaki .kontak{margin:12px 0 0;font-size:.74rem;color:var(--sub)}
+.hak{margin:12px 0 0;font-size:.72rem;color:var(--sub)}
+@media (min-width:520px){.dua-isi{grid-template-columns:1fr 1fr;gap:12px}}
+@media (min-width:860px){
+  .halaman{padding:28px 40px 56px}
+  .pecah{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:start}
+  .kanan .kartu{margin-top:34px}
+  .judul span{font-size:clamp(1.3rem,2.6vw,2.15rem)}
+  .judul b{font-size:clamp(2.1rem,4.2vw,3.1rem)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
-<body class="bg-[#eef6ff] text-[#0a192f]">
-<div class="max-w-2xl mx-auto min-h-screen p-6">
+<body>
+<div class="latar"><div class="gumpal g1"></div><div class="gumpal g2"></div></div>
+<div class="halaman">
 
-  <div class="text-center">
-    <div class="flex justify-center mb-4">
-      <div class="w-20 h-20 bg-white p-1.5 rounded-2xl shadow-[0_8px_30px_rgba(10,123,242,0.15)] border border-blue-100 flex items-center justify-center overflow-hidden">
-        <img src="logo.jpg" alt="Era Visual" class="w-full h-full object-contain">
+  <header class="atas">
+    <a class="merek" href="index.html"><i role="img" aria-label="Logo Era Visual"></i>ERA VISUAL</a>
+    <nav class="menu" aria-label="Menu utama">
+      <a href="index.html">Beranda</a>
+      <a href="lacak.html">Lacak order</a>
+      <a href="rating.html">Rating</a>
+      <a href="kantor.html">Kantor</a>
+    </nav>
+  </header>
+
+  <div class="pecah">
+    <div class="kiri">
+      <div class="judulwrap">
+        <p class="kat">Form booking</p>
+        <h1 class="judul"><span>Pesan layanan</span><b>era visual</b></h1>
+        <p class="lead">Isi data berikut, tanda * wajib diisi. Nomor order dibuat otomatis.</p>
+        <span id="badge-buka" class="lencana">CEK JAM...</span>
+        <p class="layananl">⚡ Electrical • 🖥️ Editor • ⚙️ Mechanical</p>
       </div>
+      <ol class="langkah">
+        <li><b>1</b><span>Isi nama, pilih layanan, dan tulis kebutuhanmu.</span></li>
+        <li><b>2</b><span>Ketuk <b style="display:inline;width:auto;height:auto;background:none;font-size:inherit;color:var(--ink)">Pesan Sekarang</b>. Pesanan tercatat dan WhatsApp terbuka dengan pesan yang sudah terisi.</span></li>
+        <li><b>3</b><span>Simpan nomor order, lalu pantau perkembangannya lewat Lacak order.</span></li>
+      </ol>
     </div>
-    <h1 class="text-3xl font-bold text-[#0a7bf2] tracking-widest">ERA VISUAL</h1>
-    <p class="text-[#5b7aa5] mt-1 text-xs font-semibold">Cabang Ende - Owner Ewaldus Sangga</p>
+
+    <div class="kanan">
+      <main class="kartu">
+        <h2>Form Booking</h2>
+        <p class="sub">Isi data berikut, tanda * wajib</p>
+
+        <!-- Tutup -->
+        <div id="box-tutup" class="hidden kotak oranye">
+          <b class="jt">🔒 FORM PESAN TUTUP</b>
+          <p id="libur-info" class="hidden">Kantor sedang <b>LIBUR</b>.<br>Silakan pesan lagi setelah kantor buka kembali, atau chat WhatsApp dulu ya kak.</p>
+          <p id="tutup-ket">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b><span class="jam-teks">08.00 - 18.00</span> WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
+          <p id="tutup-cd"><span id="countdown-buka">-</span></p>
+        </div>
+
+        <!-- Hasil -->
+        <div id="box-sukses" class="hidden kotak hijau">
+          <b id="judul-sukses" class="jt">✅ Pesanan tercatat</b>
+          <p>No Order: <b id="no-sukses">-</b></p>
+          <p id="ket-sukses">-</p>
+          <a id="link-wa-ulang" href="#" target="_blank" rel="noopener noreferrer" class="mini satu">Buka WhatsApp lagi</a>
+          <a id="link-lacak" href="lacak.html" class="mini garis">Lacak pesanan</a>
+        </div>
+
+        <label for="nama" class="sr-only">Nama lengkap</label>
+        <input id="nama" class="isian" maxlength="60" autocomplete="name" placeholder="Nama Lengkap *">
+
+        <div class="dua-isi">
+          <select id="layanan" onchange="ubahLayanan()" aria-label="Layanan" class="isian">
+            <option value="">Pilih Layanan *</option>
+            <option value="electrical">⚡ Electrical</option>
+            <option value="editor">🖥️ Editor (online)</option>
+            <option value="mechanical">⚙️ Mechanical</option>
+          </select>
+          <select id="cabang" aria-label="Cabang" class="isian">
+            <option value="Ende">Cabang Ende</option>
+            <option value="Sistem Online">Sistem Online</option>
+          </select>
+        </div>
+
+        <p id="info-layanan" class="hidden infol"></p>
+
+        <label for="detail" class="sr-only">Detail kebutuhan</label>
+        <textarea id="detail" class="isian" rows="3" maxlength="500" placeholder="Detail kebutuhan. CV ATS untuk melamar kerja / ganti stop kontak kamar / kipas bunyi kasar"></textarea>
+
+        <label for="wauser" class="sr-only">Nomor WhatsApp aktif</label>
+        <input id="wauser" class="isian" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="WA Aktif: 0853xxxxxxx *">
+
+        <p id="pesan-error" class="hidden err" role="alert"></p>
+
+        <button id="btnPesan" onclick="kirimWA()" class="tb satu">Pesan Sekarang → WA</button>
+
+        <a href="https://wa.me/6285348650816?text=Halo%20Kak%20Ewaldus%2C%20Era%20Visual%20Ende!%20Saya%20mau%20tanya%20jasa..." target="_blank" rel="noopener noreferrer" class="tb garis">💬 Chat Langsung Owner</a>
+
+        <p class="catatan">Dengan klik Pesan, data tercatat otomatis dan No Order dibuat otomatis. Pembayaran lewat DANA atau cash (layanan lokal).</p>
+      </main>
+    </div>
   </div>
 
-  <div class="bg-white p-6 rounded-[24px] mt-8 border border-blue-100 shadow-[0_8px_30px_rgba(10,123,242,0.12)] text-left">
-    <div class="flex justify-between items-start mb-4 gap-2">
-      <div>
-        <p class="text-sm text-[#0a7bf2] font-bold">Form Booking</p>
-        <p class="text-[11px] text-[#5b7aa5] mt-1">Isi data berikut, tanda * wajib</p>
-      </div>
-      <div class="text-right">
-        <p id="badge-buka" class="text-[10px] bg-[#e6f0ff] text-[#0a7bf2] px-2 py-1 rounded-full font-bold">CEK JAM...</p>
-        <p class="text-[10px] text-[#8aa4c8] mt-1">⚡ Electrical • 🖥️ Editor • ⚙️ Mechanical</p>
-      </div>
-    </div>
-
-    <!-- Tutup -->
-    <div id="box-tutup" class="hidden bg-orange-50 border border-orange-200 text-orange-700 p-4 rounded-xl text-center mb-4">
-      <p class="font-bold text-sm">🔒 FORM PESAN TUTUP</p>
-      <p id="libur-info" class="hidden text-[12px] mt-1 leading-5">Kantor sedang <b>LIBUR</b>.<br>Silakan pesan lagi setelah kantor buka kembali, atau chat WhatsApp dulu ya kak.</p>
-      <p id="tutup-ket" class="text-[12px] mt-1 leading-5">Sekarang <span id="jam-sekarang">-</span> WITA. Form dibuka jam <b><span class="jam-teks">08.00 - 18.00</span> WITA</b>.<br>Silakan booking lagi saat jam buka ya kak.</p>
-      <p id="tutup-cd" class="text-[11px] mt-2"><span id="countdown-buka">-</span></p>
-    </div>
-
-    <!-- Hasil -->
-    <div id="box-sukses" class="hidden border p-4 rounded-xl mb-4 text-center bg-green-50 border-green-200 text-green-800">
-      <p id="judul-sukses" class="font-bold text-sm">✅ Pesanan tercatat</p>
-      <p class="text-[12px] mt-1">No Order: <b id="no-sukses">-</b></p>
-      <p id="ket-sukses" class="text-[11px] mt-2 leading-5">-</p>
-      <a id="link-wa-ulang" href="#" target="_blank" rel="noopener noreferrer" class="inline-block mt-3 bg-green-600 text-white text-[12px] font-bold rounded-xl px-4 py-2">Buka WhatsApp lagi</a>
-      <a id="link-lacak" href="lacak.html" class="inline-block mt-3 ml-1 bg-white border border-green-600 text-green-700 text-[12px] font-bold rounded-xl px-4 py-2">Lacak pesanan</a>
-    </div>
-
-    <label for="nama" class="sr-only">Nama lengkap</label>
-    <input id="nama" maxlength="60" autocomplete="name" placeholder="Nama Lengkap *" class="w-full mt-2 bg-[#f6faff] border border-blue-100 rounded-xl p-3.5 text-sm outline-none focus:border-[#0a7bf2] focus:bg-white transition">
-
-    <div class="grid grid-cols-2 gap-3 mt-3">
-      <select id="layanan" onchange="ubahLayanan()" aria-label="Layanan" class="w-full bg-[#f6faff] border border-blue-100 rounded-xl p-3.5 text-sm outline-none focus:border-[#0a7bf2]">
-        <option value="">Pilih Layanan *</option>
-        <option value="electrical">⚡ Electrical</option>
-        <option value="editor">🖥️ Editor (online)</option>
-        <option value="mechanical">⚙️ Mechanical</option>
-      </select>
-      <select id="cabang" aria-label="Cabang" class="w-full bg-[#f6faff] border border-blue-100 rounded-xl p-3.5 text-sm outline-none focus:border-[#0a7bf2]">
-        <option value="Ende">Cabang Ende</option>
-        <option value="Sistem Online">Sistem Online</option>
-      </select>
-    </div>
-
-    <p id="info-layanan" class="hidden mt-3 text-[11px] leading-5 text-[#334b6e] bg-[#eef6ff] border border-blue-100 rounded-xl p-3"></p>
-
-    <textarea id="detail" rows="3" maxlength="500" placeholder="Detail kebutuhan. CV ATS untuk melamar kerja / ganti stop kontak kamar / kipas bunyi kasar" class="w-full mt-3 bg-[#f6faff] border border-blue-100 rounded-xl p-3.5 text-sm outline-none focus:border-[#0a7bf2] focus:bg-white transition resize-none"></textarea>
-
-    <input id="wauser" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="WA Aktif: 0853xxxxxxx *" class="w-full mt-3 bg-[#f6faff] border border-blue-100 rounded-xl p-3.5 text-sm outline-none focus:border-[#0a7bf2] focus:bg-white transition">
-
-    <p id="pesan-error" class="hidden mt-3 text-[12px] text-red-600 font-semibold" role="alert"></p>
-
-    <button id="btnPesan" onclick="kirimWA()" class="w-full mt-5 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 transition">Pesan Sekarang → WA</button>
-
-    <a href="https://wa.me/6285348650816?text=Halo%20Kak%20Ewaldus%2C%20Era%20Visual%20Ende!%20Saya%20mau%20tanya%20jasa..." target="_blank" rel="noopener noreferrer" class="w-full mt-3 bg-white border-2 border-[#0a7bf2] text-[#0a7bf2] p-4 rounded-xl font-bold block text-center hover:bg-[#eef6ff] transition">💬 Chat Langsung Owner</a>
-
-    <p class="text-[10px] text-[#8aa4c8] mt-4 text-center leading-4">Dengan klik Pesan, data tercatat otomatis dan No Order dibuat otomatis. Pembayaran lewat DANA atau cash (layanan lokal).</p>
-  </div>
-
-  <div class="text-center mt-6">
-    <a href="index.html" class="text-[12px] text-[#0a7bf2] font-bold hover:underline">← Kembali ke Beranda</a>
-    <p class="text-[11px] text-[#8aa4c8] mt-3 leading-5">IG: @eravisual1211<br>eravisual17@gmail.com<br>WA: 0853-4865-0816<br>Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT</p>
-    <p class="text-[10px] text-[#8aa4c8] mt-4">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
-  </div>
+  <footer class="kaki">
+    <a href="index.html">← Kembali ke Beranda</a>
+    <p class="kontak">IG: @eravisual1211 • eravisual17@gmail.com • WA: 0853-4865-0816<br>Desa Wolotopo, Kec. Ndona, Kab. Ende, NTT</p>
+    <p class="hak">© <span id="year">2026</span> Era Visual Indonesia - Rapi • Profesional • Amanah</p>
+  </footer>
 </div>
 
 <script>
@@ -93,7 +182,7 @@ const WA_ADMIN='6285348650816';
 // Jam buka form (WITA, format 24 jam). UBAH DUA ANGKA INI SAJA.
 const JAM_BUKA=8, JAM_TUTUP=21;
 const jj=n=>String(n).padStart(2,'0')+'.00';
-// URL web app dari Kode-gabungan.gs (sama dengan admin.html)
+// URL web app Apps Script (sama dengan admin.html)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 const LABEL={electrical:'Electrical',editor:'Editor',mechanical:'Mechanical'};
 const INFO={
@@ -114,17 +203,17 @@ function cekJamBuka(){
   document.getElementById('jam-sekarang').textContent=jamStr;
   if(sedangBuka(w)){
     badge.textContent='BUKA '+jj(JAM_BUKA)+'-'+jj(JAM_TUTUP)+' • '+jamStr+' WITA';
-    badge.className='text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold';
+    badge.className='lencana ok';
     box.classList.add('hidden');
-    if(!sedangKirim){btn.disabled=false;btn.className='w-full mt-5 bg-[#0a7bf2] hover:bg-[#095ec2] text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 transition';btn.textContent='Pesan Sekarang → WA';}
+    if(!sedangKirim){btn.disabled=false;btn.className='tb satu';btn.textContent='Pesan Sekarang → WA';}
   }else{
     badge.textContent=(kantorLibur?'LIBUR':'TUTUP')+' • '+jamStr+' WITA';
     document.getElementById('libur-info').classList.toggle('hidden',!kantorLibur);
     document.getElementById('tutup-ket').classList.toggle('hidden',kantorLibur);
     document.getElementById('tutup-cd').classList.toggle('hidden',kantorLibur);
-    badge.className='text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-bold';
+    badge.className='lencana tutup';
     box.classList.remove('hidden');
-    btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent=kantorLibur?'🔒 Kantor Libur':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
+    btn.disabled=true;btn.className='tb mati';btn.textContent=kantorLibur?'🔒 Kantor Libur':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
     const b=new Date(w);if(w.getHours()>=JAM_TUTUP)b.setDate(b.getDate()+1);b.setHours(JAM_BUKA,0,0,0);
     const s=b-w;document.getElementById('countdown-buka').textContent='Buka lagi dalam '+Math.floor(s/3600000)+' jam '+Math.floor((s%3600000)/60000)+' menit';
   }
@@ -166,7 +255,7 @@ function kirimWA(){
 
   sedangKirim=true;
   document.getElementById('box-sukses').classList.add('hidden');
-  const btn=document.getElementById('btnPesan');btn.disabled=true;btn.className='w-full mt-5 bg-gray-300 text-gray-500 p-4 rounded-xl font-bold cursor-not-allowed';btn.textContent='Membuat nomor order...';
+  const btn=document.getElementById('btnPesan');btn.disabled=true;btn.className='tb mati';btn.textContent='Membuat nomor order...';
   // buka tab WA sekarang (saat klik) supaya tidak diblokir browser, isinya diisi setelah nomor siap
   const win=window.open('','_blank');
 
@@ -190,7 +279,7 @@ function tampilHasil(h,no,urlWA){
   document.getElementById('ket-sukses').textContent=ok
     ?'Tinggal kirim pesan yang sudah terisi di WhatsApp, supaya admin langsung memproses. Simpan nomor order ini.'
     :'Pesanan belum bisa dipastikan tercatat otomatis di sistem. Kirim pesan di WhatsApp dan simpan nomor order ini, admin akan mencatat manual bila perlu.';
-  document.getElementById('box-sukses').className='border p-4 rounded-xl mb-4 text-center '+(ok?'bg-green-50 border-green-200 text-green-800':'bg-orange-50 border-orange-200 text-orange-700');
+  document.getElementById('box-sukses').className='kotak '+(ok?'hijau':'oranye');
   document.getElementById('no-sukses').textContent=no;
   document.getElementById('link-wa-ulang').href=urlWA;
   document.getElementById('link-lacak').href='lacak.html?no='+encodeURIComponent(no);
