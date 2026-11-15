@@ -8,43 +8,54 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Tampilan putih serasi dengan beranda. Tidak memakai Tailwind. */
-:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
 body{position:relative;overflow-x:hidden;margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .hidden{display:none!important}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .latar{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;z-index:0;pointer-events:none}
 .gumpal{position:absolute;z-index:0;pointer-events:none}
 .g1{width:340px;height:300px;left:-120px;top:-60px;background:var(--blob);border-radius:58% 42% 55% 45%/50% 58% 42% 50%}
 .g2{width:420px;height:380px;right:-140px;top:160px;background:var(--blob2);border-radius:45% 55% 40% 60%/55% 45% 55% 45%}
-.halaman{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:20px 22px 48px}
+.halaman{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:20px 22px 48px}
 .atas{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px}
 .merek{display:flex;align-items:center;gap:10px;font-family:'Libre Baskerville',serif;font-weight:700;font-size:.9rem;letter-spacing:.06em}
 .merek i{width:36px;height:36px;border-radius:50%;background:#fff var(--lg) center/80% no-repeat;border:2px solid var(--blue)}
 .menu{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:'Libre Baskerville',serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
 .menu a{padding:4px 0;border-bottom:2px solid transparent}
 .menu a:hover,.menu a.aktif{border-color:var(--blue)}
+.pecah{display:grid;gap:0}
 .judulwrap{padding:34px 4px 6px}
 .kat{margin:0 0 10px;font-size:.72rem;letter-spacing:.14em;color:var(--sub);text-transform:uppercase}
 .judul{margin:0;font-family:'Libre Baskerville',serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:1.12}
 .judul span{display:block;font-size:clamp(1rem,5.2vw,1.7rem)}
 .judul b{display:block;margin-top:4px;font-weight:700;white-space:nowrap;font-size:clamp(1.6rem,9vw,2.8rem)}
-.lead{margin:14px 0 0;font-size:.88rem;color:var(--ink2)}
+.lead{margin:14px 0 0;max-width:46ch;font-size:.88rem;color:var(--ink2)}
 .kartu{margin-top:22px;padding:22px;background:#fff;border:1.5px solid var(--blue);border-radius:26px;box-shadow:0 6px 24px rgba(10,80,180,.08)}
-.isian{display:block;width:100%;padding:14px 20px;border:1.5px solid var(--garis);border-radius:99px;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;text-transform:uppercase;outline:none;transition:border-color .12s}
+.isian{display:block;width:100%;padding:14px 20px;border:1.5px solid var(--garis);border-radius:99px;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;outline:none;transition:border-color .12s}
+.isian.kap{text-transform:uppercase}
 .isian:focus{border-color:var(--blue)}
 .isian::placeholder{text-transform:none;color:var(--sub)}
+textarea.isian{border-radius:20px;resize:vertical;min-height:96px}
+.label{display:block;margin:16px 6px 6px;font-size:.8rem;font-weight:600}
+.label small{font-weight:400;color:var(--sub)}
 .err{margin:12px 6px 0;font-size:.8rem;font-weight:600;color:#c62828}
 .tb{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:14px;padding:0 24px;border:0;border-radius:99px;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .12s}
 .tb:active{transform:scale(.98)}
 .tb:disabled{opacity:.6}
 .tb.satu{background:var(--blue);color:#fff}
 .tb.garis{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-.hasil{margin-top:22px;padding-top:20px;border-top:1.5px dashed var(--garis)}
+.tip{margin:0 6px 4px;font-size:.84rem;color:var(--ink2)}
+.kosong{display:none;margin-top:0;padding:26px 22px;text-align:center}
+.kosong .lingkar{width:150px;aspect-ratio:1;margin:0 auto 18px;border-radius:50%;background:var(--ring);padding:6%;box-shadow:0 14px 36px rgba(10,80,180,.2)}
+.kosong .dalam{width:100%;height:100%;border-radius:50%;background:#fff var(--lg) center/80% no-repeat;border:4px solid #fff}
+.langkah{margin:0;padding:0;list-style:none;text-align:left;font-size:.84rem;color:var(--ink2)}
+.langkah li{display:flex;gap:12px;align-items:flex-start;padding:8px 0}
+.langkah b{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--pastel);color:var(--blue);font-size:.76rem}
 .atasan{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .noorder{margin:0;font-family:'Libre Baskerville',serif;font-weight:700;font-size:1rem}
 .badge{padding:4px 14px;border-radius:99px;font-size:.72rem;font-weight:700}
@@ -56,18 +67,32 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(-
 .batal{margin:18px 0 0;padding:12px 14px;border-radius:18px;background:#fdeeee;border:1.5px solid #f3c1c1;color:#a52020;font-size:.8rem;line-height:1.6}
 .detail{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:20px 0 0;font-size:.85rem}
 .detail dt{color:var(--sub)}.detail dd{margin:0}.detail dd.tebal{font-weight:600}
-.kaki{margin-top:24px;text-align:center;font-size:.8rem}
+.bintang{background:none;border:0;cursor:pointer;padding:2px 5px;font-size:2.6rem;line-height:1;transition:transform .1s}.bintang:active{transform:scale(.9)}
+.bintang-baris{display:flex;justify-content:center;margin-top:18px}
+.bintang-label{height:1.2rem;margin:2px 0 0;text-align:center;font-size:.8rem;font-weight:700;color:var(--blue)}
+.ucap{text-align:center;padding:12px 0}
+.ucap .em{font-size:2.6rem;margin:0}.ucap b{display:block;margin-top:6px;font-family:'Libre Baskerville',serif;font-size:1.05rem}
+.ucap p{margin:6px 0 0;font-size:.84rem;color:var(--ink2)}
+.kaki{margin-top:28px;text-align:center;font-size:.8rem}
 .kaki a{font-weight:600;color:var(--blue)}
 .kaki a:hover{text-decoration:underline}
 .kaki .titik{margin:0 8px;color:var(--garis)}
 .hak{margin:14px 0 0;font-size:.72rem;color:var(--sub)}
+@media (min-width:860px){
+  .halaman{padding:28px 40px 56px}
+  .pecah{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .kanan{padding-top:34px}
+  .kanan>.kartu,.kanan>.kosong{margin-top:0}
+  .kosong{display:block}
+  .judul span{font-size:clamp(1.3rem,2.6vw,2.15rem)}
+  .judul b{font-size:clamp(2.1rem,4.2vw,3.1rem)}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="latar"><div class="gumpal g1"></div><div class="gumpal g2"></div></div>
 <div class="halaman">
-
   <header class="atas">
     <a class="merek" href="index.html"><i role="img" aria-label="Logo Era Visual"></i>ERA VISUAL</a>
     <nav class="menu" aria-label="Menu utama">
@@ -78,41 +103,50 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(-
     </nav>
   </header>
 
-  <div class="judulwrap">
-    <p class="kat">Status pesanan</p>
-    <h1 class="judul"><span>Cek perkembangan</span><b>pesananmu</b></h1>
-    <p class="lead">Masukkan nomor order yang kamu dapat setelah memesan.</p>
-  </div>
-
-  <main class="kartu">
-    <label for="no" class="sr-only">Nomor order</label>
-    <input id="no" class="isian" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001">
-
-    <p id="err" class="err hidden" role="alert"></p>
-
-    <button id="btn" onclick="cek()" class="tb satu">Cek Status</button>
-
-    <div id="hasil" class="hasil hidden">
-      <div class="atasan">
-        <p id="h-no" class="noorder"></p>
-        <span id="h-badge" class="badge"></span>
+  <div class="pecah">
+    <div class="kiri">
+      <div class="judulwrap">
+        <p class="kat">Status pesanan</p>
+        <h1 class="judul"><span>Cek perkembangan</span><b>pesananmu</b></h1>
+        <p class="lead">Masukkan nomor order yang kamu dapat setelah memesan.</p>
       </div>
-
-      <div id="stepper" class="stepper"></div>
-      <p id="batal" class="batal hidden">Pesanan ini dibatalkan. Kalau ada yang ingin ditanyakan, silakan hubungi admin.</p>
-
-      <dl class="detail">
-        <dt>Nama</dt><dd id="h-nama" class="tebal"></dd>
-        <dt>Layanan</dt><dd id="h-layanan"></dd>
-        <dt>Cabang</dt><dd id="h-cabang"></dd>
-        <dt>Tanggal</dt><dd id="h-tgl"></dd>
-        <dt id="t-harga" class="hidden">Harga</dt><dd id="h-harga" class="tebal hidden"></dd>
-      </dl>
-
-      <a id="h-wa" href="#" target="_blank" rel="noopener noreferrer" class="tb garis">💬 Tanya Admin tentang Order Ini</a>
-      <a id="h-rating" href="#" class="tb satu hidden">⭐ Beri Rating</a>
+      <main class="kartu">
+        <label for="no" class="sr-only">Nomor order</label>
+        <input id="no" class="isian kap" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001">
+        <p id="err" class="err hidden" role="alert"></p>
+        <button id="btn" onclick="cek()" class="tb satu">Cek Status</button>
+      </main>
     </div>
-  </main>
+
+    <div class="kanan">
+      <section id="hasil" class="kartu hidden" aria-live="polite">
+        <div class="atasan">
+          <p id="h-no" class="noorder"></p>
+          <span id="h-badge" class="badge"></span>
+        </div>
+        <div id="stepper" class="stepper"></div>
+        <p id="batal" class="batal hidden">Pesanan ini dibatalkan. Kalau ada yang ingin ditanyakan, silakan hubungi admin.</p>
+        <dl class="detail">
+          <dt>Nama</dt><dd id="h-nama" class="tebal"></dd>
+          <dt>Layanan</dt><dd id="h-layanan"></dd>
+          <dt>Cabang</dt><dd id="h-cabang"></dd>
+          <dt>Tanggal</dt><dd id="h-tgl"></dd>
+          <dt id="t-harga" class="hidden">Harga</dt><dd id="h-harga" class="tebal hidden"></dd>
+        </dl>
+        <a id="h-wa" href="#" target="_blank" rel="noopener noreferrer" class="tb garis">💬 Tanya Admin tentang Order Ini</a>
+        <a id="h-rating" href="#" class="tb satu hidden">⭐ Beri Rating</a>
+      </section>
+
+      <aside id="kosong" class="kartu kosong">
+        <div class="lingkar"><div class="dalam" role="img" aria-label="Logo Era Visual"></div></div>
+        <ol class="langkah">
+          <li><b>1</b><span>Masukkan nomor order yang kamu dapat setelah memesan.</span></li>
+          <li><b>2</b><span>Lihat status pesananmu: Menunggu, Dikonfirmasi, atau Selesai.</span></li>
+          <li><b>3</b><span>Kalau sudah selesai, kamu bisa memberi rating.</span></li>
+        </ol>
+      </aside>
+    </div>
+  </div>
 
   <footer class="kaki">
     <a href="pesan.html">Buat pesanan baru</a><span class="titik">•</span><a href="index.html">← Beranda</a>
@@ -133,7 +167,7 @@ function fmtTgl(t){const d=new Date(t);return isNaN(d)?t:d.toLocaleDateString('i
 function angka(v){return Number(String(v==null?'':v).replace(/\D/g,''))||0;}
 
 async function cek(){
-  pesan('');$('hasil').classList.add('hidden');
+  pesan('');$('hasil').classList.add('hidden');$('kosong').classList.remove('hidden');
   const no=$('no').value.trim().toUpperCase();
   if(!/^EV-\d{6}-[A-Z0-9]{4,6}$/.test(no)){pesan('Nomor order belum benar. Contoh: EV-031126-0001');return;}
   const btn=$('btn');btn.disabled=true;btn.textContent='Mencari...';
@@ -165,7 +199,7 @@ function tampil(j){
   if(h)$('h-harga').textContent='Rp'+h.toLocaleString('id-ID');
   $('h-wa').href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent('Halo Era Visual! Saya mau tanya pesanan No Order: '+j.no);
   const rb=$('h-rating');rb.classList.toggle('hidden',st!=='Selesai');rb.href='rating.html?no='+encodeURIComponent(j.no);
-  $('hasil').classList.remove('hidden');
+  $('hasil').classList.remove('hidden');$('kosong').classList.add('hidden');
 }
 
 $('no').value=(new URLSearchParams(location.search).get('no')||'').toUpperCase();
