@@ -2,7 +2,7 @@
 <link rel="canonical" href="https://eravisual17-ui.github.io/Era-Visual/">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "Era Visual", "description": "Jasa Electrical, Editor (CV, desain, laporan PKL), dan Mechanical di Ende.", "url": "https://eravisual17-ui.github.io/Era-Visual/", "image": "https://eravisual17-ui.github.io/Era-Visual/logo.jpg", "logo": "https://eravisual17-ui.github.io/Era-Visual/logo.jpg", "telephone": "+6285348650816", "email": "eravisual17@gmail.com", "founder": {"@type": "Person", "name": "Ewaldus Sangga"}, "address": {"@type": "PostalAddress", "streetAddress": "Desa Wolotopo, Kec. Ndona", "addressLocality": "Ende", "addressRegion": "Nusa Tenggara Timur", "addressCountry": "ID"}, "areaServed": ["Ende", "Wolotopo"], "sameAs": ["https://instagram.com/eravisual1211"]}</script><script src="https://cdn.tailwindcss.com/3.4.17"></script><link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet"><style>
 /* Tampilan gumpal, versi putih (selalu terang). Semua selector berupa class agar tidak bentrok dengan reset Tailwind. */
-:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--kartu:#ffffff;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#b4e4ff;--blob2:#d9d7ff;--blob3:#c2f1e2;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--kartu:#ffffff;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
 *,*::before,*::after{box-sizing:border-box}
@@ -15,8 +15,8 @@ a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var
 .latar{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;z-index:0;pointer-events:none}
 .gumpal{position:absolute;z-index:0;pointer-events:none}
 .g1{width:340px;height:300px;left:-120px;top:-60px;background:var(--blob);border-radius:58% 42% 55% 45%/50% 58% 42% 50%}
-.g2{width:420px;height:380px;right:-140px;top:120px;background:var(--blob);border-radius:45% 55% 40% 60%/55% 45% 55% 45%}
-.g3{width:360px;height:260px;left:-60px;bottom:-40px;background:var(--blob2);border-radius:60% 40% 50% 50%/45% 55% 45% 55%}
+.g2{width:420px;height:380px;right:-140px;top:120px;background:var(--blob2);border-radius:45% 55% 40% 60%/55% 45% 55% 45%}
+.g3{width:360px;height:260px;left:-60px;bottom:-40px;background:var(--blob3);border-radius:60% 40% 50% 50%/45% 55% 45% 55%}
 .atas,.isi,.bawah,.hak{position:relative;z-index:1}
 .atas{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px}
 .merek{display:flex;align-items:center;gap:10px;font-family:'Libre Baskerville',serif;font-weight:700;font-size:.9rem;letter-spacing:.06em}
@@ -189,7 +189,7 @@ details[open] .sum .pn{transform:rotate(90deg)}
           <h2 class="jdl">Kantor Era Visual</h2>
           <div class="kaca kantor">
             <div class="em" aria-hidden="true">🏢</div>
-            <div><b>Ruang kerja Ewaldus</b><span id="kantorStatus">Lihat ruang kerja kami dan apa yang sedang dikerjakan Ewaldus.</span></div>
+            <div><b>Ruang kerja Owner</b><span id="kantorStatus">Lihat ruang kerja kami dan apa yang sedang dikerjakan Owner.</span></div>
           </div>
           <a class="lanjut" href="kantor.html">Masuk kantor</a>
         </section>
@@ -218,7 +218,7 @@ details[open] .sum .pn{transform:rotate(90deg)}
 const SHEET_ID='1pHNzeZAtq_tWVayftkTsd0aS-Ol_mOytKdAQW5vQB6s';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function loadBerita(){try{const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita&t=${Date.now()}`;const res=await fetch(url);const txt=await res.text();const json=JSON.parse(txt.slice(txt.indexOf('{'),txt.lastIndexOf('}')+1));const rows=json.table.rows||[];if(rows.length===0)return;const data=rows.map(r=>{const c=r.c||[];return{judul:c[2]?.v||'',teks:c[3]?.v||'',foto:c[4]?.v||''}}).filter(x=>x.judul&&String(x.judul).toLowerCase()!=='judul').slice(-3).reverse();if(!data.length)return;document.getElementById('boxBeritaWrap').classList.remove('hidden');document.getElementById('beritaBar').classList.remove('hidden');document.getElementById('beritaText').innerText=data.map(d=>d.judul).join(' • ');document.getElementById('listBeritaLobby').innerHTML=data.map(d=>`<div class="kaca kartu-isi">${/^https?:\/\//.test(d.foto)?`<img src="${esc(d.foto)}" alt="" loading="lazy" class="w-full h-44 object-cover">`:''}<div class="isi"><h3 class="jd">${esc(d.judul)}</h3><p class="tx">${esc(d.teks)}</p></div></div>`).join('');}catch(e){}} loadBerita();
-function updateEraClock(){let now=new Date();function getTime(off){let utc=now.getTime()+(now.getTimezoneOffset()*60000);let nd=new Date(utc+(3600000*off));return{t:String(nd.getHours()).padStart(2,'0')+':'+String(nd.getMinutes()).padStart(2,'0')+':'+String(nd.getSeconds()).padStart(2,'0'),d:nd.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}),h:nd.getHours()};}let wib=getTime(7),wita=getTime(8),wit=getTime(9);document.getElementById('clock-wib').textContent=wib.t;document.getElementById('clock-wita').textContent=wita.t;document.getElementById('clock-wit').textContent=wit.t;document.getElementById('date-wib').textContent=wib.d;document.getElementById('date-wita').textContent=wita.d;document.getElementById('date-wit').textContent=wit.d;let st=document.getElementById('status-buka');if(window.kantorLibur){st.textContent='LIBUR';st.className='font-bold text-red-600';}else if(wita.h>=8&&wita.h<21){st.textContent='BUKA ✅';st.className='font-bold text-green-600';}else{st.textContent='TUTUP';st.className='font-bold text-orange-500';}} setInterval(updateEraClock,1000);updateEraClock();
+function updateEraClock(){let now=new Date();function getTime(off){let utc=now.getTime()+(now.getTimezoneOffset()*60000);let nd=new Date(utc+(3600000*off));return{t:String(nd.getHours()).padStart(2,'0')+':'+String(nd.getMinutes()).padStart(2,'0')+':'+String(nd.getSeconds()).padStart(2,'0'),d:nd.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}),h:nd.getHours()};}let wib=getTime(7),wita=getTime(8),wit=getTime(9);document.getElementById('clock-wib').textContent=wib.t;document.getElementById('clock-wita').textContent=wita.t;document.getElementById('clock-wit').textContent=wit.t;document.getElementById('date-wib').textContent=wib.d;document.getElementById('date-wita').textContent=wita.d;document.getElementById('date-wit').textContent=wit.d;let st=document.getElementById('status-buka');if(window.kantorLibur){st.textContent='LIBUR';st.className='font-bold text-red-600';}else if(window.kantorTutup){st.textContent='TUTUP SEMENTARA';st.className='font-bold text-orange-500';}else if(window.kantorPaksaBuka||(wita.h>=8&&wita.h<21)){st.textContent='BUKA ✅';st.className='font-bold text-green-600';}else{st.textContent='TUTUP';st.className='font-bold text-orange-500';}} setInterval(updateEraClock,1000);updateEraClock();
 document.getElementById('year').textContent=new Date().getFullYear();
 function bukaAI(){document.getElementById('aiBox').classList.remove('hidden');setTimeout(()=>document.getElementById('chatInput').focus(),50)} function tutupAI(){document.getElementById('aiBox').classList.add('hidden')}
 /* ===== CS Era Visual (otomatis, tanpa server) ===== */
@@ -232,7 +232,7 @@ const CS={
 };
 const norm=t=>' '+String(t).toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim()+' ';
 const has=(t,w)=>w.some(x=>t.includes(' '+x+' ')||(x.length>3&&t.includes(x)));
-function statusBuka(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const h=new Date(u+8*3600000).getHours();return h>=8&&h<21;}
+function statusBuka(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const h=new Date(u+8*3600000).getHours();if(window.kantorTutup)return false;return !!window.kantorPaksaBuka||(h>=8&&h<21);}
 function linkAdmin(pesan){return{label:'💬 Chat WhatsApp Admin',href:'https://wa.me/'+CS.wa+'?text='+encodeURIComponent(pesan||'Halo admin Era Visual Ende, saya mau bertanya.')};}
 const LINK_PESAN={label:'📝 Pesan Sekarang',href:'pesan.html'};
 const R={
@@ -258,7 +258,7 @@ function jawabInti(teks){
     if(svc)return R[svc];
     return{text:'Ringkasan harga Era Visual 2026:\n📝 Editor: CV ATS Rp15.000, CV Modern Rp20.000, Surat Lamaran Rp10.000, Logo Rp25.000, Kartu Nama Rp15.000, Banner Rp25.000, Poster Rp20.000.\n⚡ Electrical & 🔧 Mechanical: harga menyesuaikan jenis pekerjaan, pemasangan listrik lewat survei dulu.\n\nKetik "Editor", "Electrical", atau "Mechanical" untuk daftar lengkap.',link:LINK_PESAN};}
   if(has(t,['jam','buka','tutup','operasional']))
-    return{text:'Jam operasional: 08.00-21.00 WITA.\nSaat ini kami '+(window.kantorLibur?'LIBUR 🌙. Kakak bisa chat WhatsApp dulu, kami balas setelah kantor buka kembali.':statusBuka()?'BUKA ✅':'TUTUP 🌙. Form pesan dibuka lagi mulai 08.00 WITA, atau kakak bisa chat WhatsApp dulu.'),link:LINK_PESAN};
+    return{text:'Jam operasional: 08.00-21.00 WITA.\nSaat ini kami '+(window.kantorLibur?'LIBUR 🌙. Kakak bisa chat WhatsApp dulu, kami balas setelah kantor buka kembali.':window.kantorTutup?'TUTUP SEMENTARA 🌙. Kakak bisa chat WhatsApp dulu ya.':statusBuka()?'BUKA ✅':'TUTUP 🌙. Form pesan dibuka lagi mulai 08.00 WITA, atau kakak bisa chat WhatsApp dulu.'),link:LINK_PESAN};
   if(has(t,['pesan','order','booking','book','pemesanan','daftar','cara']))
     return{text:'Cara pesan:\n1. Buka halaman Pesan\n2. Pilih layanan (Electrical / Editor / Mechanical)\n3. Isi data dan detail kebutuhan\n4. Kirim. Nomor order lanjut otomatis, lalu pesan terisi otomatis di WhatsApp.\n(Form pesan dibuka jam 08.00-21.00 WITA.)\n\nBisa juga langsung lewat WhatsApp '+CS.waTampil+'.',link:LINK_PESAN};
   if(svc)return R[svc];
@@ -340,12 +340,27 @@ const TESTIMONI=[];
 <script>
 (function(){
   const el=document.getElementById('kantorStatus');
-  const T={istirahat:'Ewaldus sedang istirahat.',editor:'Ewaldus sedang bekerja di Meja Editor.',listrik:'Ewaldus sedang bekerja di Servis Kelistrikan.',mekanik:'Ewaldus sedang bekerja di Ruang Mekanik.',meja:'Ewaldus sedang sibuk di mejanya.',order:'Ewaldus sedang memproses antrian order.',telepon:'Ewaldus sedang menelepon pelanggan.',santai:'Ewaldus sedang santai di kantor.',libur:'Kantor sedang libur.'};
+  const T={istirahat:'Owner sedang istirahat.',editor:'Owner sedang bekerja di Meja Editor.',listrik:'Owner sedang bekerja di Servis Kelistrikan.',mekanik:'Owner sedang bekerja di Ruang Mekanik.',meja:'Owner sedang di meja sendiri.',order:'Owner sedang mengecek laporan dan order.',telepon:'Owner sedang menerima telepon.',santai:'Owner sedang santai.',survei:'Owner sedang survei ke lokasi pelanggan',luar:'Owner sedang di luar kantor',antar:'Owner sedang mengantar barang ke pelanggan'};
   fetch('https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec?aksi=kantor').then(r=>r.json()).then(j=>{
     if(!j||!j.ok)return;
-    window.kantorLibur=(j.status==='libur');if(typeof updateEraClock==='function')updateEraClock();
-    let t=T[j.status];if(j.status==='libur'&&j.alasan)t='Kantor sedang libur: '+j.alasan+'.';if(j.status==='keluar')t='Ewaldus sedang keluar'+(j.catatan?' ('+j.catatan+')':'')+'.';
-    if(!t){const h=parseInt(new Date().toLocaleString('en-US',{timeZone:'Asia/Makassar',hour:'numeric',hour12:false}),10)%24;t=(h>=8&&h<21)?'Kantor buka. Ewaldus sedang berkeliling di kantor.':'Kantor sedang tutup. Buka kembali pukul 08.00 WITA.';}
+    const baru=!!j.kantor; // server baru: Status Kantor dan Status Owner terpisah
+    window.kantorLibur=baru?j.kantor==='libur':(j.status==='libur');
+    window.kantorTutup=baru&&j.kantor==='tutup';
+    window.kantorPaksaBuka=baru&&j.kantorAtur==='buka';
+    if(typeof updateEraClock==='function')updateEraClock();
+    const h=parseInt(new Date().toLocaleString('en-US',{timeZone:'Asia/Makassar',hour:'numeric',hour12:false}),10)%24,dalamJam=(h>=8&&h<21);
+    let t;
+    if(baru){
+      if(j.kantor==='libur')t='Kantor sedang libur'+(j.alasan&&j.alasan!=='Libur'?': '+j.alasan:'')+'.';
+      else if(j.kantor==='tutup')t='Kantor tutup sementara.';
+      else if(j.kantorAtur==='otomatis'&&!dalamJam)t='Kantor sedang tutup. Buka kembali pukul 08.00 WITA.';
+      else{const o=j.ownerAtur;t=T[o];if(t&&['survei','luar','antar'].indexOf(o)>=0)t=t+(j.catatan?' ('+j.catatan+')':'')+'.';}
+    }else{
+      t=T[j.status];
+      if(j.status==='libur')t=j.alasan?'Kantor sedang libur: '+j.alasan+'.':'Kantor sedang libur.';
+      if(j.status==='keluar')t='Owner sedang keluar'+(j.catatan?' ('+j.catatan+')':'')+'.';
+    }
+    if(!t)t=(window.kantorPaksaBuka||dalamJam)?'Kantor buka. Owner sedang berkeliling di kantor.':'Kantor sedang tutup. Buka kembali pukul 08.00 WITA.';
     el.textContent=t;
   }).catch(()=>{});
 })();

@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Tampilan putih serasi dengan beranda. Tidak memakai Tailwind. */
-:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#b4e4ff;--blob2:#d9d7ff;--blob3:#c2f1e2;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
@@ -191,11 +191,11 @@ const INFO={
   mechanical:'⚙️ Pemeriksaan dulu sebelum penawaran harga. Suku cadang, material, dan transportasi dihitung terpisah. Area layanan Ende & Wolotopo.'
 };
 let sedangKirim=false;
-let kantorLibur=false; // diisi dari Status Kantor di admin
+let kantorLibur=false,kantorTutup=false,kantorPaksa=false; // diisi dari Status Kantor di admin
 
 function getWITA(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;return new Date(u+8*3600000);}
 const p2=n=>String(n).padStart(2,'0');
-const sedangBuka=w=>!kantorLibur&&w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP;
+const sedangBuka=w=>(kantorLibur||kantorTutup)?false:(kantorPaksa||(w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP));
 
 function cekJamBuka(){
   const w=getWITA();const jamStr=p2(w.getHours())+':'+p2(w.getMinutes());
@@ -207,20 +207,21 @@ function cekJamBuka(){
     box.classList.add('hidden');
     if(!sedangKirim){btn.disabled=false;btn.className='tb satu';btn.textContent='Pesan Sekarang → WA';}
   }else{
-    badge.textContent=(kantorLibur?'LIBUR':'TUTUP')+' • '+jamStr+' WITA';
-    document.getElementById('libur-info').classList.toggle('hidden',!kantorLibur);
-    document.getElementById('tutup-ket').classList.toggle('hidden',kantorLibur);
-    document.getElementById('tutup-cd').classList.toggle('hidden',kantorLibur);
+    badge.textContent=(kantorLibur?'LIBUR':(kantorTutup?'TUTUP SEMENTARA':'TUTUP'))+' • '+jamStr+' WITA';
+    document.getElementById('libur-info').innerHTML=kantorLibur?'Kantor sedang <b>LIBUR</b>.<br>Silakan pesan lagi setelah kantor buka kembali, atau chat WhatsApp dulu ya kak.':'Form pesan <b>ditutup sementara</b>.<br>Silakan pesan lagi nanti, atau chat WhatsApp dulu ya kak.';
+    document.getElementById('libur-info').classList.toggle('hidden',!(kantorLibur||kantorTutup));
+    document.getElementById('tutup-ket').classList.toggle('hidden',kantorLibur||kantorTutup);
+    document.getElementById('tutup-cd').classList.toggle('hidden',kantorLibur||kantorTutup);
     badge.className='lencana tutup';
     box.classList.remove('hidden');
-    btn.disabled=true;btn.className='tb mati';btn.textContent=kantorLibur?'🔒 Kantor Libur':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA';
+    btn.disabled=true;btn.className='tb mati';btn.textContent=kantorLibur?'🔒 Kantor Libur':(kantorTutup?'🔒 Tutup Sementara':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA');
     const b=new Date(w);if(w.getHours()>=JAM_TUTUP)b.setDate(b.getDate()+1);b.setHours(JAM_BUKA,0,0,0);
     const s=b-w;document.getElementById('countdown-buka').textContent='Buka lagi dalam '+Math.floor(s/3600000)+' jam '+Math.floor((s%3600000)/60000)+' menit';
   }
 }
 setInterval(cekJamBuka,1000);cekJamBuka();
 // Status Kantor dari admin: kalau Libur, form ikut ditutup (dicek ulang tiap 60 detik)
-function muatStatusKantor(){fetch(SHEET_URL+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorLibur=(j.status==='libur');cekJamBuka();}}).catch(()=>{});}
+function muatStatusKantor(){fetch(SHEET_URL+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorLibur=j.kantor?j.kantor==='libur':(j.status==='libur');kantorTutup=j.kantor==='tutup';kantorPaksa=j.kantorAtur==='buka';cekJamBuka();}}).catch(()=>{});}
 muatStatusKantor();setInterval(muatStatusKantor,60000);
 
 function ubahLayanan(){
@@ -239,7 +240,7 @@ function kirimWA(){
   if(sedangKirim)return;
   tampilError('');
   const w=getWITA();
-  if(!sedangBuka(w)){tampilError(kantorLibur?'Kantor sedang libur. Silakan pesan lagi setelah kantor buka kembali ya kak.':'Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
+  if(!sedangBuka(w)){tampilError(kantorLibur?'Kantor sedang libur. Silakan pesan lagi setelah kantor buka kembali ya kak.':kantorTutup?'Form pesan ditutup sementara. Silakan pesan lagi nanti ya kak.':'Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
   const nama=document.getElementById('nama').value.trim();
   const layanan=document.getElementById('layanan').value;
   const cabang=document.getElementById('cabang').value;

@@ -21,12 +21,25 @@
 <div class="max-w-6xl mx-auto p-4">
 <div class="flex gap-2 mb-4 overflow-x-auto"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button><button id="tKal" onclick="showTab('kalender')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Kalender</button></div>
 <div id="viewOrder">
-<details id="kantorAdm" class="bg-white rounded-2xl border border-blue-100 p-4 mb-4">
+<div id="kantorAdm" class="grid md:grid-cols-2 gap-4 mb-4">
+<details class="bg-white rounded-2xl border border-blue-100 p-4">
 <summary class="font-bold text-[13px] cursor-pointer">🏢 Status Kantor: <span id="kStatusTeks" class="text-[#0a7bf2]">...</span></summary>
 <div id="kantorTombol" class="grid grid-cols-2 gap-2 mt-3"></div>
 <p id="kOto" class="hidden text-[11px] text-red-600 font-semibold mt-3 leading-5"></p>
-<p class="text-[11px] text-gray-400 mt-3 leading-5">Otomatis: Ewaldus berjalan sendiri sesuai jam buka. Status lain berlaku sampai kamu mengubahnya lagi. Libur menampilkan meja bertuliskan LIBUR dan Ewaldus tidak ada.</p>
+<p id="kKet" class="text-[12px] font-semibold mt-3 leading-5"></p>
+<p class="text-[11px] text-gray-400 mt-2 leading-5">Mengatur situs: lencana BUKA/TUTUP/LIBUR, form pesan, dan jawaban chat. Libur dari Kalender hanya berlaku saat Otomatis.</p>
 </details>
+<details class="bg-white rounded-2xl border border-blue-100 p-4">
+<summary class="font-bold text-[13px] cursor-pointer">👤 Status Owner: <span id="oStatusTeks" class="text-[#0a7bf2]">...</span></summary>
+<div id="ownerTombol"></div>
+<div id="ownerKeluar" class="hidden mt-3 p-3 rounded-xl bg-[#f6faff] border">
+<input id="oCatatan" maxlength="60" placeholder="Catatan (misalnya: rumah Pak Budi)" class="w-full bg-white border p-3 rounded-xl text-sm">
+<select id="oMenit" class="w-full mt-2 bg-white border p-3 rounded-xl text-sm"><option value="0">Perkiraan kembali: belum ditentukan</option><option value="30">30 menit lagi</option><option value="60">1 jam lagi</option><option value="120">2 jam lagi</option><option value="180">3 jam lagi</option></select>
+<button onclick="simpanKeluar()" class="w-full mt-2 bg-[#0a7bf2] text-white rounded-xl p-3 text-[12px] font-bold">Simpan catatan</button>
+</div>
+<p class="text-[11px] text-gray-400 mt-3 leading-5">Hanya mengatur halaman Kantor (denah). Tidak membuka atau menutup situs. Saat kantor tutup atau libur, halaman Kantor menampilkan "tidak di kantor".</p>
+</details>
+</div>
 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
 <div class="bg-white p-4 rounded-2xl border"><p class="text-[11px] text-gray-400 font-bold">Total order</p><p id="total" class="text-2xl font-bold">0</p></div>
 <div class="bg-yellow-50 p-4 rounded-2xl border"><p class="text-[11px] text-yellow-700 font-bold">Menunggu</p><p id="menunggu" class="text-2xl font-bold text-yellow-600">0</p></div>
@@ -350,19 +363,45 @@ function renderRingkas(){
   const arr=Object.values(lay).sort((a,b)=>b.n-a.n),maxN=Math.max(1,...arr.map(l=>l.n));
   $('rkLayanan').innerHTML=arr.length?arr.map(l=>'<div><div class="flex justify-between gap-2 text-[13px]"><b>'+esc(l.nama)+'</b><span class="text-gray-500">'+l.n+' order · '+rp(l.om)+'</span></div><div class="h-2.5 bg-blue-50 rounded-full mt-1.5"><div class="h-2.5 rounded-full bg-[#0a7bf2]" style="width:'+Math.round(l.n/maxN*100)+'%"></div></div></div>').join(''):'<p class="text-sm text-gray-400">Belum ada data.</p>';
 }
-/* ===== Status Kantor (tampil di kantor.html) ===== */
-const KANTOR_LABEL={otomatis:'Otomatis',istirahat:'Istirahat',editor:'Meja Editor',listrik:'Servis Listrik',mekanik:'Ruang Mekanik',meja:'Sibuk di Meja Sendiri',santai:'Santai',libur:'Libur'};
-let kantorNow='otomatis',kantorAlasan='';
+/* ===== Status Kantor dan Status Owner (dipisah) ===== */
+const KANTOR_LABEL={otomatis:'Otomatis',buka:'Buka (paksa)',tutup:'Tutup sementara',libur:'Libur'};
+const KANTOR_KET={otomatis:'Mengikuti jam 08.00 - 21.00 WITA dan kalender libur.',buka:'Selalu buka, termasuk di luar jam dan di tanggal merah.',tutup:'Form pesan ditutup sementara, tidak mengikuti jam.',libur:'Libur penuh, form pesan ditutup.'};
+const OWNER_LABEL={otomatis:'Otomatis',editor:'Meja Editor',listrik:'Servis Kelistrikan',mekanik:'Ruang Mekanik',order:'Laporan & Order',telepon:'Menerima telepon',meja:'Meja sendiri',istirahat:'Istirahat',santai:'Santai',survei:'Survei',luar:'Sedang di luar',antar:'Antar barang'};
+const OWNER_GRUP=[['',['otomatis']],['Di dalam kantor',['editor','listrik','mekanik','order','telepon','meja']],['Istirahat',['istirahat','santai']],['Di luar kantor',['survei','luar','antar']]];
+const OWNER_KELUAR=['survei','luar','antar'];
+let kantorNow='otomatis',kantorAlasan='',ownerNow='otomatis',ownerCatatan='';
+const lamaKeOwner=s=>s==='keluar'?'luar':(OWNER_LABEL[s]?s:'otomatis');
+const btnPilih=(aktif,label,klik)=>'<button onclick="'+klik+'" class="'+(aktif?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white text-[#0a192f]')+' border rounded-xl p-2.5 text-[12px] font-bold">'+label+'</button>';
 function renderKantorAdm(){
   $('kStatusTeks').textContent=(KANTOR_LABEL[kantorNow]||kantorNow)+(kantorAlasan?' (libur hari ini)':'');
-  const ko=$('kOto');ko.textContent=kantorAlasan?'🗓️ Hari ini libur otomatis: '+kantorAlasan+'. Pilih status lain di atas kalau kantor tetap buka.':'';ko.classList.toggle('hidden',!kantorAlasan);
-  $('kantorTombol').innerHTML=Object.keys(KANTOR_LABEL).map(k=>'<button onclick="setKantor(\''+k+'\')" class="'+(k===kantorNow?'bg-[#0a7bf2] text-white border-[#0a7bf2]':'bg-white text-[#0a192f]')+' border rounded-xl p-2.5 text-[12px] font-bold">'+KANTOR_LABEL[k]+'</button>').join('');
+  $('kantorTombol').innerHTML=Object.keys(KANTOR_LABEL).map(k=>btnPilih(k===kantorNow,KANTOR_LABEL[k],"setModeKantor('"+k+"')")).join('');
+  $('kKet').textContent=KANTOR_KET[kantorNow]||'';
+  const ko=$('kOto');ko.textContent=kantorAlasan?'🗓️ Hari ini libur otomatis: '+kantorAlasan+'. Pilih Buka (paksa) kalau kantor tetap buka.':'';ko.classList.toggle('hidden',!kantorAlasan);
+  $('oStatusTeks').textContent=OWNER_LABEL[ownerNow]||ownerNow;
+  $('ownerTombol').innerHTML=OWNER_GRUP.map(g=>(g[0]?'<p class="text-[11px] font-bold text-gray-400 mt-3 mb-2">'+g[0]+'</p>':'')+'<div class="grid grid-cols-2 gap-2'+(g[0]?'':' mt-3')+'">'+g[1].map(k=>btnPilih(k===ownerNow,OWNER_LABEL[k],"setOwner('"+k+"')")).join('')+'</div>').join('');
+  const kel=OWNER_KELUAR.includes(ownerNow);$('ownerKeluar').classList.toggle('hidden',!kel);
+  if(kel&&document.activeElement!==$('oCatatan'))$('oCatatan').value=ownerCatatan;
 }
-function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorNow=j.statusAtur||j.status;kantorAlasan=(kantorNow==='otomatis'&&j.status==='libur')?(j.alasan||'Libur'):'';renderKantorAdm();}}).catch(()=>{});}
-async function setKantor(st){
-  const lama=kantorNow;kantorNow=st;renderKantorAdm();
-  const j=await kirim({action:'setKantor',status:st});
+function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){
+  kantorNow=j.kantorAtur||(j.statusAtur==='libur'?'libur':'otomatis');
+  ownerNow=j.ownerAtur||lamaKeOwner(j.statusAtur);
+  ownerCatatan=typeof j.catatan==='string'?j.catatan:'';
+  kantorAlasan=(kantorNow==='otomatis'&&(j.kantor?j.kantor==='libur':j.status==='libur'))?(j.alasan||'Libur'):'';
+  renderKantorAdm();}}).catch(()=>{});}
+async function setModeKantor(m){
+  const lama=kantorNow;kantorNow=m;kantorAlasan='';renderKantorAdm();
+  const j=await kirim({action:'setStatusKantor',mode:m});
   if(j.ok!==true){kantorNow=lama;renderKantorAdm();alert('Gagal mengubah status kantor: '+(j.error||'tidak bisa terhubung'));}
+  else muatKantor();
+}
+async function setOwner(st,catatan,menit){
+  const lama=ownerNow;ownerNow=st;if(!OWNER_KELUAR.includes(st))ownerCatatan='';renderKantorAdm();
+  const j=await kirim({action:'setStatusOwner',status:st,catatan:catatan||'',menit:menit||0});
+  if(j.ok!==true){ownerNow=lama;renderKantorAdm();alert('Gagal mengubah status owner: '+(j.error||'tidak bisa terhubung'));}
+}
+async function simpanKeluar(){
+  const c=$('oCatatan').value.trim(),m=Number($('oMenit').value)||0;
+  ownerCatatan=c;await setOwner(ownerNow,c,m);alert('Tersimpan.');
 }
 renderKantorAdm();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').catch(()=>{});
@@ -413,7 +452,7 @@ function renderKal(){
   $('kalJudul').textContent=BLN[m0]+' '+y0;
   const b=$('kalBanner');
   b.className='rounded-2xl border p-4 mb-4 text-[13px] font-semibold '+(inf.libur?'bg-red-50 border-red-200 text-red-700':'bg-green-50 border-green-200 text-green-700');
-  b.textContent=inf.libur?'🗓️ Hari ini libur: '+inf.alasan+'. '+(kantorNow==='otomatis'?'Kantor tampil LIBUR di situs.':'Status kantor kamu atur manual ('+(KANTOR_LABEL[kantorNow]||kantorNow)+'), jadi tidak ikut libur otomatis.'):'✅ Hari ini hari kerja biasa.';
+  b.textContent=inf.libur?'🗓️ Hari ini libur: '+inf.alasan+'. '+(kantorNow==='otomatis'?'Kantor tampil LIBUR di situs.':'Status kantor kamu atur '+(KANTOR_LABEL[kantorNow]||kantorNow)+', jadi tidak ikut libur otomatis.'):'✅ Hari ini hari kerja biasa.';
   const cnt={};all.forEach(x=>{const d=new Date(x.tgl);if(!isNaN(d)){const k=ymdOf(d);cnt[k]=(cnt[k]||0)+1;}});
   const awal=new Date(y0,m0,1).getDay(),jml=new Date(y0,m0+1,0).getDate();
   let h='';for(let i=0;i<awal;i++)h+='<span></span>';
