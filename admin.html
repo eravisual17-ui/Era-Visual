@@ -17,7 +17,7 @@
 <div id="app" class="hidden">
 <div class="bg-white border-b sticky top-0 z-10"><div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
 <div><p class="font-bold text-sm">Era Visual Admin</p><p id="info" class="text-[11px] text-gray-400"></p></div>
-<div class="flex items-center gap-2"><button id="btnInstall" onclick="installAdmin()" class="hidden bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">📲 Install Aplikasi</button><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div></div>
+<div class="flex items-center gap-2"><button id="btnInstall" onclick="installAdmin()" class="bg-[#0a7bf2] text-white px-4 py-2 rounded-full text-[11px] font-bold">📲 Install Aplikasi</button><button onclick="loadData()" class="bg-[#eef6ff] text-[#0a7bf2] px-4 py-2 rounded-full text-[11px] font-bold">Muat ulang</button></div></div></div>
 <div class="max-w-6xl mx-auto p-4">
 <div class="flex gap-2 mb-4 overflow-x-auto"><button id="tOrder" onclick="showTab('order')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-[#0a7bf2] text-white border-[#0a7bf2]">Order</button><button id="tBerita" onclick="showTab('berita')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Berita</button><button id="tRingkas" onclick="showTab('ringkas')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Ringkasan</button><button id="tKal" onclick="showTab('kalender')" class="px-5 py-2 rounded-full text-[12px] font-bold border bg-white">Kalender</button></div>
 <div id="viewOrder">
@@ -38,6 +38,15 @@
 <button onclick="simpanKeluar()" class="w-full mt-2 bg-[#0a7bf2] text-white rounded-xl p-3 text-[12px] font-bold">Simpan catatan</button>
 </div>
 <p class="text-[11px] text-gray-400 mt-3 leading-5">Hanya mengatur halaman Kantor (denah). Tidak membuka atau menutup situs. Saat kantor tutup atau libur, halaman Kantor menampilkan "tidak di kantor".</p>
+</details>
+<details class="md:col-span-2 bg-white rounded-2xl border border-blue-100 p-4">
+<summary class="font-bold text-[13px] cursor-pointer">🕘 Jam Buka: <span id="jamTeks" class="text-[#0a7bf2]">08.00 - 21.00 WITA</span></summary>
+<div class="grid grid-cols-2 gap-3 mt-3">
+<label class="text-[11px] font-bold text-gray-400">Buka<input id="jamBuka" type="time" class="w-full bg-[#f6faff] border p-3 rounded-xl text-sm mt-1 text-[#0a192f]"></label>
+<label class="text-[11px] font-bold text-gray-400">Tutup<input id="jamTutup" type="time" class="w-full bg-[#f6faff] border p-3 rounded-xl text-sm mt-1 text-[#0a192f]"></label>
+</div>
+<button onclick="simpanJam()" class="w-full mt-3 bg-[#0a7bf2] text-white rounded-xl p-3 text-[12px] font-bold">Simpan jam buka</button>
+<p class="text-[11px] text-gray-400 mt-3 leading-5">Berlaku untuk semua hari (WITA). Dipakai di beranda, form pesan, halaman Kantor, dan jawaban chat. Server juga menolak pesanan di luar jam ini. Hari libur diatur di menu Kalender.</p>
 </details>
 </div>
 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
@@ -66,6 +75,7 @@
 <button onclick="kalGeser(1)" aria-label="Bulan berikutnya" class="w-10 h-10 rounded-full border bg-[#f6faff] font-bold text-lg">›</button>
 </div>
 <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold mb-1"><span class="text-red-500">Min</span><span class="text-gray-400">Sen</span><span class="text-gray-400">Sel</span><span class="text-gray-400">Rab</span><span class="text-gray-400">Kam</span><span class="text-gray-400">Jum</span><span class="text-gray-400">Sab</span></div>
+<p id="kalPeringatan" class="hidden text-[11px] text-orange-600 font-semibold mb-3 leading-5"></p>
 <div id="kalGrid" class="grid grid-cols-7 gap-1"></div>
 <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-[10px] text-gray-500"><span><b class="text-red-500">■</b> Libur nasional</span><span><b class="text-orange-500">■</b> Cuti bersama</span><span><b class="text-purple-600">■</b> Libur khusus</span><span><b class="text-green-600">■</b> Tetap buka</span><span><b class="text-[#0a7bf2]">○</b> Hari ini</span></div>
 </div>
@@ -77,7 +87,7 @@
 <label class="flex items-center gap-3 text-[13px] py-2"><input id="kNas" type="checkbox" onchange="kalSimpanSet()" class="w-5 h-5"> Libur nasional (tanggal merah)</label>
 <label class="flex items-center gap-3 text-[13px] py-2"><input id="kCuti" type="checkbox" onchange="kalSimpanSet()" class="w-5 h-5"> Cuti bersama</label>
 <p class="text-[12px] font-bold mt-3 mb-2">Libur mingguan</p><div id="kMing" class="flex flex-wrap gap-2"></div>
-<p class="text-[11px] text-gray-400 mt-3 leading-5">Tanggal merah diambil dari kalender Google "Hari libur di Indonesia" dan daftar SKB 3 Menteri. Ketuk tanggal pada kalender untuk menandai libur khusus atau tetap buka.</p>
+<p class="text-[11px] text-gray-400 mt-3 leading-5">Tanggal merah diambil dari daftar resmi SKB 3 Menteri (tahun 2026 dan 2027). Ketuk tanggal pada kalender untuk menandai libur khusus atau tetap buka.</p>
 </div>
 </div>
 <div id="viewBerita" class="hidden"><div class="bg-white p-5 rounded-2xl border">
@@ -124,7 +134,7 @@ async function doLogin(){
   KUNCI=v;
   const j=await kirim({action:'cek'});
   b.disabled=false;b.textContent='Masuk';
-  if(j.ok===true){sessionStorage.setItem('ev_key',KUNCI);$('keyInput').value='';masuk();}
+  if(j.ok===true){sessionStorage.setItem('ev_key',KUNCI);if(j.perangkat)localStorage.setItem('ev_perangkat',j.perangkat);$('keyInput').value='';masuk();}
   else{KUNCI='';tampilLogin(j.error||'Tidak bisa terhubung ke server. Coba lagi.');}
 }
 function masuk(){$('login').style.display='none';$('app').classList.remove('hidden');loadData();muatKantor();}
@@ -224,7 +234,7 @@ function updB(){
   const f=$('bFoto').value.trim(),im=$('bPrev');
   if(/^https?:\/\//.test(f)){im.src=f;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}
 }
-const kirim=p=>fetch(API,{method:'POST',body:JSON.stringify({...p,key:KUNCI})}).then(r=>r.json()).then(j=>{if(j&&j.ok===false&&/kunci|percobaan/i.test(j.error||''))keluar(j.error);return j;}).catch(()=>({ok:null}));
+const kirim=p=>fetch(API,{method:'POST',body:JSON.stringify({...p,key:KUNCI,perangkat:(localStorage.getItem('ev_perangkat')||'')})}).then(r=>r.json()).then(j=>{if(j&&j.ok===false&&/kunci|percobaan/i.test(j.error||''))keluar(j.error);return j;}).catch(()=>({ok:null}));
 const done=r=>{if(r.ok===false)alert('Gagal menyimpan: '+(r.error||'tidak diketahui'));setTimeout(loadData,r.ok?200:3000)};
 async function simpanBerita(){
   const judul=$('bJudul').value.trim(),teks=$('bIsi').value.trim(),foto=$('bFoto').value.trim();
@@ -387,7 +397,17 @@ function muatKantor(){fetch(API+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&
   ownerNow=j.ownerAtur||lamaKeOwner(j.statusAtur);
   ownerCatatan=typeof j.catatan==='string'?j.catatan:'';
   kantorAlasan=(kantorNow==='otomatis'&&(j.kantor?j.kantor==='libur':j.status==='libur'))?(j.alasan||'Libur'):'';
+  if(j.jam){$('jamTeks').textContent=fmtJam(j.jam);if(document.activeElement!==$('jamBuka')&&document.activeElement!==$('jamTutup')){$('jamBuka').value=j.jam.buka;$('jamTutup').value=j.jam.tutup;}}
   renderKantorAdm();}}).catch(()=>{});}
+const fmtJam=j=>j.buka.replace(':','.')+' - '+j.tutup.replace(':','.')+' WITA';
+async function simpanJam(){
+  const b=$('jamBuka').value,t=$('jamTutup').value;
+  if(!b||!t)return alert('Isi jam buka dan jam tutup.');
+  if(b>=t)return alert('Jam tutup harus setelah jam buka.');
+  const j=await kirim({action:'setJam',buka:b,tutup:t});
+  if(j.ok===true){muatKantor();alert('Jam buka tersimpan: '+fmtJam({buka:b,tutup:t}));}
+  else alert('Gagal menyimpan: '+(j.error||'tidak bisa terhubung ke server'));
+}
 async function setModeKantor(m){
   const lama=kantorNow;kantorNow=m;kantorAlasan='';renderKantorAdm();
   const j=await kirim({action:'setStatusKantor',mode:m});
@@ -409,15 +429,26 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('admin-sw.js').
 let _pwaEvt=null;
 const _sudahInstall=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const _isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-function _tampilInstall(){const b=document.getElementById('btnInstall');if(b&&!_sudahInstall)b.classList.remove('hidden');}
-function _sembunyiInstall(){const b=document.getElementById('btnInstall');if(b)b.classList.add('hidden');}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_pwaEvt=e;_tampilInstall();});
-window.addEventListener('appinstalled',()=>{_pwaEvt=null;_sembunyiInstall();});
-if(_isIOS)_tampilInstall();
-async function installAdmin(){
-  if(_pwaEvt){_pwaEvt.prompt();try{await _pwaEvt.userChoice;}catch(e){}_pwaEvt=null;_sembunyiInstall();return;}
-  if(_isIOS){alert('Untuk install di iPhone/iPad:\n1. Ketuk tombol Bagikan (ikon kotak dengan panah ke atas) di Safari\n2. Pilih "Tambahkan ke Layar Utama"\n3. Ketuk "Tambah"');return;}
-  alert('Install belum tersedia di browser ini. Buka lewat Chrome lalu pilih menu ⋮ > "Install aplikasi" / "Tambahkan ke layar utama".');
+if(_sudahInstall){const b=document.getElementById('btnInstall');if(b)b.classList.add('hidden');}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_pwaEvt=e;});
+window.addEventListener('appinstalled',()=>{_pwaEvt=null;const b=document.getElementById('btnInstall');if(b)b.classList.add('hidden');});
+function _panduanInstall(){
+  if(document.getElementById('instPanduan'))return;
+  const langkah=_isIOS
+    ?'<li>Ketuk tombol <b>Bagikan</b> (kotak dengan panah ke atas) di Safari</li><li>Pilih <b>Tambahkan ke Layar Utama</b></li><li>Ketuk <b>Tambah</b></li>'
+    :'<li>Ketuk <b>menu browser</b> (titik tiga atau ikon menu Opera)</li><li>Pilih <b>Install aplikasi</b>, <b>Tambahkan ke layar utama</b>, atau di Opera: <b>Layar utama</b> / <b>Tambah ke</b> lalu <b>Layar utama</b></li><li>Ketuk <b>Tambah</b> atau <b>Install</b></li>';
+  const d=document.createElement('div');d.id='instPanduan';
+  d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(10,25,47,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+  d.innerHTML='<div style="background:#fff;max-width:340px;width:100%;border-radius:20px;padding:20px"><p style="font-weight:700;font-size:15px;margin:0 0 10px">📲 Install Aplikasi Admin</p><ol style="font-size:13px;line-height:1.7;padding-left:18px;margin:0 0 14px">'+langkah+'</ol><p style="font-size:11px;color:#6b7280;margin:0 0 14px">Kalau sudah terinstal, buka dari ikon di layar utama.</p><button id="instTutup" style="width:100%;background:#0a7bf2;color:#fff;font-weight:700;padding:10px;border-radius:12px;border:0">Mengerti</button></div>';
+  document.body.appendChild(d);
+  document.getElementById('instTutup').onclick=()=>d.remove();
+  d.onclick=e=>{if(e.target===d)d.remove();};
+}
+function installAdmin(){
+  if(!_pwaEvt){_panduanInstall();return;}
+  let selesai=false;const t=setTimeout(()=>{if(!selesai)_panduanInstall();},2500); // dialog tidak muncul = tampilkan panduan manual
+  try{_pwaEvt.prompt();_pwaEvt.userChoice.then(c=>{selesai=true;clearTimeout(t);_pwaEvt=null;if(c&&c.outcome==='accepted'){const b=document.getElementById('btnInstall');if(b)b.classList.add('hidden');}}).catch(()=>{selesai=true;clearTimeout(t);_panduanInstall();});}
+  catch(e){clearTimeout(t);_pwaEvt=null;_panduanInstall();}
 }
 /* ===== Kalender & libur otomatis ===== */
 const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -431,11 +462,12 @@ let kalBln=(()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth()
 function terapkanPaket(j){kalData[j.tahun]=j.hari||{};kalSet=j.set||kalSet;kalOvr=j.ovr||{};kalHariIni=j.hariIni||null;}
 async function ambilKal(t){const j=await kirim({action:'kalender',tahun:t});if(j&&j.ok===true){terapkanPaket(j);return true;}return false;}
 async function muatKal(){
-  $('kalBanner').textContent='Memuat kalender...';
   const t=kalBln.getFullYear();
-  if(!(await ambilKal(t))){$('kalBanner').innerHTML='<span class="text-red-600">Gagal memuat kalender. Pastikan Apps Script sudah diperbarui ke versi v10-kalender, lalu coba lagi.</span>';return;}
+  if(kalData[t]===undefined)$('kalBanner').textContent='Memuat kalender...';
+  const ok=await ambilKal(t);
+  if(!ok&&kalData[t]===undefined){$('kalBanner').innerHTML='<span class="text-red-600">Gagal memuat kalender. Pastikan Apps Script sudah diperbarui, lalu coba lagi.</span>';return;}
   renderKal();
-  if(!kalData[t+1])ambilKal(t+1).then(renderKal);
+  if(kalData[t+1]===undefined)ambilKal(t+1).then(()=>renderKal());
 }
 // Status satu tanggal (sama dengan perhitungan di server)
 function infoHari(y){
@@ -450,6 +482,8 @@ function infoHari(y){
 function renderKal(){
   const hi=hariIniWITA(),inf=infoHari(hi),y0=kalBln.getFullYear(),m0=kalBln.getMonth();
   $('kalJudul').textContent=BLN[m0]+' '+y0;
+  const sudahAda=kalData[y0]!==undefined,adaData=sudahAda&&Object.keys(kalData[y0]).length>0,kp=$('kalPeringatan');
+  kp.textContent=(sudahAda&&!adaData)?'⚠️ Daftar tanggal merah tahun '+y0+' belum tersedia, jadi libur nasional tahun ini belum terdeteksi otomatis. Tandai libur khusus secara manual, atau minta pembaruan daftar.':'';kp.classList.toggle('hidden',!(sudahAda&&!adaData));
   const b=$('kalBanner');
   b.className='rounded-2xl border p-4 mb-4 text-[13px] font-semibold '+(inf.libur?'bg-red-50 border-red-200 text-red-700':'bg-green-50 border-green-200 text-green-700');
   b.textContent=inf.libur?'🗓️ Hari ini libur: '+inf.alasan+'. '+(kantorNow==='otomatis'?'Kantor tampil LIBUR di situs.':'Status kantor kamu atur '+(KANTOR_LABEL[kantorNow]||kantorNow)+', jadi tidak ikut libur otomatis.'):'✅ Hari ini hari kerja biasa.';
@@ -485,7 +519,7 @@ function renderKal(){
   }else dt.classList.add('hidden');
   // libur mendatang (6 berikutnya)
   const akan=[],t0=tglDari(hi);
-  for(let i=0;i<400&&akan.length<6;i++){const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+i),y=ymdOf(d),f=infoHari(y);if(f.libur)akan.push({y,f,i});}
+  for(let i=0;i<400&&akan.length<6;i++){const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+i),y=ymdOf(d),f=infoHari(y);if(f.libur&&f.jenis!=='mingguan')akan.push({y,f,i});}
   $('kalAkan').innerHTML=akan.length?akan.map(x=>'<button onclick="kalLompat(\''+x.y+'\')" class="w-full flex justify-between gap-3 text-left bg-[#f6faff] border rounded-xl p-3 text-[12px]"><span><b>'+esc(x.f.alasan)+'</b><br><span class="text-gray-400">'+esc(tglPanjang(x.y))+'</span></span><span class="text-gray-400 whitespace-nowrap">'+(x.i===0?'hari ini':x.i+' hari lagi')+'</span></button>').join(''):'<p class="text-[12px] text-gray-400">Belum ada libur tercatat dalam waktu dekat.</p>';
   // pengaturan
   $('kNas').checked=!!kalSet.nasional;$('kCuti').checked=!!kalSet.cuti;

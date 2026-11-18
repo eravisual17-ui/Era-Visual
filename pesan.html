@@ -180,8 +180,9 @@ select.isian{appearance:none;-webkit-appearance:none;background:#fff url("data:i
 <script>
 const WA_ADMIN='6285348650816';
 // Jam buka form (WITA, format 24 jam). UBAH DUA ANGKA INI SAJA.
-const JAM_BUKA=8, JAM_TUTUP=21;
-const jj=n=>String(n).padStart(2,'0')+'.00';
+let MENIT_BUKA=480, MENIT_TUTUP=1260, SELISIH=0; // jam buka diatur di admin dan dibaca dari server; SELISIH = koreksi jam HP terhadap server
+const jj=m=>String(Math.floor(m/60)).padStart(2,'0')+'.'+String(m%60).padStart(2,'0');
+const keMenit=t=>{const q=String(t).split(':');return (+q[0])*60+(+q[1]);};
 // URL web app Apps Script (sama dengan admin.html)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
 const LABEL={electrical:'Electrical',editor:'Editor',mechanical:'Mechanical'};
@@ -193,16 +194,16 @@ const INFO={
 let sedangKirim=false;
 let kantorLibur=false,kantorTutup=false,kantorPaksa=false; // diisi dari Status Kantor di admin
 
-function getWITA(){const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;return new Date(u+8*3600000);}
+function getWITA(){const n=new Date(Date.now()+SELISIH);const u=n.getTime()+n.getTimezoneOffset()*60000;return new Date(u+8*3600000);}
 const p2=n=>String(n).padStart(2,'0');
-const sedangBuka=w=>(kantorLibur||kantorTutup)?false:(kantorPaksa||(w.getHours()>=JAM_BUKA&&w.getHours()<JAM_TUTUP));
+const sedangBuka=w=>{if(kantorLibur||kantorTutup)return false;const m=w.getHours()*60+w.getMinutes();return kantorPaksa||(m>=MENIT_BUKA&&m<MENIT_TUTUP);};
 
 function cekJamBuka(){
   const w=getWITA();const jamStr=p2(w.getHours())+':'+p2(w.getMinutes());
   const badge=document.getElementById('badge-buka'),box=document.getElementById('box-tutup'),btn=document.getElementById('btnPesan');
   document.getElementById('jam-sekarang').textContent=jamStr;
   if(sedangBuka(w)){
-    badge.textContent='BUKA '+jj(JAM_BUKA)+'-'+jj(JAM_TUTUP)+' • '+jamStr+' WITA';
+    badge.textContent='BUKA '+jj(MENIT_BUKA)+'-'+jj(MENIT_TUTUP)+' • '+jamStr+' WITA';
     badge.className='lencana ok';
     box.classList.add('hidden');
     if(!sedangKirim){btn.disabled=false;btn.className='tb satu';btn.textContent='Pesan Sekarang → WA';}
@@ -214,14 +215,14 @@ function cekJamBuka(){
     document.getElementById('tutup-cd').classList.toggle('hidden',kantorLibur||kantorTutup);
     badge.className='lencana tutup';
     box.classList.remove('hidden');
-    btn.disabled=true;btn.className='tb mati';btn.textContent=kantorLibur?'🔒 Kantor Libur':(kantorTutup?'🔒 Tutup Sementara':'🔒 Tutup - Buka Jam '+jj(JAM_BUKA)+' WITA');
-    const b=new Date(w);if(w.getHours()>=JAM_TUTUP)b.setDate(b.getDate()+1);b.setHours(JAM_BUKA,0,0,0);
+    btn.disabled=true;btn.className='tb mati';btn.textContent=kantorLibur?'🔒 Kantor Libur':(kantorTutup?'🔒 Tutup Sementara':'🔒 Tutup - Buka Jam '+jj(MENIT_BUKA)+' WITA');
+    const mnt=w.getHours()*60+w.getMinutes();const b=new Date(w);if(mnt>=MENIT_TUTUP)b.setDate(b.getDate()+1);b.setHours(Math.floor(MENIT_BUKA/60),MENIT_BUKA%60,0,0);
     const s=b-w;document.getElementById('countdown-buka').textContent='Buka lagi dalam '+Math.floor(s/3600000)+' jam '+Math.floor((s%3600000)/60000)+' menit';
   }
 }
 setInterval(cekJamBuka,1000);cekJamBuka();
 // Status Kantor dari admin: kalau Libur, form ikut ditutup (dicek ulang tiap 60 detik)
-function muatStatusKantor(){fetch(SHEET_URL+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorLibur=j.kantor?j.kantor==='libur':(j.status==='libur');kantorTutup=j.kantor==='tutup';kantorPaksa=j.kantorAtur==='buka';cekJamBuka();}}).catch(()=>{});}
+function muatStatusKantor(){fetch(SHEET_URL+'?aksi=kantor').then(r=>r.json()).then(j=>{if(j&&j.ok){kantorLibur=j.kantor?j.kantor==='libur':(j.status==='libur');kantorTutup=j.kantor==='tutup';kantorPaksa=j.kantorAtur==='buka';if(j.jam){MENIT_BUKA=keMenit(j.jam.buka);MENIT_TUTUP=keMenit(j.jam.tutup);}if(j.sekarang)SELISIH=j.sekarang-Date.now();isiJamTeks();cekJamBuka();}}).catch(()=>{});}
 muatStatusKantor();setInterval(muatStatusKantor,60000);
 
 function ubahLayanan(){
@@ -240,7 +241,7 @@ function kirimWA(){
   if(sedangKirim)return;
   tampilError('');
   const w=getWITA();
-  if(!sedangBuka(w)){tampilError(kantorLibur?'Kantor sedang libur. Silakan pesan lagi setelah kantor buka kembali ya kak.':kantorTutup?'Form pesan ditutup sementara. Silakan pesan lagi nanti ya kak.':'Form tutup. Silakan pesan lagi mulai jam '+jj(JAM_BUKA)+' WITA ya kak.');return;}
+  if(!sedangBuka(w)){tampilError(kantorLibur?'Kantor sedang libur. Silakan pesan lagi setelah kantor buka kembali ya kak.':kantorTutup?'Form pesan ditutup sementara. Silakan pesan lagi nanti ya kak.':'Form tutup. Silakan pesan lagi mulai jam '+jj(MENIT_BUKA)+' WITA ya kak.');return;}
   const nama=document.getElementById('nama').value.trim();
   const layanan=document.getElementById('layanan').value;
   const cabang=document.getElementById('cabang').value;
@@ -260,9 +261,10 @@ function kirimWA(){
   // buka tab WA sekarang (saat klik) supaya tidak diblokir browser, isinya diisi setelah nomor siap
   const win=window.open('','_blank');
 
-  ambilUrut(kodeTgl).then(async urut=>{
+  ambilUrut(kodeTgl).then(async u=>{
+    const urut=u.urut;
     // Nomor dari server: EV-ddmmyy-0001 dst (tidak pernah sama). Kalau server gagal: EV-ddmmyy-Xabcde (unik dari waktu)
-    const no='EV-'+kodeTgl+'-'+(urut?String(urut).padStart(4,'0'):'X'+Date.now().toString(36).slice(-5).toUpperCase());
+    const no='EV-'+kodeTgl+'-'+(urut?String(urut).padStart(4,'0')+(u.kode||''):'X'+Date.now().toString(36).slice(-5).toUpperCase());
     const teks='Halo Era Visual! BOOKING BARU\n\nNo Order: '+no+'\nNama: '+nama+'\nLayanan: '+LABEL[layanan]+'\nCabang: '+cabang+'\nTgl: '+tgl+'\nDetail: '+(detail||'-')+'\nWA: '+waLokal+'\n\nMohon diproses ya kak!';
     const urlWA='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent(teks);
     btn.textContent='Menyimpan pesanan...';
@@ -275,11 +277,11 @@ function kirimWA(){
 }
 
 function tampilHasil(h,no,urlWA){
-  const ok=h==='ok';
-  document.getElementById('judul-sukses').textContent=ok?'✅ Pesanan tercatat':'⚠️ Pesanan dikirim lewat WhatsApp';
+  const ok=h==='ok',tutup=h==='tutup';
+  document.getElementById('judul-sukses').textContent=ok?'✅ Pesanan tercatat':(tutup?'🔒 Kantor sedang tutup':'⚠️ Pesanan dikirim lewat WhatsApp');
   document.getElementById('ket-sukses').textContent=ok
     ?'Tinggal kirim pesan yang sudah terisi di WhatsApp, supaya admin langsung memproses. Simpan nomor order ini.'
-    :'Pesanan belum bisa dipastikan tercatat otomatis di sistem. Kirim pesan di WhatsApp dan simpan nomor order ini, admin akan mencatat manual bila perlu.';
+    :(tutup?'Pesanan belum tercatat karena kantor sedang tutup. Mohon jangan kirim pesan WhatsApp tadi. Silakan pesan lagi saat kantor buka.':'Pesanan belum bisa dipastikan tercatat otomatis di sistem. Kirim pesan di WhatsApp dan simpan nomor order ini, admin akan mencatat manual bila perlu.');
   document.getElementById('box-sukses').className='kotak '+(ok?'hijau':'oranye');
   document.getElementById('no-sukses').textContent=no;
   document.getElementById('link-wa-ulang').href=urlWA;
@@ -287,29 +289,30 @@ function tampilHasil(h,no,urlWA){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// Simpan ke Google Sheet dan baca hasilnya. 'ok' = tercatat, 'gagal' = ditolak server, 'tak-pasti' = hasil tidak terbaca.
+// Simpan ke Google Sheet dan baca hasilnya. 'ok' = tercatat, 'tutup' = ditolak karena kantor tutup, 'gagal' = ditolak server, 'tak-pasti' = hasil tidak terbaca.
 async function simpanKeSheet(data){
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
     const r=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify(data),signal:c.signal});clearTimeout(t);
     const tx=await r.text();
-    try{const j=JSON.parse(tx);return j&&j.ok===true?'ok':'gagal';}
+    try{const j=JSON.parse(tx);return j&&j.ok===true?'ok':(j&&j.tutup?'tutup':'gagal');}
     catch(_){return /error|gagal/i.test(tx)?'gagal':'ok';}
   }catch(e){return 'tak-pasti';}
 }
 
-// Nomor urut per hari dari Google Apps Script (berurutan, dikunci agar tidak kembar). 0 = gagal.
+// Nomor urut per hari + 2 karakter acak dari Google Apps Script (dikunci agar tidak kembar). urut 0 = gagal.
 async function ambilUrut(kodeTgl){
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
     const r=await fetch(SHEET_URL+'?aksi=nomor&t='+kodeTgl,{signal:c.signal});clearTimeout(t);
     const j=await r.json();
-    if(j&&Number.isInteger(j.urut)&&j.urut>0)return j.urut;
+    if(j&&Number.isInteger(j.urut)&&j.urut>0)return {urut:j.urut,kode:/^[A-Z0-9]{2}$/.test(j.kode||'')?j.kode:''};
   }catch(e){}
-  return 0;
+  return {urut:0,kode:''};
 }
 document.getElementById('year').textContent=new Date().getFullYear();
-document.querySelectorAll('.jam-teks').forEach(e=>e.textContent=jj(JAM_BUKA)+' - '+jj(JAM_TUTUP));
+function isiJamTeks(){document.querySelectorAll('.jam-teks').forEach(e=>e.textContent=jj(MENIT_BUKA)+' - '+jj(MENIT_TUTUP));}
+isiJamTeks();
 </script>
 </body>
 </html>

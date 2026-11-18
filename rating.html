@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Tampilan putih serasi dengan beranda. Tidak memakai Tailwind. */
-:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#b4e4ff;--blob2:#d9d7ff;--blob3:#c2f1e2;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
@@ -122,7 +122,7 @@ textarea.isian{border-radius:20px;resize:vertical;min-height:96px}
         <div id="stepCek">
           <p class="tip">Masukkan nomor order kakak untuk memberi rating.</p>
           <label for="no" class="sr-only">Nomor order</label>
-          <input id="no" class="isian kap" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001" style="margin-top:14px">
+          <input id="no" class="isian kap" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001K3" style="margin-top:14px">
           <p id="err" class="err hidden" role="alert"></p>
           <button id="btnCek" class="tb satu">Lanjut</button>
         </div>
@@ -181,7 +181,7 @@ async function cek(){
   if(sibuk)return;
   pesan('err','');
   const no=$('no').value.trim().toUpperCase();
-  if(!/^EV-\d{6}-[A-Z0-9]{4,6}$/.test(no)){pesan('err','Nomor order belum benar. Contoh: EV-031126-0001');return;}
+  if(!/^EV-\d{6}-[A-Z0-9]{4,6}$/.test(no)){pesan('err','Nomor order belum benar. Contoh: EV-031126-0001K3');return;}
   sibuk=true;const btn=$('btnCek');btn.disabled=true;btn.textContent='Memeriksa...';
   const j=await kirim({action:'ratingCek',no:no});
   sibuk=false;btn.disabled=false;btn.textContent='Lanjut';

@@ -170,7 +170,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offse
 
 (function(){
 const API='https://script.google.com/macros/s/AKfycbx_YIQAUUm7MsxMNWijk5Rg9rdfMvlAtMlPS_zzPjBpQrXJzXpxQPj3OEhdjMuxo3uG3A/exec';
-const BUKA=8,TUTUP=21; // jam buka (WITA), samakan dengan jam operasional
+let BUKA=480,TUTUP=1260,SELISIH=0; // jam buka (menit sejak 00.00 WITA) diatur di admin dan dibaca dari server; SELISIH = koreksi jam HP
 const W=660,H=880;     // ukuran dunia denah (satuan bebas)
 const MINZ=1,MAXZ=5;
 const cv=document.getElementById('kantorCanvas'),cx=cv.getContext('2d'),card=document.getElementById('kantorCard'),chipEl=document.getElementById('kantorChip'),lvlEl=document.getElementById('zLvl'),folBtn=document.getElementById('follow');
@@ -236,13 +236,14 @@ const ACT={
 const me={x:TG.S.sx,y:TG.S.sy,at:'S',to:'S',s:'work',t:3,path:[],task:'Merencanakan jadwal',k:'work'};
 const view={z:1,x:0,y:0},tgt={z:1,x:0,y:0};
 let S=1,cssK=1,ls=1,t0=0,last=0,antrian=null,sel=null,status='otomatis',paksa=null,jenisKeluar='luar',alasanLibur='',jam={h:12,m:0},follow=false,catatan='',kembaliMs=0,diaturMs=0,first=true,vis=true,run=false,lastMuat=0;
-const pad=n=>String(n).padStart(2,'0')+'.00';
+const pad=m=>String(Math.floor(m/60)).padStart(2,'0')+'.'+String(m%60).padStart(2,'0');
+const keMenit=t=>{const q=String(t).split(':');return (+q[0])*60+(+q[1]);};
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const redraw=()=>{if(reduce)draw();};
 
-function wita(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Makassar',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date());let h=0,m=0;p.forEach(x=>{if(x.type==='hour')h=+x.value%24;if(x.type==='minute')m=+x.value;});return {h,m};}
-const buka=()=>jam.h>=BUKA&&jam.h<TUTUP;
+function wita(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Makassar',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date(Date.now()+SELISIH));let h=0,m=0;p.forEach(x=>{if(x.type==='hour')h=+x.value%24;if(x.type==='minute')m=+x.value;});return {h,m};}
+const buka=()=>{const m=jam.h*60+jam.m;return m>=BUKA&&m<TUTUP;};
 const siang=()=>jam.h>=6&&jam.h<18;
 function mode(){
   if(status==='libur')return 'libur';
@@ -737,6 +738,8 @@ function muat(){
     }else{ // server lama
       st=STATUS[j.status]?j.status:'otomatis';paksa=null;alasanLibur=j.alasan||'';
     }
+    if(j.jam){BUKA=keMenit(j.jam.buka);TUTUP=keMenit(j.jam.tutup);}
+    if(j.sekarang){SELISIH=j.sekarang-Date.now();jam=wita();}
     const before=mode(),lama=status;
     catatan=typeof j.catatan==='string'?j.catatan.slice(0,60):'';kembaliMs=Number(j.kembali)||0;diaturMs=Number(j.diatur)||0;
     if(st!==status){status=st;me.t=0;}

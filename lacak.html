@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Tampilan putih serasi dengan beranda. Tidak memakai Tailwind. */
-:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#c3e1fa;--blob2:#d2e3fc;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
+:root{--lg:url(logo.jpg);--bg:#ffffff;--blob:#b4e4ff;--blob2:#d9d7ff;--blob3:#c2f1e2;--ink:#0a192f;--ink2:#3d5578;--sub:#58739a;--blue:#0a7bf2;--pastel:#dbe9fa;--garis:#b9d6f7;--ring:linear-gradient(145deg,#8fd0ff,#0a7bf2);
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
@@ -112,7 +112,7 @@ textarea.isian{border-radius:20px;resize:vertical;min-height:96px}
       </div>
       <main class="kartu">
         <label for="no" class="sr-only">Nomor order</label>
-        <input id="no" class="isian kap" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001">
+        <input id="no" class="isian kap" autocomplete="off" autocapitalize="characters" placeholder="Nomor order, contoh: EV-031126-0001K3">
         <p id="err" class="err hidden" role="alert"></p>
         <button id="btn" onclick="cek()" class="tb satu">Cek Status</button>
       </main>
@@ -169,7 +169,7 @@ function angka(v){return Number(String(v==null?'':v).replace(/\D/g,''))||0;}
 async function cek(){
   pesan('');$('hasil').classList.add('hidden');$('kosong').classList.remove('hidden');
   const no=$('no').value.trim().toUpperCase();
-  if(!/^EV-\d{6}-[A-Z0-9]{4,6}$/.test(no)){pesan('Nomor order belum benar. Contoh: EV-031126-0001');return;}
+  if(!/^EV-\d{6}-[A-Z0-9]{4,6}$/.test(no)){pesan('Nomor order belum benar. Contoh: EV-031126-0001K3');return;}
   const btn=$('btn');btn.disabled=true;btn.textContent='Mencari...';
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),12000);
